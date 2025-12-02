@@ -1,0 +1,103 @@
+.container {
+  width: 100%;
+  padding: 60px 40px;
+}
+
+.title {
+  font-size: 42px;
+  font-weight: 600;
+  margin-bottom: 40px;
+}
+
+/* Masonry Layout */
+.masonryGrid {
+  column-count: 3;
+  column-gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .masonryGrid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .masonryGrid {
+    column-count: 1;
+  }
+}
+
+.card {
+  position: relative;
+  margin-bottom: 18px;
+  break-inside: avoid;
+  cursor: zoom-in;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+/* Lazy load shimmer */
+.shimmerWrapper {
+  position: relative;
+  overflow: hidden;
+  background: #e3e3e3;
+}
+
+.shimmerWrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+.image {
+  width: 100%;
+  display: block;
+  border-radius: 14px;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+/* Clickable overlay to route to detail page */
+.linkOverlay {
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Lightbox */
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  cursor: zoom-out;
+}
+
+.lightboxImage {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 12px;
+}

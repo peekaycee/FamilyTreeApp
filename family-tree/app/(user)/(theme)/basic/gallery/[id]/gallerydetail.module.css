@@ -1,0 +1,30 @@
+.wrapper {
+  padding: 40px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.mainImage {
+  width: 100%;
+  border-radius: 16px;
+  margin-bottom: 30px;
+}
+
+.textSection {
+  font-size: 18px;
+}
+
+.date {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.7;
+}

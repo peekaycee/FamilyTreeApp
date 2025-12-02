@@ -1,0 +1,675 @@
+/* NAVBAR */
+.nav { 
+  width: 100%;
+  display:flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 2em 5em; 
+  background: var(--color-primary); 
+  color: white; 
+}
+.brand a { 
+  color: var(--color-white-text); 
+  font-weight: 700; 
+  text-decoration:none; 
+}
+.links a { 
+  margin-left: 1.5rem; 
+  color: var(--color-white-text); 
+  text-decoration:none; 
+  transition: all 0.3s ease;
+}
+.links a:hover{
+  color: var(--color-accent);
+}
+.mobileLogout,
+.logout { 
+  background: inherit; 
+  border: none; 
+  cursor: pointer; 
+  color: var(--color-white-text);
+}
+.mobileLogout:hover,
+.logout:hover{
+  background: inherit; 
+  letter-spacing: 0;
+  color: var(--color-accent);
+}
+.mobileLogout,
+.footerContent .navLinks button.logout {
+  width: fit-content;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+.mobileLogout:hover,
+.footerContent .navLinks button.logout:hover{
+  letter-spacing: 1px;
+  text-decoration: underline;
+}
+#navMobileLogout:hover {
+  text-decoration: none;
+  background-color: transparent;
+}
+/* FOOTER */
+.footer {
+  width: 100%;
+  height: auto;
+  background: var(--color-primary);
+  color: var(--color-white-text);
+  text-align: center;
+  padding: 1em 0 0;
+}
+.footer a{
+  color: var(--color-white-text);
+}
+.adminLink{
+  color: var(--color-white-text);
+}
+.footerContent {
+  width: 100%;
+  height: auto;
+  padding: 2em 5em 0;
+  margin-bottom: 1em;
+  gap: 5em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.footerPlanLogo,
+.footerLogo{
+  width: 12%;
+  height: 100%;
+}
+.footerPlanLogo{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.plans,
+.navLinks{
+  width: 12%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+.plans h3,
+.navLinks h3{
+  color: var(--color-accent);
+}
+.plans h3,
+.navLinks h3,
+.plans a,
+.navLinks a{
+  margin-bottom: 1em;
+  transition: all 0.3s ease;
+}
+.plans a:hover,
+.navLinks a:hover {
+  color: var(--color-accent);
+  letter-spacing: 1px;
+  text-decoration: underline;
+}
+.footerText{
+  width: 40%;
+  height: 100%;
+  text-align: justify;
+  line-height: 1.5em;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+.upgrade{
+  text-align: center;
+  line-height: 1rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 0.5em;
+}
+.newsLetter{
+  width: 400px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: red;
+  margin-top: 1em;
+  border-radius: 10px;
+}
+.newsLetter .subscribeEmail{
+  background: var(--color-bg);
+  font-size: 0.85rem;
+  border: none;
+  outline: none;
+  width: 80%;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+  padding: 0 0.65rem;
+}
+.newsLetter .subscribeSubmit{
+  background: var(--color-secondary);
+  color: var(--color-white-text);
+  font-size: 0.85rem;
+  border: none;
+  outline: none;
+  width: 20%;
+  height: 100%;
+  border-radius: 0 10px 10px 0;
+  transition: all .3s ease;
+  cursor: pointer;
+}
+.newsLetter .subscribeSubmit:hover{
+  background: var(--color-accent);
+}
+.copyright{
+  width: 100%;
+  height: 100%;
+  padding: 3em 0 1em;
+  color: var(--color-accent);
+}
+.socials{
+  display: flex;
+  gap: 1.2em;
+  padding: 1em 0;
+  margin-top: 0.8em;
+  align-items: center;
+  justify-content: flex-start;
+}
+.socials a{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease; 
+}
+.socials a:hover {
+  background: var(--color-accent);
+  transform: scale(1.05);
+}
+.socials a img{
+  width: 100%;
+  height: 100%;
+  object-fit: center;
+}
+.connect {
+  font-weight: 400;
+  font-size: 1rem;
+  margin-top: -1em;
+}
+
+/* ===============================
+   RESPONSIVENESS
+================================*/
+
+/* Desktop (≥ 901px) */
+@media screen and (min-width: 901px) {
+  .nav {
+    padding: 2em 5em;
+  }
+  .footerContent {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+/* Tablet (601px–900px) */
+@media screen and (min-width: 601px) and (max-width: 900px) {
+  .nav {
+    padding: 1.5em 3em;
+  }
+  .links a {
+    margin-left: 1rem;
+    font-size: 0.95rem;
+  }
+  .footerContent {
+    padding: 2em 3em;
+    gap: 2.5em;
+    justify-content: space-between;
+  }
+  .footerText {
+    width: 100%;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  .plans,
+  .navLinks,
+  .footerLogo,
+  .footerPlanLogo {
+    width: 40%;
+    align-items: center;
+    text-align: center;
+  }
+  .socials {
+    justify-content: center;
+  }
+  .newsLetter{
+  width: 400px;
+  margin: 1.5em auto 0;
+}
+}
+
+/* Mobile (≤ 600px) */
+@media screen and (max-width: 600px) {
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.2em 2em;
+  }
+  .links {
+    display: none;
+  }
+  .brand a {
+    font-size: 1.3rem;
+  }
+  .footerContent {
+    flex-direction: column;
+    padding: 2em;
+    gap: 2em;
+    text-align: center;
+    align-items: center;
+  }
+  .footerLogo,
+  .footerPlanLogo {
+    width: 40%;
+  }
+  .plans,
+  .navLinks {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+  .footerText {
+    width: 100%;
+    font-size: 1rem;
+    line-height: 1.4em;
+    text-align: center;
+  }
+  .socials {
+    justify-content: center;
+    gap: 1em;
+  }
+  .connect {
+    font-size: 0.9rem;
+  }
+  .copyright{
+    font-size: 0.8rem;
+  }
+  .newsLetter{
+  width: 300px;
+  margin: 2em auto 0;
+}
+}
+
+/* ===============================
+   HAMBURGER MENU STYLES
+================================*/
+.hamburger {
+  display: none;
+  cursor: pointer;
+  color: var(--color-white-text);
+  z-index: 1001;
+  transition: all 0.3s ease;
+}
+
+/* Mobile Menu (Hidden by default) */
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: 80px;
+  right: 2em;
+  background: var(--color-primary);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.2em 1.5em;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(-15px);
+  z-index: 1000;
+}
+
+.mobileMenu a,
+.mobileMenu button {
+  display: block;
+  color: var(--color-white-text);
+  text-decoration: none;
+  padding: 0.7em 0;
+  font-size: 1rem;
+  width: 100%;
+  text-align: left;
+  transition: all 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mobileMenu a:hover,
+.mobileMenu button:hover {
+  color: var(--color-accent);
+  letter-spacing: 0.5px;
+}
+
+/* Smooth open animation */
+.showMenu {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Show hamburger icon and adjust layout on small screens */
+@media screen and (max-width: 600px) {
+  .links {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .mobileMenu {
+    width: 80%;
+  }
+}
+/* ===============================
+   SLIDE-IN HAMBURGER DRAWER MENU
+================================*/
+.hamburger {
+  display: none;
+  cursor: pointer;
+  color: var(--color-white-text);
+  z-index: 1002;
+  transition: all 0.3s ease;
+}
+
+.mobileDrawer {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 70%;
+  height: 100vh;
+  background: var(--color-primary);
+  box-shadow: -6px 0 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 5em 2em;
+  gap: 1.5em;
+  transition: right 0.4s ease-in-out;
+  z-index: 1001;
+}
+
+.showDrawer {
+  right: 0;
+}
+
+.mobileDrawer a,
+.mobileDrawer button {
+  color: var(--color-white-text);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobileDrawer a:hover,
+.mobileDrawer button:hover {
+  color: var(--color-accent);
+  letter-spacing: 0.5px;
+}
+
+/* Smooth fade for background overlay */
+.mobileDrawer::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.showDrawer::before {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Only show hamburger on mobile */
+@media screen and (max-width: 600px) {
+  .links {
+    display: none;
+  }
+  .hamburger {
+    position: absolute;
+    right: 1.5em;
+    display: block;
+  }
+}
+
+
+/* Family Builder Css */
+.familyBuilderContainer {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.input,
+.inputFile {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 180px;
+}
+
+.btnPrimary,
+.btnSecondary,
+.btnExport {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btnPrimary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  background-color: #f0f0f0;
+}
+
+.btnExport {
+  background-color: #28a745;
+  color: #fff;
+  margin-top: 20px;
+}
+
+.previewWrapper {
+  margin: 10px auto;
+}
+
+.previewImage {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+}
+
+.treeContainer {
+  margin-top: 20px;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.treeWrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.virtualNode {
+  width: 100px;
+  height: 80px;
+  border-radius: 8px;
+  background: #ddd;
+}
+
+.emptyState {
+  color: #888;
+  padding: 20px;
+}
+
+.loading {
+  color: #007bff;
+}
+
+.exportWrapper {
+  margin-top: 20px;
+}
+
+/* ========== Node Card Styles ========== */
+.nodeCard {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff;
+  background: red;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nodeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.nodeAvatar {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+.nodeName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.nodeRole {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.nodeActions {
+  margin-top: 6px;
+}
+
+.btnSmall {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btnEdit {
+  background-color: #007bff;
+  color: #fff;
+  margin-right: 6px;
+}
+
+.btnEdit:hover {
+  background-color: #0066d1;
+}
+
+.btnDelete {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btnDelete:hover {
+  background-color: #b02a37;
+}
+
+.virtualDetails {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* FamilyCanvas */
+.stageContainer{
+ width: 100%; 
+ height: 100%; 
+ padding: 20px; 
+}
+.selectedNode{
+  padding: 20; 
+  background: #111; 
+  border: 1px solid #444; 
+  margin-top: 10px; 
+  width: 300px; 
+  border-radius: 8px; 
+  color: #fff;
+}
+.loading{
+  padding: 20px;
+}
+/* Card */
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  text-align: center;
+  max-width: 240px;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}

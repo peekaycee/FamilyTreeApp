@@ -1,0 +1,12 @@
+:root {
+  --color-bg: #fAf8f5;
+  --color-primary: #1b3a2e;
+  --color-secondary: #c9a646;
+  --color-accent: #e8c535;
+  --color-white-text: #f7f7f7;
+  --color-black-text: #333;
+  --color-blue-text: #333;
+  --font-primary: 'Playfair Display', serif;
+  --font-secondary: 'Inter', sans-serif;
+  --font-accent: 'Dancing Script', serif;
+}

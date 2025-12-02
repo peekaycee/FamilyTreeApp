@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import FamilyTree from 'react-family-tree';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import html2canvas from 'html2canvas';git status
+import html2canvas from 'html2canvas';
 import { supabase } from '../lib/supabaseClient';
 import styles from './FamilyBuilder.module.css';
 

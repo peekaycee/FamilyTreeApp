@@ -3,7 +3,6 @@ import { supabase } from '../../../../lib/supabaseClient';
 
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    // Next.js 16: params is now a Promise → must await it
     const { id } = await context.params;
 
     if (!id) {
@@ -34,9 +33,11 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    console.error('DELETE /members/:id error:', err.message);
+    const message = err instanceof Error ? err.message : 'Server error';
+    console.error('DELETE /members/:id error:', message);
+
     return NextResponse.json(
-      { error: err.message || 'Server error' },
+      { error: message },
       { status: 500 }
     );
   }

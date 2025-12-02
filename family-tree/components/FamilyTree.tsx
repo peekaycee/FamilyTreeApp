@@ -6,8 +6,25 @@ import { buildTree } from '../lib/buildTree';
 import MemberForm from './MemberForm';
 import { v4 as uuidv4 } from 'uuid';
 
+interface NodeData {
+  name: string;
+  role: string;
+  avatar_url?: string;
+}
+
+interface FamilyMember {
+  id: string;
+  name: string;
+  role: string;
+  father_id?: string;
+  mother_id?: string;
+  avatar_url?: string;
+  avatar_path?: string;
+  created_at: string;
+}
+
 export default function FamilyTree() {
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<FamilyMember[]>([]);
   const [treeData, setTreeData] = useState<any[]>([]);
   const [form, setForm] = useState({
     name: '',
@@ -29,7 +46,9 @@ export default function FamilyTree() {
   };
 
   useEffect(() => {
-    fetchMembers();
+    (async () => {
+      await fetchMembers();
+    })();
 
     const channel = supabase
       .channel('family-members-channel')
@@ -74,7 +93,7 @@ export default function FamilyTree() {
       },
     ]);
 
-    if (error) return console.error(error);
+    if (error) throw error;
 
     setForm({
       name: '',
@@ -93,15 +112,17 @@ export default function FamilyTree() {
       </text>
 
       {nodeData.avatar_url && (
-        <image
-          title="Image"
-          href={nodeData.avatar_url}
-          x={-20}
-          y={-60}
-          height={40}
-          width={40}
-          clipPath="circle(20px at 20px 20px)"
-        />
+        <g>
+          <title>{nodeData.name}'s avatar</title>
+          <image
+            href={nodeData.avatar_url}
+            x={-20}
+            y={-60}
+            height={40}
+            width={40}
+            clipPath="circle(20px at 20px 20px)"
+          />
+        </g>
       )}
     </g>
   );

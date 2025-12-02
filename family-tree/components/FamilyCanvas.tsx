@@ -4,9 +4,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import * as PIXI from 'pixi.js'
 import { v4 as uuidv4 } from 'uuid'
 import { supabase } from '../lib/supabaseClient'
+import { User } from '@supabase/supabase-js'
 import styles from './components.module.css'
 
-type MemberRow = {
+export type MemberRow = {
   id: string
   user_id?: string | null
   name: string
@@ -21,14 +22,16 @@ type MemberRow = {
   created_at?: string
 }
 
+type EditingState = { id: string }
+
 export default function FamilyCanvas() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const spritesRef = useRef<Record<string, PIXI.Container>>({})
   const [members, setMembers] = useState<MemberRow[]>([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-  const [editing, setEditing] = useState<{ id: string } | null>(null)
+  const [editing, setEditing] = useState<EditingState | null>(null)
   const [editName, setEditName] = useState('')
   const [editFile, setEditFile] = useState<File | null>(null)
   const [scale, setScale] = useState(1)
@@ -89,11 +92,10 @@ export default function FamilyCanvas() {
   }
 
   useEffect(() => {
-    // Wrap async call inside synchronous function
-    const load = () => {
-      fetchMembers()
+    const loadMembers = async () => {
+      await fetchMembers()
     }
-    load()
+    loadMembers()
 
     const ch = supabase
       .channel('family-members-channel')
@@ -104,7 +106,9 @@ export default function FamilyCanvas() {
       )
       .subscribe()
 
-    return () => supabase.removeChannel(ch)
+    return () => {
+      void supabase.removeChannel(ch)
+    }
   }, [])
 
   // -----------------------------
@@ -123,7 +127,7 @@ export default function FamilyCanvas() {
     })
 
     appRef.current = app
-    const view = (app.view ?? (app as any).canvas) as HTMLCanvasElement
+    const view = app.view as HTMLCanvasElement
     containerRef.current.appendChild(view)
     view.style.cursor = 'grab'
 
@@ -159,10 +163,7 @@ export default function FamilyCanvas() {
       const clamped = Math.max(0.25, Math.min(3, newScale))
       const rect = view.getBoundingClientRect()
       const pointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
-      const worldPos = {
-        x: (pointer.x - app.stage.x) / oldScale,
-        y: (pointer.y - app.stage.y) / oldScale,
-      }
+      const worldPos = { x: (pointer.x - app.stage.x) / oldScale, y: (pointer.y - app.stage.y) / oldScale }
       app.stage.scale.set(clamped)
       app.stage.x = pointer.x - worldPos.x * clamped
       app.stage.y = pointer.y - worldPos.y * clamped
@@ -198,8 +199,8 @@ export default function FamilyCanvas() {
       const c = new PIXI.Container()
       c.interactive = true
       c.cursor = 'grab'
-      c.x = typeof m.pos_x === 'number' ? m.pos_x : Math.random() * 800 + 100
-      c.y = typeof m.pos_y === 'number' ? m.pos_y : Math.random() * 200 + 100
+      c.x = m.pos_x ?? Math.random() * 800 + 100
+      c.y = m.pos_y ?? Math.random() * 200 + 100
       c.sortableChildren = true
 
       const g = new PIXI.Graphics()
@@ -209,7 +210,7 @@ export default function FamilyCanvas() {
       g.endFill()
       c.addChild(g)
 
-      const label = new PIXI.Text(m.name || 'Unnamed', { fontSize: 12, fill: 0xffffff, align: 'center' })
+      const label = new PIXI.Text(m.name ?? 'Unnamed', { fontSize: 12, fill: 0xffffff, align: 'center' })
       label.y = NODE_RADIUS + 8
       label.anchor.set(0.5, 0)
       c.addChild(label)
@@ -235,7 +236,7 @@ export default function FamilyCanvas() {
       let dragging = false
       let dragOffset = { x: 0, y: 0 }
 
-      c.on('pointerdown', (ev: PIXI.FederatedPointerEvent) => {
+      c.on('pointerdown', (ev) => {
         ev.stopPropagation()
         dragging = true
         c.cursor = 'grabbing'
@@ -254,20 +255,22 @@ export default function FamilyCanvas() {
         c.cursor = 'grab'
       })
 
-      c.on('pointermove', (ev: PIXI.FederatedPointerEvent) => {
+      c.on('pointermove', (ev) => {
         if (!dragging) return
         const p = ev.data.global
         c.x = p.x - dragOffset.x
         c.y = p.y - dragOffset.y
       })
 
-      c.on('pointertap', (ev: PIXI.FederatedPointerEvent) => {
+      c.on('pointertap', () => {
         const now = Date.now()
-        const last = (c as any).__lastClick || 0
-        ;(c as any).__lastClick = now
+        type ClickableContainer = PIXI.Container & { __lastClick?: number }
+        const clickableC = c as ClickableContainer
+        const last = clickableC.__lastClick ?? 0
+        clickableC.__lastClick = now
         if (now - last < 300) {
           setEditing({ id: m.id })
-          setEditName(m.name || '')
+          setEditName(m.name ?? '')
           setEditFile(null)
         }
       })
@@ -281,6 +284,7 @@ export default function FamilyCanvas() {
       app.stage.addChild(node)
     })
 
+    // DRAW LINES
     const layer = new PIXI.Container()
     members.forEach((child) => {
       const childNode = spritesRef.current[child.id]
@@ -334,12 +338,12 @@ export default function FamilyCanvas() {
   // SAVE EDIT
   // -----------------------------
   const handleSaveEdit = async () => {
-    if (!editing) return
+    if (!editing || !user) return
     try {
       let avatar_url: string | undefined
       let avatar_path: string | undefined
 
-      if (editFile && user) {
+      if (editFile) {
         const ext = editFile.name.split('.').pop() || 'png'
         const fileName = `${user.id}-${Date.now()}.${ext}`
         const filePath = `${user.id}/${fileName}`
@@ -347,13 +351,12 @@ export default function FamilyCanvas() {
         const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, editFile, { upsert: true })
         if (uploadError) throw uploadError
 
-        const { data, error } = supabase.storage.from('avatars').getPublicUrl(filePath)
-        if (error) throw error
+        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
         avatar_url = data?.publicUrl
         avatar_path = filePath
       }
 
-      const updateFields: any = { name: editName }
+      const updateFields: Partial<MemberRow> = { name: editName }
       if (avatar_url) updateFields.avatar_url = avatar_url
       if (avatar_path) updateFields.avatar_path = avatar_path
 
@@ -361,8 +364,8 @@ export default function FamilyCanvas() {
       setEditing(null)
       setEditFile(null)
       fetchMembers()
-    } catch (error: any) {
-      alert(error.message)
+    } catch (error: unknown) {
+      if (error instanceof Error) alert(error.message)
     }
   }
 
@@ -373,7 +376,7 @@ export default function FamilyCanvas() {
     const app = appRef.current
     if (!app) return
     try {
-      const dataUrl = app.renderer.extract.base64(app.stage)
+      const dataUrl = await app.renderer.extract.base64(app.stage)
       const a = document.createElement('a')
       a.href = dataUrl
       a.download = `family-tree-${Date.now()}.png`
@@ -393,62 +396,29 @@ export default function FamilyCanvas() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '70vh' }}>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+    <div className={styles.familyCanvasWrapper}>
+      <div className={styles.controls}>
         <button onClick={resetView}>Reset view</button>
         <button onClick={exportPNG}>Export PNG</button>
         <button onClick={() => addMember()}>Add Member</button>
-        <div style={{ marginLeft: 'auto' }}>{loading ? 'Loading…' : `Nodes: ${members.length}`}</div>
+        <div className={styles.nodeCount}>{loading ? 'Loading…' : `Nodes: ${members.length}`}</div>
       </div>
 
-      <div
-        ref={containerRef}
-        style={{
-          width: '100%',
-          height: 600,
-          borderRadius: 8,
-          overflow: 'hidden',
-          border: '1px solid #17243a',
-        }}
-      />
+      <div ref={containerRef} className={styles.canvasContainer} />
 
       {editing && (
-        <div
-          style={{
-            position: 'fixed',
-            left: '50%',
-            top: '10%',
-            transform: 'translateX(-50%)',
-            background: '#0b1220',
-            padding: 16,
-            borderRadius: 8,
-            zIndex: 9999,
-            color: '#fff',
-            minWidth: 320,
-          }}
-        >
-          <h3 style={{ marginTop: 0 }}>Edit member</h3>
-          <label style={{ display: 'block', marginBottom: 8 }}>
+        <div className={styles.editOverlay}>
+          <h3>Edit member</h3>
+          <label>
             Name
-            <input
-              style={{ width: '100%', marginTop: 6 }}
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
+            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} />
           </label>
-          <label style={{ display: 'block', marginBottom: 8 }}>
+          <label>
             Avatar
             <input type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files?.[0] ?? null)} />
           </label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button
-              onClick={() => {
-                setEditing(null)
-                setEditFile(null)
-              }}
-            >
-              Cancel
-            </button>
+          <div className={styles.editButtons}>
+            <button onClick={() => { setEditing(null); setEditFile(null) }}>Cancel</button>
             <button onClick={handleSaveEdit}>Save</button>
           </div>
         </div>

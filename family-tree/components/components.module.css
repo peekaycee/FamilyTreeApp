@@ -658,6 +658,63 @@
 .loading{
   padding: 20px;
 }
+.familyCanvasWrapper {
+  width: 100%;
+  min-height: 70vh;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.nodeCount {
+  margin-left: auto;
+}
+
+.canvasContainer {
+  width: 100%;
+  height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #17243a;
+}
+
+.editOverlay {
+  position: fixed;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+  background: #0b1220;
+  padding: 16px;
+  border-radius: 8px;
+  z-index: 9999;
+  color: #fff;
+  min-width: 320px;
+}
+
+.editOverlay h3 {
+  margin-top: 0;
+}
+
+.editOverlay label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.editOverlay input[type="text"] {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.editButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* Card */
 .card {
   background: white;

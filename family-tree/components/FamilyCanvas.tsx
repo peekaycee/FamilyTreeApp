@@ -89,8 +89,9 @@ export default function FamilyCanvas() {
   }
 
   useEffect(() => {
-    const load = async () => {
-      await fetchMembers()
+    // Wrap async call inside synchronous function
+    const load = () => {
+      fetchMembers()
     }
     load()
 
@@ -280,7 +281,6 @@ export default function FamilyCanvas() {
       app.stage.addChild(node)
     })
 
-    // DRAW LINES
     const layer = new PIXI.Container()
     members.forEach((child) => {
       const childNode = spritesRef.current[child.id]

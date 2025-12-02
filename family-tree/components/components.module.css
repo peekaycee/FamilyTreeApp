@@ -673,3 +673,224 @@
   border-radius: 8px;
   margin-bottom: 12px;
 }
+/*  Family tree Retry*/
+/* Responsive tweaks for FamilyBuilder */
+
+/* Adjust wrapper padding on smaller screens */
+@media (max-width: 1024px) {
+  .wrapper {
+    padding: 15px;
+  }
+}
+
+/* Form container stack on smaller screens */
+@media (max-width: 768px) {
+  .formContainer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input {
+    width: 100%;
+  }
+
+  .btnPrimary,
+  .exportBtn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Tree container smaller screens */
+@media (max-width: 1024px) {
+  .treeContainer {
+    height: 70vh;
+    padding: 15px;
+  }
+}
+
+/* Node cards responsive scaling */
+@media (max-width: 768px) {
+  .nodeBox {
+    width: 120px;
+    padding: 8px;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .name {
+    font-size: 13px;
+  }
+
+  .nodeBtns button {
+    padding: 3px 5px;
+    font-size: 11px;
+  }
+}
+
+/* Extra small screens (mobile phones) */
+/* FamilyBuilder.module.css */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.formContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 150px;
+}
+
+.btnPrimary {
+  background-color: #4f46e5;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnPrimary:hover {
+  background-color: #3730a3;
+}
+
+.exportBtn {
+  margin-bottom: 15px;
+  background-color: #10b981;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.exportBtn:hover {
+  background-color: #047857;
+}
+
+.treeContainer {
+  width: 100%;
+  height: 80vh;
+  overflow: auto;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #fff;
+  padding: 20px;
+  position: relative;
+}
+
+/* Node card */
+.nodeBox {
+  width: 140px;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+}
+
+.nodeBox:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 5px;
+  border: 2px solid #4f46e5;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.nodeBtns {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.editBtn {
+  background-color: #f59e0b;
+  border: none;
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.editBtn:hover {
+  background-color: #b45309;
+}
+
+.deleteBtn {
+  background-color: #ef4444;
+  border: none;
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.deleteBtn:hover {
+  background-color: #b91c1c;
+}
+
+@media (max-width: 480px) {
+  .treeContainer {
+    height: 60vh;
+    padding: 10px;
+  }
+
+  .nodeBox {
+    width: 100px;
+    padding: 6px;
+  }
+
+  .avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .name {
+    font-size: 12px;
+  }
+
+  .nodeBtns button {
+    padding: 2px 4px;
+    font-size: 10px;
+  }
+}

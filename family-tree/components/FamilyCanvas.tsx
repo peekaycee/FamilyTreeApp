@@ -34,9 +34,10 @@ export default function FamilyCanvas() {
   const [scale, setScale] = useState(1)
 
   const NODE_RADIUS = 36
-  const CHILD_SPACING = 140
-  const VERTICAL_GAP = 150
 
+  // -----------------------------
+  // AUTH SESSION
+  // -----------------------------
   useEffect(() => {
     const init = async () => {
       try {
@@ -67,6 +68,9 @@ export default function FamilyCanvas() {
     return () => listener?.subscription?.unsubscribe?.()
   }, [])
 
+  // -----------------------------
+  // FETCH MEMBERS
+  // -----------------------------
   const fetchMembers = async () => {
     setLoading(true)
     try {
@@ -85,18 +89,26 @@ export default function FamilyCanvas() {
   }
 
   useEffect(() => {
-    fetchMembers()
+    const load = async () => {
+      await fetchMembers()
+    }
+    load()
+
     const ch = supabase
       .channel('family-members-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_members' }, () => fetchMembers())
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'family_members' },
+        () => fetchMembers()
+      )
       .subscribe()
 
     return () => supabase.removeChannel(ch)
   }, [])
 
-  // ----------------------------------------------------
-  // CREATE PIXI APP (FIXED FOR PIXI v6 & v7)
-  // ----------------------------------------------------
+  // -----------------------------
+  // CREATE PIXI APP
+  // -----------------------------
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -110,26 +122,22 @@ export default function FamilyCanvas() {
     })
 
     appRef.current = app
-
-    // ⭐ UNIVERSAL VIEW FIX
-    const view = (app.view ?? (app as any).canvas)
+    const view = (app.view ?? (app as any).canvas) as HTMLCanvasElement
     containerRef.current.appendChild(view)
-
-    // ⭐ Cursor fix for Pixi v7
     view.style.cursor = 'grab'
 
     let isPanning = false
     let panStart = { x: 0, y: 0 }
     let stageStart = { x: 0, y: 0 }
 
-    const onPointerDown = (e: any) => {
+    const onPointerDown = (e: PointerEvent) => {
       isPanning = true
       panStart = { x: e.clientX, y: e.clientY }
       stageStart = { x: app.stage.x, y: app.stage.y }
       view.style.cursor = 'grabbing'
     }
 
-    const onPointerMove = (e: any) => {
+    const onPointerMove = (e: PointerEvent) => {
       if (!isPanning) return
       const dx = e.clientX - panStart.x
       const dy = e.clientY - panStart.y
@@ -142,33 +150,27 @@ export default function FamilyCanvas() {
       view.style.cursor = 'grab'
     }
 
-    view.addEventListener('pointerdown', onPointerDown)
-    window.addEventListener('pointermove', onPointerMove)
-    window.addEventListener('pointerup', onPointerUp)
-
     const onWheel = (ev: WheelEvent) => {
       ev.preventDefault()
-
       const oldScale = app.stage.scale.x
       const scaleBy = 1.08
       const newScale = ev.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy
-      const max = 3
-      const min = 0.25
-      const clamped = Math.max(min, Math.min(max, newScale))
-
+      const clamped = Math.max(0.25, Math.min(3, newScale))
       const rect = view.getBoundingClientRect()
       const pointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
       const worldPos = {
         x: (pointer.x - app.stage.x) / oldScale,
         y: (pointer.y - app.stage.y) / oldScale,
       }
-
       app.stage.scale.set(clamped)
       app.stage.x = pointer.x - worldPos.x * clamped
       app.stage.y = pointer.y - worldPos.y * clamped
       setScale(clamped)
     }
 
+    view.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
     view.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
@@ -181,9 +183,9 @@ export default function FamilyCanvas() {
     }
   }, [])
 
-  // ----------------------------------------------------
-  // DRAWING NODES + LINES (unchanged)
-  // ----------------------------------------------------
+  // -----------------------------
+  // DRAW NODES & LINES
+  // -----------------------------
   useEffect(() => {
     const app = appRef.current
     if (!app) return
@@ -206,11 +208,7 @@ export default function FamilyCanvas() {
       g.endFill()
       c.addChild(g)
 
-      const label = new PIXI.Text(m.name || 'Unnamed', {
-        fontSize: 12,
-        fill: 0xffffff,
-        align: 'center',
-      })
+      const label = new PIXI.Text(m.name || 'Unnamed', { fontSize: 12, fill: 0xffffff, align: 'center' })
       label.y = NODE_RADIUS + 8
       label.anchor.set(0.5, 0)
       c.addChild(label)
@@ -220,7 +218,6 @@ export default function FamilyCanvas() {
         sprite.anchor.set(0.5)
         sprite.width = NODE_RADIUS * 2
         sprite.height = NODE_RADIUS * 2
-
         const mask = new PIXI.Graphics()
         mask.beginFill(0xffffff)
         mask.drawCircle(0, 0, NODE_RADIUS)
@@ -237,7 +234,7 @@ export default function FamilyCanvas() {
       let dragging = false
       let dragOffset = { x: 0, y: 0 }
 
-      c.on('pointerdown', (ev: any) => {
+      c.on('pointerdown', (ev: PIXI.FederatedPointerEvent) => {
         ev.stopPropagation()
         dragging = true
         c.cursor = 'grabbing'
@@ -248,10 +245,7 @@ export default function FamilyCanvas() {
       c.on('pointerup', async () => {
         dragging = false
         c.cursor = 'grab'
-        await supabase
-          .from('family_members')
-          .update({ pos_x: Math.round(c.x), pos_y: Math.round(c.y) })
-          .eq('id', m.id)
+        await supabase.from('family_members').update({ pos_x: Math.round(c.x), pos_y: Math.round(c.y) }).eq('id', m.id)
       })
 
       c.on('pointerupoutside', () => {
@@ -259,18 +253,17 @@ export default function FamilyCanvas() {
         c.cursor = 'grab'
       })
 
-      c.on('pointermove', (ev: any) => {
+      c.on('pointermove', (ev: PIXI.FederatedPointerEvent) => {
         if (!dragging) return
         const p = ev.data.global
         c.x = p.x - dragOffset.x
         c.y = p.y - dragOffset.y
       })
 
-      c.on('pointertap', (ev: any) => {
+      c.on('pointertap', (ev: PIXI.FederatedPointerEvent) => {
         const now = Date.now()
         const last = (c as any).__lastClick || 0
         ;(c as any).__lastClick = now
-
         if (now - last < 300) {
           setEditing({ id: m.id })
           setEditName(m.name || '')
@@ -281,50 +274,45 @@ export default function FamilyCanvas() {
       return c
     }
 
-    members.forEach(m => {
+    members.forEach((m) => {
       const node = makeNode(m)
       spritesRef.current[m.id] = node
       app.stage.addChild(node)
     })
 
-    const drawLines = () => {
-      const layer = new PIXI.Container()
+    // DRAW LINES
+    const layer = new PIXI.Container()
+    members.forEach((child) => {
+      const childNode = spritesRef.current[child.id]
+      if (!childNode) return
+      const { father_id, mother_id } = child
+      const cpt = { x: childNode.x, y: childNode.y }
 
-      members.forEach(child => {
-        const childNode = spritesRef.current[child.id]
-        if (!childNode) return
-
-        const { father_id, mother_id } = child
-        const cpt = { x: childNode.x, y: childNode.y }
-
-        if (father_id && spritesRef.current[father_id]) {
-          const p = spritesRef.current[father_id]
-          const g = new PIXI.Graphics()
-          g.lineStyle(2, 0x94a3b8)
-          g.moveTo(p.x, p.y)
-          g.lineTo(cpt.x, cpt.y)
-          layer.addChild(g)
-        }
-
-        if (mother_id && spritesRef.current[mother_id]) {
-          const p = spritesRef.current[mother_id]
-          const g = new PIXI.Graphics()
-          g.lineStyle(2, 0x94a3b8)
-          g.moveTo(p.x, p.y)
-          g.lineTo(cpt.x, cpt.y)
-          layer.addChild(g)
-        }
-      })
-
-      app.stage.addChild(layer)
-    }
-
-    drawLines()
+      if (father_id && spritesRef.current[father_id]) {
+        const p = spritesRef.current[father_id]
+        const g = new PIXI.Graphics()
+        g.lineStyle(2, 0x94a3b8)
+        g.moveTo(p.x, p.y)
+        g.lineTo(cpt.x, cpt.y)
+        layer.addChild(g)
+      }
+      if (mother_id && spritesRef.current[mother_id]) {
+        const p = spritesRef.current[mother_id]
+        const g = new PIXI.Graphics()
+        g.lineStyle(2, 0x94a3b8)
+        g.moveTo(p.x, p.y)
+        g.lineTo(cpt.x, cpt.y)
+        layer.addChild(g)
+      }
+    })
+    app.stage.addChild(layer)
   }, [members])
 
+  // -----------------------------
+  // ADD MEMBER
+  // -----------------------------
   const addMember = async (payload?: Partial<MemberRow>) => {
     if (!user) return alert('please login')
-
     const id = uuidv4()
     const row: Partial<MemberRow> = {
       id,
@@ -337,32 +325,31 @@ export default function FamilyCanvas() {
       pos_x: payload?.pos_x ?? Math.round(Math.random() * 800 + 100),
       pos_y: payload?.pos_y ?? Math.round(Math.random() * 200 + 100),
     }
-
     const { error } = await supabase.from('family_members').insert([row])
     if (error) console.error(error)
-
     fetchMembers()
   }
 
+  // -----------------------------
+  // SAVE EDIT
+  // -----------------------------
   const handleSaveEdit = async () => {
     if (!editing) return
     try {
-      let avatar_url
-      let avatar_path
+      let avatar_url: string | undefined
+      let avatar_path: string | undefined
 
       if (editFile && user) {
         const ext = editFile.name.split('.').pop() || 'png'
         const fileName = `${user.id}-${Date.now()}.${ext}`
         const filePath = `${user.id}/${fileName}`
 
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, editFile, { upsert: true })
-
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, editFile, { upsert: true })
         if (uploadError) throw uploadError
 
-        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
-        avatar_url = data.publicUrl
+        const { data, error } = supabase.storage.from('avatars').getPublicUrl(filePath)
+        if (error) throw error
+        avatar_url = data?.publicUrl
         avatar_path = filePath
       }
 
@@ -371,7 +358,6 @@ export default function FamilyCanvas() {
       if (avatar_path) updateFields.avatar_path = avatar_path
 
       await supabase.from('family_members').update(updateFields).eq('id', editing.id)
-
       setEditing(null)
       setEditFile(null)
       fetchMembers()
@@ -380,17 +366,19 @@ export default function FamilyCanvas() {
     }
   }
 
+  // -----------------------------
+  // EXPORT PNG
+  // -----------------------------
   const exportPNG = async () => {
     const app = appRef.current
     if (!app) return
-
     try {
       const dataUrl = app.renderer.extract.base64(app.stage)
       const a = document.createElement('a')
       a.href = dataUrl
       a.download = `family-tree-${Date.now()}.png`
       a.click()
-    } catch (err) {
+    } catch {
       alert('Export failed')
     }
   }
@@ -420,7 +408,7 @@ export default function FamilyCanvas() {
           height: 600,
           borderRadius: 8,
           overflow: 'hidden',
-          border: '1px solid #17243a'
+          border: '1px solid #17243a',
         }}
       />
 
@@ -436,7 +424,7 @@ export default function FamilyCanvas() {
             borderRadius: 8,
             zIndex: 9999,
             color: '#fff',
-            minWidth: 320
+            minWidth: 320,
           }}
         >
           <h3 style={{ marginTop: 0 }}>Edit member</h3>
@@ -445,12 +433,12 @@ export default function FamilyCanvas() {
             <input
               style={{ width: '100%', marginTop: 6 }}
               value={editName}
-              onChange={e => setEditName(e.target.value)}
+              onChange={(e) => setEditName(e.target.value)}
             />
           </label>
           <label style={{ display: 'block', marginBottom: 8 }}>
             Avatar
-            <input type="file" accept="image/*" onChange={e => setEditFile(e.target.files?.[0] ?? null)} />
+            <input type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files?.[0] ?? null)} />
           </label>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button

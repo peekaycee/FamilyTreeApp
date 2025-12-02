@@ -103,7 +103,7 @@ export default function FamilyTree() {
   }
 
   // --- Correctly typed render node ---
-  const renderNode = ({ nodeDatum, toggleNode }: CustomNodeElementProps): JSX.Element => {
+  const renderNode = ({ nodeDatum, toggleNode }: CustomNodeElementProps): React.ReactElement => {
     const node = nodeDatum as TreeNode
     return (
       <g>

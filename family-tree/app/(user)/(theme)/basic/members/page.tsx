@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-// FamilyMembersPage.tsx (Updated as requested)
+// FamilyMembersPage.tsx
 
 "use client";
 
@@ -25,7 +25,7 @@ export default function FamilyMembersPage() {
 
   const redirectToTreeBuilder = () => {
     window.location.href = "/basic/dashboard/family-builder";
-  }
+  };
 
   const fetchMembers = async () => {
     const { data, error } = await supabase
@@ -36,24 +36,29 @@ export default function FamilyMembersPage() {
     if (!error) setMembers(data || []);
   };
 
+  // --- Fetch data & subscribe to realtime updates safely ---
   useEffect(() => {
-        const fetchData = async () => {
-          await fetchMembers();
-        };
-        fetchData(); // ✅ call the async function here
+    // async function inside effect
+    const fetchData = async () => {
+      await fetchMembers();
+    };
+    fetchData(); // ✅ call async function
 
-        const channel = supabase
-          .channel("family-members-realtime")
-          .on(
-            "postgres_changes",
-            { event: "*", schema: "public", table: "family_members" },
-            fetchMembers
-          )
-          .subscribe();
+    // subscribe to Supabase realtime channel
+    const channel = supabase
+      .channel("family-members-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "family_members" },
+        fetchMembers
+      )
+      .subscribe();
 
-        return () => supabase.removeChannel(channel);
-    }, []);
+    // synchronous cleanup function
+    return () => supabase.removeChannel(channel);
+  }, []);
 
+  // --- Infinite scroll handler ---
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
@@ -84,7 +89,7 @@ export default function FamilyMembersPage() {
         </button>
       </div>
 
-      {/* GRID */}
+      {/* Members Grid */}
       <div className={styles.grid}>
         {filtered.slice(0, visibleCount).map((m, i) => (
           <motion.div
@@ -96,7 +101,7 @@ export default function FamilyMembersPage() {
             transition={{ delay: i * 0.05 }}
           >
             <div className={styles.cardInner}>
-              {/* FRONT: Avatar Only */}
+              {/* FRONT: Avatar */}
               <div className={styles.cardFront}>
                 {m.avatar_url ? (
                   <Image

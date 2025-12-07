@@ -37,22 +37,22 @@ export default function FamilyMembersPage() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchMembers();
-    };
-    fetchData();
+        const fetchData = async () => {
+          await fetchMembers();
+        };
+        fetchData(); // ✅ call the async function here
 
-    const channel = supabase
-      .channel("family-members-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "family_members" },
-        fetchMembers
-      )
-      .subscribe();
+        const channel = supabase
+          .channel("family-members-realtime")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "family_members" },
+            fetchMembers
+          )
+          .subscribe();
 
-    return () => supabase.removeChannel(channel);
-  }, []);
+        return () => supabase.removeChannel(channel);
+    }, []);
 
   useEffect(() => {
     const handleScroll = () => {

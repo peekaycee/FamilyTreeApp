@@ -73,10 +73,11 @@ export default function OurStoryPage() {
             className={styles.imageBlock}
           >
             <Image
-              src="/images/script-svgrepo-com.svg"
+              src="/images/icon.png"
               alt="Family"
               fill
               className={styles.sectionImage}
+              loading="eager"
             />
           </motion.div>
         </motion.div>

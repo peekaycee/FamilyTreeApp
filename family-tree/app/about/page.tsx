@@ -5,9 +5,8 @@ import styles from './about.module.css'
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { useState } from 'react'
-
 import HeroImage from '../../public/images/pee2.png'
-import Icon from '../../public/images/script-svgrepo-com.svg'
+import Icon from '../../public/images/icon.png';
 
 export default function About() {
   const [startCount, setStartCount] = useState(false)
@@ -15,15 +14,17 @@ export default function About() {
   return (
     <main className={styles.aboutPage}>
       {/* Hero Section */}
-      <motion.section
-        className={styles.heroSection}
-        initial={{ opacity: 0, scale: 1.05 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2 }}
-      >
-        <h1>About TheFamilyTree</h1>
-        <p>Connecting generations through stories, love, and legacy.</p>
-      </motion.section>
+      <div className={styles.heroContainer}>
+        <motion.section
+          className={styles.heroSection}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          <h1>About TheFamilyTree</h1>
+          <p>Connecting generations through stories, love, and legacy.</p>
+        </motion.section>
+      </div>
 
       {/* Our Story */}
       <motion.section
@@ -180,10 +181,11 @@ export default function About() {
               viewport={{ once: true }}
             >
               <Image
-                src={img}
+                src="/images/icon.png"
                 alt={`Team member ${i + 1}`}
                 width={200}
                 height={200}
+                loading='eager'
                 className={styles.teamImage}
               />
               <h4>Member {i + 1}</h4>

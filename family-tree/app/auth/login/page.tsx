@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import styles from '../auth.module.css'
 
 function LoginContent() {
@@ -9,7 +10,6 @@ function LoginContent() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +30,7 @@ function LoginContent() {
         throw new Error(result?.message || 'Login failed')
       }
 
-      const { user, session } = result
+      const { session } = result
 
       // ✅ Store Supabase session if available
       if (session) {
@@ -87,7 +87,7 @@ export default function Login() {
           <LoginContent />
         </Suspense>
         <p>
-          Don’t have an account? <a href="/auth/register">Register</a>
+          Don&apos;t have an account? <a href="/auth/register">Register</a>
         </p>
       </div>
     </section>

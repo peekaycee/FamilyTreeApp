@@ -1,3 +1,83 @@
+.heroScatteredContainer {
+  position: relative;
+  width: 65%;
+  height: 460px;
+  margin-top: 2rem;
+}
+
+/* General photo style */
+.heroImage {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 7px;
+  overflow: hidden;
+  /* box-shadow: 0 14px 28px rgba(0,0,0,0.18); */
+  will-change: transform;
+}
+
+/* ---- Artistic Coordinates ---- */
+
+.img1 {
+  top: 130px;
+  left: 10%;
+  transform: rotate(-12deg);
+}
+
+.img2 {
+  top: 65px;
+  right: 10%;
+  transform: rotate(6deg);
+  z-index: 3;
+}
+
+.img3 {
+  bottom: -40px;
+  left: 38%;
+  transform: rotate(-10deg);
+  z-index: 2;
+}
+.img4 {
+  top: 0px;
+  right: 40%;
+  transform: rotate(-4deg);
+  z-index: 0;
+}
+
+@media (max-width: 768px) {
+  .heroScatteredContainer {
+    height: 750px;
+  }
+
+  .img1 {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-10deg);
+  }
+
+  .img2 {
+    top: 260px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) rotate(8deg);
+  }
+
+  .img3 {
+    top: 500px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-5deg);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 .homepage { 
   width: 100%;
   height: auto;
@@ -12,7 +92,7 @@
 }
 /* I love you ~ ch  */
 .heroText{
-  width: 45%;
+  width: 50%;
   height: 100%;
   display: flex;
   padding: 0 1em 0 7em;
@@ -26,12 +106,14 @@
   background-size: contain;
 }
 .hero h1 { 
-  font-size: 2.2rem; 
-  margin-bottom: 0.5rem; 
+  font-size: 2.5rem; 
+  margin-bottom: 0.5rem;
+  line-height: 3.5rem;
+  font-weight: bold; 
 }
 .hero p { 
   font-size: 1rem; 
-  margin-bottom: 1rem; 
+  margin-bottom: 1.5rem; 
 }
 .cta { 
   background-color: var(--color-secondary); 

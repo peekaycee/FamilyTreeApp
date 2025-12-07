@@ -1,0 +1,24 @@
+/* app/memorials/memorials.module.css */
+.page { padding:32px; max-width:1100px; margin:0 auto; font-family:Inter, sans-serif; color:#0f172a; }
+.hero { background: linear-gradient(180deg,#f8fafc, #fff); padding:26px; border-radius:12px; margin-bottom:16px; box-shadow:0 8px 28px rgba(2,6,23,0.03); }
+.title { font-family:"Playfair Display", serif; font-size:32px; margin:0 0 6px 0; }
+.lead { color:#475569; }
+
+.searchWrap { margin-top:8px; }
+.searchInner { display:flex; gap:8px; align-items:center; padding:8px 12px; border-radius:10px; background:#fff; border:1px solid rgba(15,23,42,0.04); }
+.searchInner input { border:0; outline:none; flex:1; font-size:14px; }
+
+.grid { margin-top:12px; display:grid; grid-template-columns: repeat(3,1fr); gap:12px; }
+.card { background:#fff; border-radius:10px; overflow:hidden; border:1px solid rgba(15,23,42,0.04); }
+.cardHero { height:120px; background: linear-gradient(135deg,#fff,#f8fafc); }
+.cardBody { padding:12px; }
+.muted { color:#64748b; font-size:13px; }
+
+.cardActions { display:flex; gap:8px; margin-top:8px; justify-content:space-between; align-items:center; }
+.cta { background:#1b3a2e; color:#fff; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+.ghost { background:transparent; border:1px solid rgba(15,23,42,0.06); padding:8px 10px; border-radius:8px; cursor:pointer; }
+.candleBtn { background:#ffedd5; border:1px solid #fbbf24; padding:6px 10px; border-radius:8px; cursor:pointer; }
+
+.modalBack { position:fixed; inset:0; background:rgba(2,6,23,0.45); display:flex; align-items:center; justify-content:center; z-index:40; }
+.modal { background:#fff; padding:18px; width:min(760px,94%); border-radius:12px; position:relative; }
+.close { position:absolute; right:12px; top:12px; border:none; background:transparent; cursor:pointer; color:#94a3b8; }

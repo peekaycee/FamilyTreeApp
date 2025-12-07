@@ -101,3 +101,45 @@
   max-height: 90%;
   border-radius: 12px;
 }
+/* Shimmer wrapper (parent for Next.js Image fill) */
+.shimmerWrapper {
+  position: relative; /* still required for Image */
+  width: 100%;
+  overflow: hidden;
+  background: #e3e3e3;
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  border-radius: 14px;
+  transition: transform 0.3s ease;
+}
+
+
+.shimmerWrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}

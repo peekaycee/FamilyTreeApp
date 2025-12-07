@@ -7,6 +7,11 @@
 }
 
 /* Hero */
+.heroContainer{
+  width: 100%;
+  height: auto;
+}
+
 .heroSection {
   background: var(--color-primary);
   width: 100%;

@@ -38,25 +38,25 @@ export default function FamilyMembersPage() {
 
   // --- Fetch data & subscribe to realtime updates safely ---
   useEffect(() => {
-    // async function inside effect
-    const fetchData = async () => {
-      await fetchMembers();
-    };
-    fetchData(); // ✅ call async function
+  const fetchData = async () => {
+    await fetchMembers();
+  };
+  fetchData();
 
-    // subscribe to Supabase realtime channel
-    const channel = supabase
-      .channel("family-members-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "family_members" },
-        fetchMembers
-      )
-      .subscribe();
+  const channel = supabase
+    .channel("family-members-realtime")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "family_members" },
+      () => { fetchMembers(); }   // ✅ FIX: callback no longer async
+    )
+    .subscribe();
 
-    // synchronous cleanup function
-    return () => supabase.removeChannel(channel);
-  }, []);
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
+
 
   // --- Infinite scroll handler ---
   useEffect(() => {

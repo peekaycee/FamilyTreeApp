@@ -17,20 +17,49 @@
 // }
 
 
-import { NextResponse } from 'next/server'
-import { supabase } from '../../../../lib/supabaseClient'
+// import { NextResponse } from 'next/server'
+// import { supabase } from '../../../../lib/supabaseClient'
+
+// export async function POST() {
+//   try {
+//     const { error } = await supabase.auth.signOut()
+
+//     if (error) {
+//       return NextResponse.json({ message: error.message }, { status: 500 })
+//     }
+
+//     return NextResponse.json({ message: 'Logged out' }, { status: 200 })
+//   } catch (err: any) {
+//     return NextResponse.json({ message: err.message }, { status: 500 })
+//   }
+// }
+
+
+// /app/api/auth/logout/route.ts
+import { NextResponse } from 'next/server';
+import { supabase } from '../../../../lib/supabaseClient';
 
 export async function POST() {
   try {
-    const { error } = await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut();
 
     if (error) {
-      return NextResponse.json({ message: error.message }, { status: 500 })
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ message: 'Logged out' }, { status: 200 })
+    const res = NextResponse.json({ message: 'Logged out' }, { status: 200 });
+    // Destroy cookie as well
+    res.cookies.set('familytree_session', '', {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      expires: new Date(0),
+    });
+
+    return res;
   } catch (err: any) {
-    return NextResponse.json({ message: err.message }, { status: 500 })
+    return NextResponse.json({ message: err.message }, { status: 500 });
   }
 }
 

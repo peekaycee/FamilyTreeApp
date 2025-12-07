@@ -37,7 +37,10 @@ export default function FamilyMembersPage() {
   };
 
   useEffect(() => {
-    fetchMembers();
+    const fetchData = async () => {
+      await fetchMembers();
+    };
+    fetchData();
 
     const channel = supabase
       .channel("family-members-realtime")

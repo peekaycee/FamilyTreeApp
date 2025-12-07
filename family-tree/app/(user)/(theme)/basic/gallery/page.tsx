@@ -2,43 +2,118 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import styles from "./gallery.module.css";
-import { galleryItems } from "../../../../../lib/gallery-data";
+import { supabase } from "../../../../../lib/supabaseClient";
+
+// ---------------------------
+// TYPES
+// ---------------------------
+interface BucketItem {
+  id: number;
+  title: string;
+  image: string;
+}
+
+interface SupabaseFile {
+  name: string;
+  id?: string;
+  updated_at?: string;
+  created_at?: string;
+  last_accessed_at?: string;
+  metadata?: Record<string, unknown>;
+}
 
 export default function GalleryPage() {
   const ITEMS_PER_LOAD = 12;
 
-  
-  // Pagination state (empty at mount)
-  const [visibleItems, setVisibleItems] = useState<any[]>([]);
+  const [bucketImages, setBucketImages] = useState<BucketItem[]>([]);
+  const [visibleItems, setVisibleItems] = useState<BucketItem[]>([]);
+  const [lightbox, setLightbox] = useState<BucketItem | null>(null);
 
-  // Load initial slice on mount
+  // ---------------------------
+  // FETCH IMAGES (Recursive)
+  // ---------------------------
   useEffect(() => {
-    setVisibleItems(galleryItems.slice(0, ITEMS_PER_LOAD));
+    const fetchImages = async () => {
+      const { data: folders, error } = await supabase.storage
+        .from("avatars")
+        .list("", { limit: 200 });
+
+      if (error || !folders) {
+        console.error("Supabase fetch error:", error);
+        return;
+      }
+
+      const allFiles: BucketItem[] = [];
+
+      for (const folder of folders as SupabaseFile[]) {
+        if (!folder.name || folder.name === ".emptyFolderPlaceholder") continue;
+
+        const path = folder.name;
+
+        const { data: folderFiles, error: folderErr } = await supabase.storage
+          .from("avatars")
+          .list(path, { limit: 200 });
+
+        if (folderErr || !folderFiles) continue;
+
+        folderFiles.forEach((file) => {
+          const filePath = `${path}/${file.name}`;
+
+          const { data: urlData } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(filePath);
+
+          if (urlData.publicUrl) {
+            allFiles.push({
+              id: allFiles.length + 1,
+              title: file.name,
+              image: urlData.publicUrl,
+            });
+          }
+        });
+      }
+
+      setBucketImages(allFiles);
+      setVisibleItems(allFiles.slice(0, ITEMS_PER_LOAD));
+    };
+
+    fetchImages();
   }, []);
 
-
-  // Lightbox state
-  const [lightbox, setLightbox] = useState<{ image: string; title: string } | null>(null);
-
-  // Infinite scroll
+  // ---------------------------
+  // INFINITE SCROLL
+  // ---------------------------
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 300
+      ) {
         loadMore();
       }
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [visibleItems]);
+  }, [visibleItems, bucketImages]);
 
   const loadMore = () => {
-    if (visibleItems.length >= galleryItems.length) return;
-    const nextItems = galleryItems.slice(0, visibleItems.length + ITEMS_PER_LOAD);
+    if (visibleItems.length >= bucketImages.length) return;
+
+    const nextItems = bucketImages.slice(
+      0,
+      visibleItems.length + ITEMS_PER_LOAD
+    );
+
     setVisibleItems(nextItems);
   };
 
+  // ---------------------------
+  // RENDER
+  // ---------------------------
   return (
     <div className={styles.container}>
       <motion.h1
@@ -49,9 +124,8 @@ export default function GalleryPage() {
         Gallery
       </motion.h1>
 
-      {/* Masonry grid */}
       <div className={styles.masonryGrid}>
-        {visibleItems.map((item) => (
+        {visibleItems.map((item, idx) => (
           <motion.div
             key={item.id}
             className={styles.card}
@@ -60,26 +134,30 @@ export default function GalleryPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
           >
-            {/* Shimmer lazy-load wrapper */}
-            <div className={styles.shimmerWrapper}>
-              <img
+            <div
+              className={styles.shimmerWrapper}
+              onClick={() => setLightbox(item)}
+            >
+              <Image
                 src={item.image}
                 alt={item.title}
-                loading="lazy"
-                className={styles.image}
-                onClick={() =>
-                  setLightbox({ image: item.image, title: item.title })
-                }
+                width={400}
+                height={300}
+                style={{ width: "100%", height: "auto" }}
+                loading={idx < ITEMS_PER_LOAD ? "eager" : "lazy"} // eager for first batch (above the fold)
+                placeholder="blur"
+                blurDataURL="/placeholder.png" // optional: small placeholder
               />
             </div>
 
-            {/* Clicking image leads to detail page */}
-            <Link href={`/basic/gallery/${item.id}`} className={styles.linkOverlay} />
+            <Link
+              href={`/basic/gallery/${item.id}`}
+              className={styles.linkOverlay}
+            />
           </motion.div>
         ))}
       </div>
 
-      {/* Lightbox Modal */}
       {lightbox && (
         <motion.div
           className={styles.lightboxOverlay}
@@ -88,14 +166,16 @@ export default function GalleryPage() {
           exit={{ opacity: 0 }}
           onClick={() => setLightbox(null)}
         >
-          <motion.img
-            src={lightbox.image}
-            alt={lightbox.title}
-            className={styles.lightboxImage}
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 120 }}
-          />
+          <div className={styles.lightboxWrapper}>
+            <Image
+              src={lightbox.image}
+              alt={lightbox.title}
+              width={1200}
+              height={800}
+              style={{ objectFit: "contain" }}
+              loading="eager" // always eager for lightbox
+            />
+          </div>
         </motion.div>
       )}
     </div>

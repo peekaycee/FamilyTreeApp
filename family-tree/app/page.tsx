@@ -2,7 +2,7 @@
 
 import styles from './page.module.css'
 import Image from 'next/image';
-import { Icon } from '../public/images/index';
+import Icon from '../public/images/icon.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { testimonies } from './constants/Testimonies';

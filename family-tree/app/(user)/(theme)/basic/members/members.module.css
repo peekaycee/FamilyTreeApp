@@ -1,0 +1,406 @@
+.wrapper {
+  width: 100%;
+  padding: 40px 7em;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: var(--color-bg);
+}
+
+/* ----------------------------- */
+/* TOOLBAR                       */
+/* ----------------------------- */
+
+.toolbar {
+  width: 100%;
+  margin: 0 auto 40px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(27, 58, 46, 0.1);
+}
+
+/* ----------------------------- */
+/* SEARCH INPUT                  */
+/* ----------------------------- */
+
+.search {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 1rem;
+  background: var(--color-bg);
+  border: 1px solid rgba(27, 58, 46, 0.25);
+  border-radius: 12px;
+  color: var(--color-black-text);
+  transition: all 0.25s ease;
+}
+
+.search::placeholder {
+  color: rgba(51, 51, 51, 0.55);
+  font-family: var(--font-secondary);
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(201, 166, 70, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ----------------------------- */
+/* ADD BUTTON                    */
+/* ----------------------------- */
+
+.addBtn {
+  padding: 14px 22px;
+  background: var(--color-primary);
+  color: var(--color-white-text);
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.addBtn:hover {
+  background: var(--color-secondary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(201, 166, 70, 0.25);
+}
+
+.addBtn:active {
+  transform: scale(0.98);
+}
+
+/* ----------------------------- */
+/* RESPONSIVE                    */
+/* ----------------------------- */
+
+@media (max-width: 700px) {
+  .toolbar {
+    flex-direction: column;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .addBtn {
+    width: 100%;
+  }
+
+  .search {
+    width: 50%;
+  }
+}
+
+/* ----------------------------
+   TOP BAR
+---------------------------- */
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pageTitle {
+  font-family: var(--font-primary);
+  font-size: 34px;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+}
+
+.rightArea {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.searchBar {
+  padding: 10px 14px;
+  border: 1px solid #d7d7d7;
+  border-radius: 16px;
+  font-size: 14px;
+  width: 220px;
+  background: #ffffff;
+  color: var(--color-black-text);
+  transition: 0.25s;
+}
+
+.searchBar:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary);
+  color: var(--color-white-text);
+  padding: 10px 18px;
+  border-radius: 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.addBtn:hover {
+  background: var(--color-secondary);
+}
+
+/* ----------------------------
+   GRID
+---------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 30px;
+  margin-top: 10px;
+}
+
+/* ----------------------------
+   CARD
+---------------------------- */
+.card {
+  perspective: 1200px;
+  height: 300px;
+  border-radius: 16px;
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.card:hover .cardInner {
+  transform: rotateY(180deg);
+}
+
+.cardFront,
+.cardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.cardFront {
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  font-size: 16px;
+  color: #777;
+}
+
+.cardBack {
+  background: var(--color-primary);
+  color: var(--color-white-text);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  gap: 6px;
+  text-align: center;
+}
+
+.cardBack h3 {
+  font-family: var(--font-primary);
+  font-size: 22px;
+  margin: 0;
+  color: var(--color-accent);
+}
+
+.cardBack p {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* ----------------------------
+   SLIDEOVER
+---------------------------- */
+.slideOverOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 30;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.slideOver {
+  width: 380px;
+  background: white;
+  height: 100%;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideIn 0.35s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slideTitle {
+  font-size: 22px;
+  font-family: var(--font-primary);
+  color: var(--color-primary);
+  margin-bottom: 6px;
+}
+
+.slideInput {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  font-size: 15px;
+  width: 100%;
+  color: var(--color-black-text);
+}
+
+.slideBtn {
+  margin-top: 12px;
+  padding: 12px 0;
+  background: var(--color-primary);
+  color: var(--color-white-text);
+  border-radius: 16px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.slideBtn:hover {
+  background: var(--color-secondary);
+}
+
+/* ----------------------------
+   RESPONSIVE
+---------------------------- */
+@media (max-width: 900px) {
+  .pageTitle {
+    font-size: 28px;
+  }
+
+  .searchBar {
+    width: 100%;
+  }
+
+  .rightArea {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+
+  .card {
+    height: 250px;
+  }
+}
+/* -----------------------------
+   MOBILE-SPECIFIC IMPROVEMENTS
+----------------------------- */
+@media (max-width: 700px) {
+  /* Wrapper padding reduced for small screens */
+  .wrapper {
+    padding: 30px 16px;
+  }
+
+  /* Toolbar stacked vertically */
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* Search input full width */
+  .search {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+
+  /* Add button full width and slightly larger tap area */
+  .addBtn {
+    width: 100%;
+    padding: 14px 0;
+    font-size: 1rem;
+  }
+
+  /* Optional: slightly reduce grid gap on mobile */
+  .grid {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .grid{
+    display: block;
+  }
+  /* Reduce card height for very small screens */
+  .card {
+    height: 450px;
+    margin-bottom: 32px;
+  }
+
+  .cardBack h3 {
+    font-size: 20px;
+  }
+
+  .cardBack p {
+    font-size: 14px;
+  }
+}

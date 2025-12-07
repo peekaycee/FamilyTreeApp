@@ -9,27 +9,35 @@ export function middleware(req: NextRequest) {
   const isApi = pathname.startsWith('/api')
   const isDashboard = pathname.startsWith('/dashboard')
 
-  // Allow API, _next, static files, etc.
+  // --- Prevent caching globally ---
+  const response = NextResponse.next()
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+  )
+  response.headers.set("Pragma", "no-cache")
+  response.headers.set("Expires", "0")
+
+  // Allow API, _next, static
   if (isApi || pathname.startsWith('/_next') || pathname.includes('.') || pathname.startsWith('/static')) {
-    return NextResponse.next()
+    return response
   }
 
-  // Protect dashboard if not logged in
-  if (!token && isDashboard) {
+  // SESSION EXPIRED
+  if ((!token || token === "expired") && isDashboard) {
     const loginUrl = req.nextUrl.clone()
-    loginUrl.pathname = '/auth/login'
-    loginUrl.searchParams.set('from', pathname)
+    loginUrl.pathname = "/auth/login"
     return NextResponse.redirect(loginUrl)
   }
 
-  // If logged in and trying to visit auth routes (except logout), redirect to dashboard
-  if (token && isAuthPath && !pathname.startsWith('/auth/logout')) {
+  // Prevent logged-in users from seeing auth routes (except logout)
+  if (token && isAuthPath && !pathname.startsWith("/auth/logout")) {
     const dashboardUrl = req.nextUrl.clone()
-    dashboardUrl.pathname = '/dashboard'
+    dashboardUrl.pathname = "/dashboard"
     return NextResponse.redirect(dashboardUrl)
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {

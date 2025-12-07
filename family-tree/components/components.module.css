@@ -1,55 +1,222 @@
 /* NAVBAR */
 .nav { 
   width: 100%;
+  height: 120px;
   display:flex; 
   justify-content: space-between; 
   align-items: center; 
-  padding: 2em 5em; 
-  background: var(--color-primary); 
+  padding: 0 5em; 
+  background: var(--color-primary);
   color: white; 
+  position: relative;
+  z-index: 100;
 }
-.brand a { 
-  color: var(--color-white-text); 
-  font-weight: 700; 
-  text-decoration:none; 
-}
-.links a { 
-  margin-left: 1.5rem; 
+.links a {
   color: var(--color-white-text); 
   text-decoration:none; 
   transition: all 0.3s ease;
+  position: relative;
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  margin: 0 0.25rem;
 }
-.links a:hover{
+.links .dropLinks {
+  margin: 0;
+}
+.links a:hover,
+.link a:active {
   color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.1);
 }
 .mobileLogout,
-.logout { 
+.logout {
+  padding: 1rem; 
   background: inherit; 
   border: none; 
   cursor: pointer; 
   color: var(--color-white-text);
-}
-.mobileLogout:hover,
-.logout:hover{
-  background: inherit; 
-  letter-spacing: 0;
-  color: var(--color-accent);
-}
-.mobileLogout,
-.footerContent .navLinks button.logout {
-  width: fit-content;
-  padding: 0;
   transition: all 0.3s ease;
 }
 .mobileLogout:hover,
-.footerContent .navLinks button.logout:hover{
-  letter-spacing: 1px;
-  text-decoration: underline;
+.logout:hover{
+  letter-spacing: none;
+  color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.1);
 }
-#navMobileLogout:hover {
+.mobileLogout{
+ padding-left: 0;
+}
+/* Dropdown for desktop */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+.dropdownButton {
+  background: none;
+  border: none;
+  color: var(--color-white-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  border-radius: 4px;
+}
+.links a.active,
+.dropdownButton.active {
+  color: var(--color-accent);
+  background: rgba(255,255,255,0.1);
+}
+
+.dropdownButton:hover {
+  color: var(--color-accent);
+  background: rgba(255,255,255,0.1);
+  letter-spacing: 0;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0;
+  min-width: 160px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height .35s ease, opacity .35s ease, transform .35s ease;
+  border-radius: 0 0 4px 4px;
+  visibility: hidden;
+  pointer-events: none;
+}
+.showDropdown {
+  visibility: visible;
+  pointer-events: auto;
+  max-height: fit-content; 
+  padding: 0;
+  opacity: 1;
+  transform: translateY(0);
+}
+.dropdownMenu a {
+  padding: 1rem 0rem;
+  color: var(--color-white-text);
   text-decoration: none;
-  background-color: transparent;
+  transition: all 0.3s ease;
+  border-radius: 4px;
 }
+.dropdownMenu a:hover,
+.dropdownMenu a.active {
+  background: rgba(255,255,255,0.1);
+  color: var(--color-accent);
+}
+.logout{
+  margin: 0 0.5rem;
+  transition: all 0.3s ease;
+}
+.logout:hover{
+  letter-spacing: 0;
+}
+.chevron {
+  transition: all 0.3s ease-in-out;
+}
+
+.open .chevron {
+  transform: rotate(180deg);
+}
+
+/* Mobile dropdown */
+.mobileDropdown {
+  display: flex;
+  flex-direction: column;
+}
+.mobileDropdown button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1rem 0;
+  color: var(--color-white-text);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.mobileDropdown button:hover,
+.mobileDropdown button.active {
+  color: var(--color-accent);
+  border-radius: 4px;
+}
+.mobileDropdown a {
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: var(--color-white-text);
+  transition: all 0.3s;
+  border-radius: 4px;
+}
+.mobileDropdown a:hover,
+.mobileDropdown a.active {
+  background: rgba(255,255,255,0.1);
+  color: var(--color-accent);
+  letter-spacing: 0;
+}
+.mobileLogout:hover{
+  letter-spacing: 0;
+  background: none;
+}
+
+/* The chevron icon inside mobile menu */
+.mobileDropdown button svg {
+  transition: transform 0.3s ease;
+}
+
+/* Rotate chevron when mobile dropdown is open */
+.mobileDropdownOpen svg {
+  transform: rotate(180deg);
+}
+
+/* Slide-in Drawer */
+.mobileDrawer {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  height: 100%;
+  width: 260px;
+  background: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  gap: 1rem;
+  transition: right 0.4s ease;
+  z-index: 200;
+}
+.showDrawer {
+  right: 0;
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  cursor: pointer;
+  color: var(--color-white-text);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .links {
+    display: none;
+  }
+  .hamburger {
+    display: block;
+  }
+}
+
+
 /* FOOTER */
 .footer {
   width: 100%;
@@ -80,6 +247,9 @@
 .footerLogo{
   width: 12%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .footerPlanLogo{
   display: flex;
@@ -166,8 +336,10 @@
 .copyright{
   width: 100%;
   height: 100%;
-  padding: 3em 0 1em;
+  margin-top: 3rem;
+  padding: 1em;
   color: var(--color-accent);
+  background: rgba(255,255,255,0.1);
 }
 .socials{
   display: flex;
@@ -199,7 +371,33 @@
   font-size: 1rem;
   margin-top: -1em;
 }
-
+.footer .logout{
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}
+.footer .logout:hover {
+  letter-spacing: 1px;
+  text-decoration: underline;
+}
+.moveUp{
+  position: fixed;
+  bottom: 70px;
+  right: 30px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-secondary);
+  padding: 0.5em;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-white-text);
+  transition: all 0.3s ease;
+}
+.moveUp:hover{
+  background-color: var(--color-accent);
+}
 /* ===============================
    RESPONSIVENESS
 ================================*/
@@ -640,7 +838,7 @@
   line-height: 1.4;
 }
 
-/* FamilyCanvas */
+/* FamilyCanvas
 .stageContainer{
  width: 100%; 
  height: 100%; 
@@ -713,7 +911,244 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+} */
+
+.familyCanvasWrapper {
+  position: relative;
+  min-height: 600px;
+  background: linear-gradient(180deg, #071025 0%, #071028 100%);
+  padding: 18px;
+  color: #e6eef8;
 }
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.controls button {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.nodeCount {
+  margin-left: auto;
+  opacity: 0.9;
+}
+
+/* ----------------------------------------- */
+/* CANVAS BASE                                */
+/* ----------------------------------------- */
+
+.canvasContainer {
+  width: 100%;
+  height: calc(100vh - 180px);
+  border-radius: 8px;
+  overflow: hidden;
+  background: transparent;
+  position: relative;
+  transition: 0.25s ease;
+}
+
+/* Dimmed & blurred canvas when overlay is open */
+.dimmed {
+  pointer-events: none;
+  filter: brightness(0.35) blur(2px);
+}
+
+/* ----------------------------------------- */
+/* OVERLAYS (ADD + EDIT MODALS)               */
+/* ----------------------------------------- */
+
+.editOverlay,
+.addOverlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 360px;
+  max-width: calc(100% - 40px);
+  transform: translate(-50%, -50%);
+  background: rgba(11,18,32,0.95); /* dark-glass */
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  padding: 20px;
+  z-index: 9000;
+  opacity: 0;
+  animation: fadeIn 0.25s ease forwards;
+  box-shadow: 0 20px 60px rgba(2,8,23,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -47%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.editOverlay h3,
+.addOverlay h3 {
+  margin: 0 0 14px 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.editOverlay label,
+.addOverlay label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: #dbeafe;
+  font-size: 14px;
+}
+
+.editOverlay input[type="text"],
+.addOverlay input[type="text"],
+.editOverlay select,
+.addOverlay select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.editOverlay input[type="text"]:focus,
+.addOverlay input[type="text"]:focus,
+.editOverlay select:focus,
+.addOverlay select:focus {
+  border-color: #3b82f6;
+  background: rgba(255,255,255,0.06);
+}
+
+.editOverlay input[type="file"],
+.addOverlay input[type="file"] {
+  color: #cbd5e1;
+  margin-top: 4px;
+}
+
+/* Modal buttons */
+.editButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.editButtons button {
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.5);
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #dbeafe;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.editButtons button:hover {
+  background: rgba(59,130,246,0.25);
+}
+
+/* ----------------------------------------- */
+/* TOAST / CONFIRMATION FEEDBACK              */
+/* ----------------------------------------- */
+
+.toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideUp 0.35s ease forwards;
+  z-index: 9500;
+}
+
+.toast .checkmark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
+  animation: pop 0.3s ease forwards;
+  position: relative;
+}
+
+.toast .checkmark::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ----------------------------------------- */
+/* ROLE BADGES / ICONS                         */
+/* ----------------------------------------- */
+
+.roleBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+  color: #fff;
+}
+
+/* ----------------------------------------- */
+/* MOBILE RESPONSIVE                          */
+/* ----------------------------------------- */
+
+@media (max-width: 480px) {
+  .editOverlay,
+  .addOverlay {
+    width: 92%;
+    padding: 14px;
+  }
+}
+
 
 /* Card */
 .card {

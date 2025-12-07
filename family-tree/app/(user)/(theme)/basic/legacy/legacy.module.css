@@ -1,0 +1,82 @@
+/* app/legacy/legacy.module.css */
+.page {
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  color: #1f2937;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(180deg, rgba(250,246,243,1) 0%, rgba(245,241,238,1) 100%);
+  border-radius: 14px;
+  padding: 48px;
+  margin-bottom: 28px;
+  box-shadow: 0 6px 30px rgba(9,10,10,0.03);
+}
+.heroInner { max-width: 780px; }
+.heroTitle {
+  font-family: "Playfair Display", serif;
+  font-size: 40px;
+  margin: 0 0 8px 0;
+}
+.heroLead { margin: 0 0 18px 0; color: #475569; }
+.heroCTAs { display:flex; gap: 12px; margin-top: 16px; }
+.ctaPrimary {
+  background: #c9a646;
+  color: #071025;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display:flex; gap:8px; align-items:center;
+  border: none; cursor: pointer;
+}
+.ctaGhost {
+  background: transparent;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(31,41,55,0.06);
+  cursor: pointer;
+}
+.ctaSmall {
+  background: #1b3a2e; color: #fff; border-radius: 6px; padding:6px 10px; border:none; cursor:pointer;
+}
+
+/* TREE */
+.treeSection { margin-top: 18px; }
+.sectionTitle { font-size: 20px; margin: 6px 0 12px 0; }
+.treeRow { display:flex; gap:20px; align-items:flex-start; }
+.treeViewer { flex:1; background:#fff; padding:14px; border-radius:10px; border: 1px solid rgba(15,23,42,0.04); }
+.treeList { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.treeNode { display:flex; gap:10px; align-items:center; padding:10px; border-radius:8px; border:1px solid rgba(15,23,42,0.04); background:#f8fafb; cursor:pointer; }
+.nodeAvatar { width:48px; height:48px; background:linear-gradient(135deg,#e2e8f0,#cbd5e1); border-radius:8px; }
+.nodeMeta { color:#94a3b8; font-size:12px; }
+
+/* Aside */
+.treeAside { width:320px; }
+.featureCard { display:flex; gap:12px; align-items:center; background:#fff; padding:12px; border-radius:10px; border:1px solid rgba(15,23,42,0.04); box-shadow: 0 6px 18px rgba(2,6,23,0.04); }
+.featureAvatar { width:80px; height:80px; border-radius:8px; background: linear-gradient(135deg,#f1f5f9,#e2e8f0); }
+
+/* Timeline */
+.timelineSection { margin-top: 28px; }
+.timelineHoriz { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; }
+.timelineCard { min-width:260px; background:#fff; padding:12px; border-radius:10px; border:1px solid rgba(15,23,42,0.04); cursor:pointer; }
+.timelineYear { font-size:28px; color:#64748b; margin-bottom:8px; }
+.timelineBody { color:#1f2937; }
+
+/* Stories */
+.storiesSection { margin-top: 28px; }
+.storiesGrid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+.storyCard { background:#fff; border-radius:12px; overflow:hidden; border:1px solid rgba(15,23,42,0.04); box-shadow: 0 6px 20px rgba(2,6,23,0.03); display:flex; flex-direction:column; }
+.storyHero { height:130px; background: linear-gradient(135deg,#f8fafc,#eef2ff); }
+.storyBody { padding:12px; }
+
+/* modal */
+.modalBackdrop { position:fixed; inset:0; background:rgba(2,6,23,0.45); display:flex; align-items:center; justify-content:center; z-index:50; }
+.detailModal { background:#fff; border-radius:12px; padding:18px; width:min(780px,92%); position:relative; }
+.closeBtn { position:absolute; right:12px; top:12px; border:none; background:transparent; cursor:pointer; color:#94a3b8; }
+
+/* small utilities */
+.muted { color:#64748b; font-size:13px; }
+.small { font-size:13px; color:#475569; }

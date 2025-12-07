@@ -1,4 +1,6 @@
-import { HeroImage, Icon } from '../../public/images/index';
+// import { HeroImage, Icon } from '../../public/images/index';
+import HeroImage from '../../public/images/pee2.png';
+import Icon from '../../public/images/icon.png';
 
 export const testimonies = [
     {

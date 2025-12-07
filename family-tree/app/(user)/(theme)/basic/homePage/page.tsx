@@ -2,7 +2,7 @@
 
 import styles from './homepage.module.css'
 import Image from 'next/image';
-import { Icon } from '../../../../../public/images/index';
+import HeroPics from '../../../../../public/images/pee2.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { testimonies } from '../../../../constants/Testimonies';
@@ -15,7 +15,7 @@ export default function HomePage() {
   const goToFamilyHeritagePlan = () => router.push("/familyHeritagePlan");
   const goToFamilyLegacyPlan = () => router.push("/familyLegacyPlan");
   const goToFamilyPremiumPlan = () => router.push("/familyPremiumPlan");
-  const goToDashboard = () => router.push("/dashboard");
+  const goToStory = () => router.push("/basic/stories");
   
 
   // Automatically change testimonial every 3 seconds
@@ -30,13 +30,67 @@ export default function HomePage() {
     <section className={styles.homepage}>
       <section className={styles.hero}>
         <div className={styles.heroText}>
-          <h1>Preserve Your Legacy, Share Your Story. (Users)</h1>
-          <p>A secure, private space to celebrate your family heritage.</p>
-          <p>Basic Theme</p>
-          <Button tag={'Start Your Family Tree'} onClick={goToDashboard}/>
+          <h1>Welcome! <br />THE AWOLOWO&apos;S.</h1>
+          <p>Treasure and Celebrate Every Memory, Milestone, and Generation.</p>
+          <Button tag={'Our Family Story'} onClick={goToStory}/>
         </div>
-        <div className={styles.heroBgImage}>
-        </div>
+        <div className={styles.heroScatteredContainer}>
+      
+      {/* Image 1 */}
+      <motion.div
+        className={`${styles.heroImage} ${styles.img1}`}
+        initial={{ scale: 1, rotate: -10 }}
+        animate={{
+          scale: [1, 1.18, 1],
+          rotate: [-10, -6, -10],
+        }}
+        transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image src={HeroPics} alt="Memory 1" width={240} height={240} />
+      </motion.div>
+
+      {/* Image 2 */}
+      <motion.div
+        className={`${styles.heroImage} ${styles.img2}`}
+        initial={{ scale: 1, rotate: 7 }}
+        animate={{
+          scale: [1, 1.22, 1],
+          rotate: [7, 12, 7],
+        }}
+        transition={{ duration: 4.3, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image src={HeroPics} alt="Memory 2" width={240} height={240} />
+      </motion.div>
+
+      {/* Image 3 */}
+      <motion.div
+        className={`${styles.heroImage} ${styles.img3}`}
+        initial={{ scale: 1, rotate: -4 }}
+        animate={{
+          scale: [1, 1.15, 1],
+          rotate: [-4, -1, -4],
+        }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image src={HeroPics} alt="Memory 3" width={240} height={240} />
+      </motion.div>
+      
+      {/* Image 4 */}
+      <motion.div
+        className={`${styles.heroImage} ${styles.img4}`}
+        initial={{ scale: 1, rotate: -4 }}
+        animate={{
+          scale: [1, 1.15, 1],
+          rotate: [-4, -1, -4],
+        }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image src={HeroPics} alt="Memory 3" width={240} height={240} />
+      </motion.div>
+      
+      
+
+    </div>
       </section>
       
       {/* Why Choose Family Tree */}
@@ -45,24 +99,24 @@ export default function HomePage() {
         <div className={styles.cards}>
           <div className={styles.card}>
             <div className={styles.featureIcon}>
-              <Image src={Icon} alt="Features Image" width={40} height={40} />
+              <Image src={HeroPics} alt="Features Image" width={40} height={40} />
             </div>
             <h3>Preserve Memories</h3>
             <p>Upload family photos and documents to protect your legacy.</p>
           </div>
           <div className={styles.card}>
             <div className={styles.featureIcon}>
-              <Image src={Icon} alt="Features Image" width={40} height={40} />
+              <Image src={HeroPics} alt="Features Image" width={40} height={40} />
             </div>
             <h3>Connect Generations</h3>
             <p>Explore relationships and build your family tree interactively.</p>
           </div>
           <div className={styles.card}>
             <div className={styles.featureIcon}>
-              <Image src={Icon} alt="Features Image" width={40} height={40} />
+              <Image src={HeroPics} alt="Features Image" width={40} height={40} />
             </div>
             <h3>Secure Your History</h3>
-            <p>Your family’s private archive, encrypted and backed up in the cloud.</p>
+            <p>Your family&apos;s private archive, encrypted and backed up in the cloud.</p>
           </div>
         </div>
       </section>

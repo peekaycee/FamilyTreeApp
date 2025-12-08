@@ -48,7 +48,7 @@ export default function FamilyMembersPage() {
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "family_members" },
-      () => { fetchMembers(); }   // ✅ FIX: callback no longer async
+      () => { fetchMembers(); }   // FIX: callback no longer async
     )
     .subscribe();
 

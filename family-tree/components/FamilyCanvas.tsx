@@ -475,10 +475,10 @@ const handleSaveEdit = async () => {
       <div className={styles.controls}>
         <button onClick={resetView}>Reset view</button>
         <button
-          onClick={() => {
+          onClick={async () => {
             const app = appRef.current;
             if (!app) return;
-            const dataUrl = app.renderer.extract.base64(app.stage);
+            const dataUrl = await app.renderer.extract.base64(app.stage);
             const a = document.createElement("a");
             a.href = dataUrl;
             a.download = `family-tree-${Date.now()}.png`;

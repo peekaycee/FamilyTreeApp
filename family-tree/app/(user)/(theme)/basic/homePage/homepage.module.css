@@ -8,8 +8,8 @@
 /* General photo style */
 .heroImage {
   position: absolute;
-  width: 240px;
-  height: 240px;
+  width: auto;
+  height: auto;
   border-radius: 7px;
   overflow: hidden;
   /* box-shadow: 0 14px 28px rgba(0,0,0,0.18); */
@@ -17,7 +17,13 @@
 }
 
 /* ---- Artistic Coordinates ---- */
-
+.img1,
+.img2, 
+.img3,
+.img4{
+  object-fit: cover;
+  border-radius: 7px;
+}
 .img1 {
   top: 130px;
   left: 10%;
@@ -32,7 +38,7 @@
 }
 
 .img3 {
-  bottom: -40px;
+  bottom: 20px;
   left: 38%;
   transform: rotate(-10deg);
   z-index: 2;

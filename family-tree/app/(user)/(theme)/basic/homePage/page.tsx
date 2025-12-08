@@ -46,7 +46,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 1" width={240} height={240} />
+        <Image src={HeroPics} alt="Memory 1" width={200} height={200} />
       </motion.div>
 
       {/* Image 2 */}
@@ -59,7 +59,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 4.3, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 2" width={240} height={240} />
+        <Image src={HeroPics} alt="Memory 2" width={200} height={200} />
       </motion.div>
 
       {/* Image 3 */}
@@ -72,7 +72,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 3" width={240} height={240} />
+        <Image src={HeroPics} alt="Memory 3" width={200} height={200} />
       </motion.div>
       
       {/* Image 4 */}
@@ -85,7 +85,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 3" width={240} height={240} />
+        <Image src={HeroPics} alt="Memory 3" width={200} height={200} />
       </motion.div>
       
       

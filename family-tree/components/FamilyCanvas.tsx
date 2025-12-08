@@ -159,7 +159,7 @@ export default function FamilyCanvas() {
     });
     appRef.current = app;
     containerRef.current!.appendChild(app.view as unknown as HTMLCanvasElement);
-    app.view.style.cursor = "grab";
+    (app.view as HTMLCanvasElement).style.cursor = "grab";
 
     let isPanning = false;
     let panStart = { x: 0, y: 0 };
@@ -169,7 +169,7 @@ export default function FamilyCanvas() {
       isPanning = true;
       panStart = { x: e.clientX, y: e.clientY };
       stageStart = { x: app.stage.x, y: app.stage.y };
-      app.view.style.cursor = "grabbing";
+      (app.view as HTMLCanvasElement).style.cursor = "grabbing";
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -181,7 +181,7 @@ export default function FamilyCanvas() {
     };
     const onPointerUp = () => {
       isPanning = false;
-      app.view.style.cursor = "grab";
+      (app.view as HTMLCanvasElement).style.cursor = "grab";
     };
     const onWheel = (ev: WheelEvent) => {
       ev.preventDefault();
@@ -189,7 +189,7 @@ export default function FamilyCanvas() {
       const scaleBy = 1.08;
       const newScale = ev.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
       const clamped = Math.max(0.25, Math.min(3, newScale));
-      const rect = app.view?.getBoundingClientRect();
+      const rect = (app.view as HTMLCanvasElement).getBoundingClientRect();
       const pointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
       const worldPos = { x: (pointer.x - app.stage.x) / oldScale, y: (pointer.y - app.stage.y) / oldScale };
       app.stage.scale.set(clamped);
@@ -197,16 +197,16 @@ export default function FamilyCanvas() {
       app.stage.y = pointer.y - worldPos.y * clamped;
     };
 
-    app.view?.addEventListener("pointerdown", onPointerDown);
+    (app.view as HTMLCanvasElement).addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
-    app.view?.addEventListener("wheel", onWheel, { passive: false });
+    (app.view as HTMLCanvasElement).addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
-      app.view?.removeEventListener("pointerdown", onPointerDown);
+      (app.view as HTMLCanvasElement).removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
-      app.view?.removeEventListener("wheel", onWheel);
+      (app.view as HTMLCanvasElement).removeEventListener("wheel", onWheel);
       app.destroy(true, { children: true });
       appRef.current = null;
     };

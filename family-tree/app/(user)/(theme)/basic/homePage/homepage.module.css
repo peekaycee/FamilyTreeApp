@@ -21,33 +21,44 @@
 .img2, 
 .img3,
 .img4{
+  height: 180px;
   object-fit: cover;
+  object-position: center;
   border-radius: 7px;
 }
+.img1 img,
+.img2 img,
+.img3 img,
+.img4 img {
+  width: 100%;
+  height: 100%;
+}
 .img1 {
-  top: 130px;
-  left: 10%;
+  bottom: 90px;
+  left: 5%;
   transform: rotate(-12deg);
+  z-index: 120;
 }
 
 .img2 {
-  top: 65px;
+  height: 350px;
+  top: 30px;
   right: 10%;
   transform: rotate(6deg);
-  z-index: 3;
+  z-index: 100;
 }
 
 .img3 {
-  bottom: 20px;
+  bottom: 10px;
   left: 38%;
   transform: rotate(-10deg);
-  z-index: 2;
+  z-index: 100;
 }
 .img4 {
-  top: 0px;
+  top: -15px;
   right: 40%;
   transform: rotate(-4deg);
-  z-index: 0;
+  z-index: 100;
 }
 
 @media (max-width: 768px) {
@@ -74,16 +85,6 @@
     transform: translateX(-50%) rotate(-5deg);
   }
 }
-
-
-
-
-
-
-
-
-
-
 .homepage { 
   width: 100%;
   height: auto;
@@ -96,7 +97,6 @@
   background-color: var(--color-primary); 
   background-blend-mode: overlay; 
 }
-/* I love you ~ ch  */
 .heroText{
   width: 50%;
   height: 100%;
@@ -361,18 +361,20 @@
 @media screen and (min-width: 601px) and (max-width: 900px) {
   .hero {
     flex-direction: column;
-    height: 70vh;
+    height: 75vh;
     text-align: center;
   }
   .heroText {
     width: 100%;
     padding: 2em;
     align-items: center;
+    margin-top: 5em;
   }
   .heroBgImage {
-    width: 100%;
-    height: 50vh;
-    background-size: cover;
+    display: none;
+  }
+  .heroImage {
+    display: none;
   }
   .features {
     padding: 3em 2em;
@@ -428,9 +430,13 @@
     width: 100%;
     padding: 1em;
     align-items: center;
+    margin-top: 12em;
   }
   .heroText h1{
-    font-size: 1.5rem;
+    font-size: 2rem;
+  }
+  .heroImage{
+    display: none;
   }
   .heroBgImage {
     width: 100%;

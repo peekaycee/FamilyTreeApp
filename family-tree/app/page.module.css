@@ -4,25 +4,30 @@
 }
 .hero { 
   width: 100%;
-  height: 80vh;
+  height: 75vh;
   display: flex;
   color: white; 
   background-color: var(--color-primary); 
   background-blend-mode: overlay; 
 }
 .heroText{
-  width: 45%;
-  height: 100%;
   display: flex;
-  padding: 0 1em 0 7em;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
 }
 .heroBgImage{
   flex: 1;
-  background: url('../public/images/pee2.png') center no-repeat;
-  background-size: contain;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.heroBgImage img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 200px;
 }
 .hero h1 { 
   font-size: 2.2rem; 
@@ -85,7 +90,7 @@
 /* Video Clips */
 .videoClip,
 .howItWorks {
-  width: 85%;
+  width: 60%;
   height: auto;
   margin: 0 auto;
   padding: 3em 0;
@@ -101,7 +106,7 @@
 .video {
   margin: 0 auto;
   width: 100%;
-  height: 80vh;
+  height: 100vh;
   border-radius: 10px;
   margin-top: 2em;
 }
@@ -173,18 +178,25 @@
   align-items: center;
   justify-content: center;
 }
-.testimonyImage{
+.testimonyImage {
   width: 300px;
   height: 300px;
-  object-fit: cover;
   background: white;
   border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.testimony img{
+
+.testimonyImage img {
   width: 100%;
   height: 100%;
+  object-fit: cover; 
+  object-position: center;
   border-radius: 50%;
 }
+
 .testifierText {
   font-size: 1.2rem;
 }
@@ -272,19 +284,37 @@
 /* Tablets (601px - 900px) */
 @media screen and (min-width: 601px) and (max-width: 900px) {
   .hero {
+    position: relative;
     flex-direction: column;
-    height: 70vh;
+    height: 75vh;
     text-align: center;
+    background: url('../public/images/family15.png') center no-repeat;
+    background-size: contain;
+  }
+  .overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
   }
   .heroText {
     width: 100%;
-    padding: 2em;
+    display: flex;
     align-items: center;
+    margin-top: 8em;
+    z-index: 1;
+  }
+  .heroText h1{
+    font-size: 2rem;
+    margin-bottom: 0.25em;
+  }
+  .heroText p {
+    margin-bottom: 1.35em;
   }
   .heroBgImage {
-    width: 100%;
-    height: 50vh;
-    background-size: cover;
+    display: none;
   }
   .features {
     padding: 3em 2em;
@@ -311,9 +341,10 @@
     flex-shrink: 0; */
   }
   .testimonyImage{
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
   }
+  
  .planCards {
     flex-wrap: wrap;
     justify-content: center;
@@ -329,24 +360,39 @@
     display: none;
   }
   .hero {
+    position: relative;
     flex-direction: column;
+    height: 83vh;
     text-align: center;
-    height: 80vh;
-    padding: 0 1em;
-    margin-top: -2em;
+    background: url('../public/images/family15.png') center no-repeat;
+    background-size: 400px;
   }
-  .heroText {
+  .heroBgImage{
+    display: none;
+  }
+.overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 1em;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+  }
+.heroText {
+    font-size: 1.5rem;
+    width: 100%;
+    padding-top: 12em;
+    padding-right: 2em;
+    padding-left: 2em;
     align-items: center;
+    z-index: 1;
   }
   .heroText h1{
-    font-size: 1.5rem;
+    font-size: 1.7rem;
+    margin-bottom: 0.4em;
   }
-  .heroBgImage {
-    width: 100%;
-    height: 40vh;
-    background-size: cover;
+  .heroText p{
+    margin-bottom: 1.5em;
   }
   .features {
     padding: 2em 1em;
@@ -378,6 +424,7 @@
     width: 90%;
   }
   .testifierText {
+    width: 30%;
     font-size: 1rem;
     text-align: left;
   }
@@ -387,11 +434,11 @@
   }
   .testimonyItem{
     margin-left: 0.2em;
-    padding: 0 1em;
+    padding: 0 3em;
   }
   .testimonyImage {
-    width: 50%;
-    height: 50%;
+    width: 120px;
+    height: 120px;
     margin-right: -2.5em;
   }
   .testimonyImage img{
@@ -405,4 +452,15 @@
   .videoClip h1{
     font-size: 1.7rem;
   }
+  .videoClip,
+  .howItWorks {
+    width: 90%;
+  }
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  stroke-width: 1.75;
 }

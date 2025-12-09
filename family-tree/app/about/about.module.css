@@ -15,7 +15,7 @@
 .heroSection {
   background: var(--color-primary);
   width: 100%;
-  height: 80vh;
+  height: 75vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -85,14 +85,16 @@
   color: #4a4a4a;
 }
 .roundedImage {
+  object-fit: cover;
+  object-position: center;
   border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 }
 
 /* Vision */
 .visionSection {
-  background: var(--color-primary);
   background: var(--color-black-text);
+  /* background: var(--color-black-text); */
   color: var(--color-white-text);
   padding: 5rem 2rem;
   width: 100%;
@@ -114,8 +116,9 @@
 }
 .visionImage{
   width: fit-content;
+  height: auto;
   border-radius: 1rem;
-  background: var(--color-bg);
+  background: var(--color-black-text);
 }
 .visionText h2 {
   color: var(--color-secondary);
@@ -127,6 +130,8 @@
   line-height: 1.5rem;
 }
 .visionImage img {
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
@@ -187,8 +192,11 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 }
 .teamImage {
-  border-radius: 50%;
+  /* border-radius: 50%; */
+  width: 200px;
+  height: 200px;
   object-fit: cover;
+  object-position: center;
 }
 .teamCard h4 {
   color: var(--color-secondary);
@@ -197,9 +205,12 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 768px) {  
+  .heroSection{
+    padding: 0 0.75em;
+  }
   .heroSection h1 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
   }
   .storyContainer,
   .visionContent {
@@ -209,5 +220,56 @@
   .visionImage img {
     width: 100%;
     height: auto;
+  }
+}
+@media (max-width: 600px) {  
+  .storyContainer,
+  .visionContent {
+    flex-direction: column;
+  }
+  .storyImage{
+    width: 100%;
+  }
+  .storyImage img,
+  .visionImage img {
+    width: 100%;
+    height: auto;
+  }
+  .storyText h2{
+    text-align: center;
+  }
+  .storyText p{
+    text-align: justify;
+  }
+  .stats{
+    flex-direction: column;
+    margin: 3em 0 0;
+  }
+  .stats div{
+    border-bottom: 0.1px solid rgba(0, 0, 0, 0.06);
+    width: 90%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .stats div:nth-child(2){
+    padding: 1em 0;
+  }
+  .stats div:last-child{
+    border-bottom: none;
+  }
+  .visionImage{
+    margin-top: 3em;
+  }
+  .visionText h2{
+    text-align: center;
+    font-size: 1.5rem;
+  }
+  .visionText p,
+  .visionText h3{
+    margin-bottom: 0.75em;
+    text-align: center;
   }
 }

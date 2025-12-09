@@ -4,10 +4,12 @@ import styles from './components.module.css'
 import Link from 'next/link'
 import Image from 'next/image';
 import Logo from '../public/images/logo.png';
+import FacebookIcon from '../public/images/facebook.svg';
+import InstagramIcon from '../public/images/instagram.svg';
+import TiktokIcon from '../public/images/tiktok.svg';
 import Badge from '../public/images/badge.png';
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Button from './Button';
 import { ArrowUp } from "lucide-react";
 import useGlobalAuth from "@/app/hooks/useGlobalAuth";
@@ -17,7 +19,6 @@ export default function Footer(){
 
   // const [loggedIn, setLoggedIn] = useState(false)
   const loggedIn = useGlobalAuth();
-  const pathname = usePathname()
   const router = useRouter()
 
   // const checkLoginStatus = () => {
@@ -103,13 +104,13 @@ export default function Footer(){
                 <p>We Reserve Our Family Legacy and Follow Up on Our Linage and Heritage.</p>
                 <div className={styles.socials}>
                   <Link href={'/'} className={styles.socialsLink}>
-                    <Image src={Logo} alt='Facebook' width={0} height={0}/>
+                    <Image src={FacebookIcon} alt='Facebook' width={0} height={0}/>
                   </Link>
                   <Link href={'/'} className={styles.socialsLink}>
-                    <Image src={Logo} alt='Instagram' width={0} height={0}/>
+                    <Image src={InstagramIcon} alt='Instagram' width={0} height={0}/>
                   </Link>
                   <Link href={'/'} className={styles.socialsLink}>
-                    <Image src={Logo} alt='TikTok' width={0} height={0}/>
+                    <Image src={TiktokIcon} alt='Whatsapp' width={0} height={0}/>
                   </Link>
                 </div>
                 <p className={styles.connect}>Connect With Us On Social Media.</p>
@@ -173,13 +174,13 @@ export default function Footer(){
                 <p>Reserve Your Family Legacy and Follow Up on Your Linage and Heritage.</p>
                 <div className={styles.socials}>
                   <Link href={'/'} className={styles.socialsLink}>
-                    <Image src={Logo} alt='Facebook' width={0} height={0}/>
+                    <Image src={FacebookIcon} alt='Facebook' width={0} height={0}/>
                   </Link>
                   <Link href={'/'} className={styles.socialsLink}>
-                    <Image src={Logo} alt='Instagram' width={0} height={0}/>
+                    <Image src={InstagramIcon} alt='Instagram' width={0} height={0}/>
                   </Link>
                   <Link href={'/'} className={styles.socialsLink}>
-                    <Image src={Logo} alt='TikTok' width={0} height={0}/>
+                    <Image src={TiktokIcon} alt='Whatsapp' width={0} height={0}/>
                   </Link>
                 </div>
                 <p className={styles.connect}>Connect With Us On Social Media.</p>

@@ -9,7 +9,7 @@
   background: var(--color-primary);
   color: white; 
   position: relative;
-  z-index: 100;
+  z-index: 150; 
 }
 .links a {
   color: var(--color-white-text); 
@@ -102,6 +102,7 @@
   padding: 0;
   opacity: 1;
   transform: translateY(0);
+  
 }
 .dropdownMenu a {
   padding: 1rem 0rem;
@@ -112,6 +113,7 @@
 }
 .dropdownMenu a:hover,
 .dropdownMenu a.active {
+  
   background: rgba(255,255,255,0.1);
   color: var(--color-accent);
 }
@@ -208,14 +210,10 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .links {
-    display: none;
-  }
   .hamburger {
     display: block;
   }
 }
-
 
 /* FOOTER */
 .footer {
@@ -350,21 +348,24 @@
   justify-content: flex-start;
 }
 .socials a{
-  width: 30px;
-  height: 30px;
+  background: var(--color-bg);
+  width: 23px;
+  height: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1em;
   border-radius: 50%;
-  background: var(--color-secondary);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: all 0.3s ease; 
 }
 .socials a:hover {
-  background: var(--color-accent);
-  transform: scale(1.05);
+  transform: scale(1.15);
 }
 .socials a img{
   width: 100%;
   height: 100%;
-  object-fit: center;
+  object-fit: cover;
+  object-position: center;
 }
 .connect {
   font-weight: 400;
@@ -382,8 +383,8 @@
 }
 .moveUp{
   position: fixed;
-  bottom: 70px;
-  right: 30px;
+  bottom: 60px;
+  right: 15px;
   border: none;
   display: inline-flex;
   align-items: center;
@@ -441,6 +442,9 @@
     align-items: center;
     text-align: center;
   }
+  .footerPlanLogo{
+    margin: 0 auto;
+  }
   .socials {
     justify-content: center;
   }
@@ -448,6 +452,9 @@
   width: 400px;
   margin: 1.5em auto 0;
 }
+.moveUp{
+  bottom: 50px;
+  }
 }
 
 /* Mobile (≤ 600px) */
@@ -460,6 +467,7 @@
   .links {
     display: none;
   }
+   
   .brand a {
     font-size: 1.3rem;
   }
@@ -468,16 +476,20 @@
     padding: 2em;
     gap: 2em;
     text-align: center;
-    align-items: center;
+    align-items: flex-end;
   }
   .footerLogo,
   .footerPlanLogo {
     width: 40%;
   }
+  .footerPlanLogo{
+    margin: 0 auto;
+  }
   .plans,
   .navLinks {
     width: 100%;
-    align-items: center;
+    align-items: flex-start;
+    padding-left: 1em;
     text-align: center;
   }
   .footerText {
@@ -558,21 +570,6 @@
   opacity: 1;
   transform: translateY(0);
 }
-
-/* Show hamburger icon and adjust layout on small screens */
-@media screen and (max-width: 600px) {
-  .links {
-    display: none;
-  }
-
-  .hamburger {
-    display: block;
-  }
-
-  .mobileMenu {
-    width: 80%;
-  }
-}
 /* ===============================
    SLIDE-IN HAMBURGER DRAWER MENU
 ================================*/
@@ -582,6 +579,22 @@
   color: var(--color-white-text);
   z-index: 1002;
   transition: all 0.3s ease;
+}
+
+/* Show hamburger icon and adjust layout on small screens */
+@media screen and (min-width: 601px) and (max-width: 900px) {
+  .links {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+    margin-top: 1em;
+  }
+
+  .mobileMenu {
+    width: 80%;
+  }
 }
 
 .mobileDrawer {
@@ -1147,6 +1160,7 @@
     width: 92%;
     padding: 14px;
   }
+  
 }
 
 
@@ -1366,7 +1380,6 @@
     height: 60vh;
     padding: 10px;
   }
-
   .nodeBox {
     width: 100px;
     padding: 6px;
@@ -1384,5 +1397,12 @@
   .nodeBtns button {
     padding: 2px 4px;
     font-size: 10px;
+  }
+  .moveUp{
+  bottom: 15px;
+  right: 10px;
+  }
+  .hamburger{
+    margin-top: 1.5em;
   }
 }

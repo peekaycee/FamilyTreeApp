@@ -2,8 +2,8 @@
 
 import styles from './page.module.css'
 import Image from 'next/image';
-import Icon from '../public/images/icon.png';
-import { motion, AnimatePresence } from 'framer-motion';
+import HeroImage from '../public/images/family15.png';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { testimonies } from './constants/Testimonies';
 import Button from '../components/Button';
@@ -24,7 +24,7 @@ export default function Home() {
       setCurrent((prev) => (prev + 1) % testimonies.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [testimonies.length]);
+  });
 
   return (
     <section className={styles.homepage}>
@@ -34,18 +34,22 @@ export default function Home() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
       >
+        <div className={styles.overlay}></div>
         <div className={styles.heroText}>
-          <h1>Preserve Your Legacy, Share Your Story.</h1>
-          <p>A secure, private space to celebrate your family heritage.</p>
-          <Button tag={'Start Your Family Tree'} onClick={goToRegistration}/>
+          <div className={styles.HeroTextContent}>
+            <h1>Preserve Your Legacy, <br/>Share Your Story.</h1>
+            <p>A secure, private space to celebrate your family heritage.</p>
+            <Button tag={'Start Your Family Tree'} onClick={goToRegistration}/>
+          </div>
         </div>
         <div className={styles.heroBgImage}>
+          <Image src={HeroImage} alt="Features Image" width={200} height={200} />
         </div>
       </motion.section>
       
       {/* Why Choose Family Tree */}
       <section className={styles.features}>
-        <h1>Why Choose Family Tree</h1>
+        <h1>Why Choose The Family Tree</h1>
         <div className={styles.cards}>
           <motion.div 
             className={styles.card}
@@ -55,7 +59,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <div className={styles.featureIcon}>
-              <Image src={Icon} alt="Features Image" width={40} height={40} />
+              🌿
             </div>
             <h3>Preserve Memories</h3>
             <p>Upload family photos and documents to protect your legacy.</p>
@@ -68,7 +72,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <div className={styles.featureIcon}>
-              <Image src={Icon} alt="Features Image" width={40} height={40} />
+               👨‍👩‍👧‍👦
             </div>
             <h3>Connect Generations</h3>
             <p>Explore relationships and build your family tree interactively.</p>
@@ -81,10 +85,10 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <div className={styles.featureIcon}>
-              <Image src={Icon} alt="Features Image" width={40} height={40} />
+              🛡️
             </div>
             <h3>Secure Your History</h3>
-            <p>Your family’s private archive, encrypted and backed up in the cloud.</p>
+            <p>Your family&apos;s private archive, encrypted and backed up in the cloud.</p>
           </motion.div>
         </div>
       </section>
@@ -100,7 +104,7 @@ export default function Home() {
           viewport={{ once: true }}
         >
           <video muted loop autoPlay>
-            <source src="/videos/Hema-vid.mp4" type="video/mp4"></source>
+            <source src="/videos/TFTVid.mp4" type="video/mp4"></source>
           </video>
         </motion.div>
       </section>

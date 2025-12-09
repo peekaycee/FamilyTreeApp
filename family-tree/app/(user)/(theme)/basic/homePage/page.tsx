@@ -3,7 +3,11 @@
 import styles from './homepage.module.css'
 import Image from 'next/image';
 import HeroPics from '../../../../../public/images/pee2.png';
-import { motion, AnimatePresence } from 'framer-motion';
+import Family16 from '../../../../../public/images/family16.png';
+import Family19 from '../../../../../public/images/family19.png';
+import Family25 from '../../../../../public/images/family25.png';
+import Family26 from '../../../../../public/images/family26.png';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { testimonies } from '../../../../constants/Testimonies';
 import Button from '../../../../../components/Button';
@@ -24,7 +28,7 @@ export default function HomePage() {
       setCurrent((prev) => (prev + 1) % testimonies.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [testimonies.length]);
+  });
 
   return (
     <section className={styles.homepage}>
@@ -46,7 +50,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 1" width={200} height={200} />
+        <Image src={Family16} alt="Memory 1" width={200} height={200} />
       </motion.div>
 
       {/* Image 2 */}
@@ -59,7 +63,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 4.3, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 2" width={200} height={200} />
+        <Image src={Family19} alt="Memory 2" width={200} height={200} />
       </motion.div>
 
       {/* Image 3 */}
@@ -72,7 +76,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 3" width={200} height={200} />
+        <Image src={Family25} alt="Memory 3" width={200} height={200} />
       </motion.div>
       
       {/* Image 4 */}
@@ -85,7 +89,7 @@ export default function HomePage() {
         }}
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Image src={HeroPics} alt="Memory 3" width={200} height={200} />
+        <Image src={Family26} alt="Memory 3" width={200} height={200} />
       </motion.div>
       
       
@@ -126,7 +130,7 @@ export default function HomePage() {
         <h1>Visualize Your Family Legacy</h1>
         <div className={styles.video}>
           <video muted loop autoPlay>
-            <source src="/videos/Hema-vid.mp4" type="video/mp4"></source>
+            <source src="/videos/TFTVid.mp4" type="video/mp4"></source>
           </video>
         </div>
       </section>

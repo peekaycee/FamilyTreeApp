@@ -5,8 +5,32 @@ import styles from './about.module.css'
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 import { useState } from 'react'
-import HeroImage from '../../public/images/pee2.png'
-import Icon from '../../public/images/icon.png';
+import FamilyImage27 from '../../public/images/family2.jpg'
+import FamilyImage20 from '../../public/images/family20.jpg'
+import Staff1 from '../../public/images/staff1.png'
+import Staff2 from '../../public/images/staff2.png'
+import Staff3 from '../../public/images/staff3.png'
+
+ const staffData = [
+    {
+      image: Staff1,
+      name: "John Doe",
+      role: "Founder / Lead Developer",
+    },
+    {
+      image: Staff2,
+      name: "Jane C. Williams",
+      role: "Product Designer",
+    },
+    {
+      image: Staff3,
+      name: "Samuel Adeyemi",
+      role: "Family Relations & Support",
+    },
+  ];
+
+
+
 
 export default function About() {
   const [startCount, setStartCount] = useState(false)
@@ -21,7 +45,7 @@ export default function About() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
         >
-          <h1>About TheFamilyTree</h1>
+          <h1>Who We Are...</h1>
           <p>Connecting generations through stories, love, and legacy.</p>
         </motion.section>
       </div>
@@ -41,7 +65,7 @@ export default function About() {
             transition={{ duration: 0.5 }}
           >
             <Image
-              src={HeroImage}
+              src={FamilyImage27}
               alt="Our Story"
               width={500}
               height={500}
@@ -107,7 +131,7 @@ export default function About() {
         <div className={styles.visionContainer}>
           <div className={styles.visionContent}>
             <div className={styles.visionText}>
-          <h2>Vision & Mission</h2>
+              <h2>Vision & Mission</h2>
               <h3>Our Vision</h3>
               <p>
                 To become the most trusted digital space for families worldwide —
@@ -116,7 +140,7 @@ export default function About() {
 
               <h3>Our Mission</h3>
               <p>
-                We’re on a mission to empower families with the tools to document,
+                We’&apos;e on a mission to empower families with the tools to document,
                 celebrate, and share their legacy through storytelling and technology.
               </p>
             </div>
@@ -127,7 +151,7 @@ export default function About() {
               transition={{ type: 'spring', stiffness: 120 }}
             >
               <Image
-                src={HeroImage}
+                src={FamilyImage20}
                 alt="Vision & Mission"
                 width={300}
                 height={300}
@@ -170,8 +194,9 @@ export default function About() {
       {/* Meet Our Team */}
       <section className={styles.teamSection}>
         <h2>Meet Our Team</h2>
+
         <div className={styles.teamGrid}>
-          {[Icon, Icon, Icon].map((img, i) => (
+          {staffData.map((staff, i) => (
             <motion.div
               key={i}
               className={styles.teamCard}
@@ -181,15 +206,15 @@ export default function About() {
               viewport={{ once: true }}
             >
               <Image
-                src="/images/icon.png"
-                alt={`Team member ${i + 1}`}
+                src={staff.image}
+                alt={staff.name}
                 width={200}
                 height={200}
-                loading='eager'
+                loading="eager"
                 className={styles.teamImage}
               />
-              <h4>Member {i + 1}</h4>
-              <p>Role / Department</p>
+              <h4>{staff.name}</h4>
+              <p>{staff.role}</p>
             </motion.div>
           ))}
         </div>

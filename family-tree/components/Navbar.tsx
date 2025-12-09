@@ -62,8 +62,8 @@ export default function Navbar() {
         !hamburger?.contains(e.target as Node)
       ) setMenuOpen(false)
     }
-    // document.addEventListener('click', handleClickOutside, true)
-    // return () => document.removeEventListener('click', handleClickOutside, true)
+    document.addEventListener('click', handleClickOutside, true)
+    return () => document.removeEventListener('click', handleClickOutside, true)
   }, [menuOpen])
 
   const handleLogout = async () => {

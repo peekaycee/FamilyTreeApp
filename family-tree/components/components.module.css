@@ -383,7 +383,7 @@
 }
 .moveUp{
   position: fixed;
-  bottom: 60px;
+  bottom: 15px;
   right: 15px;
   border: none;
   display: inline-flex;

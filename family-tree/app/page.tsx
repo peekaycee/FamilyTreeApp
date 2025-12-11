@@ -45,10 +45,9 @@ export default function Home() {
     <section className={styles.homepage}>
       <motion.section 
         className={styles.hero}
-        /* Prevent hero from re-running its initial animation when parent PageTransition animates */
         initial={false}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0 }}
       >
         <div className={styles.overlay}></div>
         <div className={styles.heroText}>

@@ -4,7 +4,7 @@ import styles from './page.module.css'
 import Image from 'next/image';
 import HeroImage from '../public/images/family15.png';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { testimonies } from './constants/Testimonies';
 import Button from '../components/Button';
 import { useRouter } from "next/navigation";
@@ -12,25 +12,41 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
+
   const goToFamilyHeritagePlan = () => router.push("/familyHeritagePlan");
   const goToFamilyLegacyPlan = () => router.push("/familyLegacyPlan");
   const goToFamilyPremiumPlan = () => router.push("/familyPremiumPlan");
   const goToRegistration = () => router.push("/auth/register");
-  
 
-  // Automatically change testimonial every 3 seconds
+  // useRef keeps the interval id stable
+  const intervalRef = useRef<number | null>(null);
+
+  // Automatically change testimonial every 5 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
+    // clear any existing interval (defensive)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    intervalRef.current = window.setInterval(() => {
       setCurrent((prev) => (prev + 1) % testimonies.length);
     }, 5000);
-    return () => clearInterval(interval);
-  });
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [ /* empty on purpose so it sets up once */ ]);
 
   return (
     <section className={styles.homepage}>
       <motion.section 
         className={styles.hero}
-        initial={{ opacity: 0, scale: 1.05 }}
+        /* Prevent hero from re-running its initial animation when parent PageTransition animates */
+        initial={false}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
       >
@@ -58,9 +74,7 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.2 }}
             viewport={{ once: true }}
           >
-            <div className={styles.featureIcon}>
-              🌿
-            </div>
+            <div className={styles.featureIcon}>🌿</div>
             <h3>Preserve Memories</h3>
             <p>Upload family photos and documents to protect your legacy.</p>
           </motion.div>
@@ -71,9 +85,7 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.2 }}
             viewport={{ once: true }}
           >
-            <div className={styles.featureIcon}>
-               👨‍👩‍👧‍👦
-            </div>
+            <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
             <h3>Connect Generations</h3>
             <p>Explore relationships and build your family tree interactively.</p>
           </motion.div>
@@ -84,9 +96,7 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.2 }}
             viewport={{ once: true }}
           >
-            <div className={styles.featureIcon}>
-              🛡️
-            </div>
+            <div className={styles.featureIcon}>🛡️</div>
             <h3>Secure Your History</h3>
             <p>Your family&apos;s private archive, encrypted and backed up in the cloud.</p>
           </motion.div>
@@ -103,7 +113,7 @@ export default function Home() {
           transition={{ delay: 0.2, duration: 0.2 }}
           viewport={{ once: true }}
         >
-          <video muted loop autoPlay>
+          <video muted loop autoPlay playsInline>
             <source src="/videos/TFTVid.mp4" type="video/mp4"></source>
           </video>
         </motion.div>
@@ -172,9 +182,7 @@ export default function Home() {
                   </div>
                   <div className={styles.testifierText}>
                     <p>{t.text}</p>
-                    <p>
-                      - <em>{t.name}</em>
-                    </p>
+                    <p>- <em>{t.name}</em></p>
                   </div>
                 </div>
               ))}
@@ -183,66 +191,68 @@ export default function Home() {
         </div>
       </section>
 
-    {/* PLANS */}
-    <section className={styles.plans}>
-      <h1>Our plans</h1>
-      <div className={styles.planCards}>
-        <motion.div 
-          className={styles.plan}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.2 }}
-          viewport={{ once: true }}
-        >
-          <h2>Family Heritage Plan</h2>
-          <p>NGN350,000 Setup + NGN100,000/Year</p>
-          <ul>
-            <li>Private Family Website</li>
-            <li>Basic Tree (up to 10 members)</li>
-            <li>Photo and Video Gallery</li>
-            <li>Event Calenders</li>
-            <li>1GB Secured Storage</li>
-          </ul>
-          <Button tag={'Request Plan'} onClick={goToFamilyHeritagePlan}/>
-        </motion.div>
-        <motion.div 
-          className={styles.plan}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.2 }}
-          viewport={{ once: true }}
-        >
-          <h2>Family Legacy Plan</h2>
-          <p>NGN500,000 Setup + NGN150,000/Year</p>
-          <ul>
-            <li>Private Family Website</li>
-            <li>Basic Tree (up to 100 members)</li>
-            <li>Photo and Video Gallery</li>
-            <li>Event Calenders</li>
-            <li>100GB Secured Storage</li>
-          </ul>
-          <Button tag={'Request Plan'} onClick={goToFamilyLegacyPlan}/>
-        </motion.div>
-        <motion.div 
-          className={styles.plan}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.2 }}
-          viewport={{ once: true }}
-        >
-          <h2>Family Premium Plan</h2>
-          <p>NGN700,000 Setup + NGN200,000/Year</p>
-          <ul>
-            <li>Private Family Website</li>
-            <li>Basic Tree (unlimited members)</li>
-            <li>Photo and Video Gallery</li>
-            <li>Event Calenders</li>
-            <li>Unlimited Secured Storage</li>
-          </ul>
-          <Button tag={'Request Plan'} onClick={goToFamilyPremiumPlan}/>
-        </motion.div>
-      </div>
+      {/* PLANS */}
+      <section className={styles.plans}>
+        <h1>Our plans</h1>
+        <div className={styles.planCards}>
+          <motion.div 
+            className={styles.plan}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h2>Family Heritage Plan</h2>
+            <p>NGN350,000 Setup + NGN100,000/Year</p>
+            <ul>
+              <li>Private Family Website</li>
+              <li>Basic Tree (up to 10 members)</li>
+              <li>Photo and Video Gallery</li>
+              <li>Event Calenders</li>
+              <li>1GB Secured Storage</li>
+            </ul>
+            <Button tag={'Request Plan'} onClick={goToFamilyHeritagePlan}/>
+          </motion.div>
+
+          <motion.div 
+            className={styles.plan}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h2>Family Legacy Plan</h2>
+            <p>NGN500,000 Setup + NGN150,000/Year</p>
+            <ul>
+              <li>Private Family Website</li>
+              <li>Basic Tree (up to 100 members)</li>
+              <li>Photo and Video Gallery</li>
+              <li>Event Calenders</li>
+              <li>100GB Secured Storage</li>
+            </ul>
+            <Button tag={'Request Plan'} onClick={goToFamilyLegacyPlan}/>
+          </motion.div>
+
+          <motion.div 
+            className={styles.plan}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h2>Family Premium Plan</h2>
+            <p>NGN700,000 Setup + NGN200,000/Year</p>
+            <ul>
+              <li>Private Family Website</li>
+              <li>Basic Tree (unlimited members)</li>
+              <li>Photo and Video Gallery</li>
+              <li>Event Calenders</li>
+              <li>Unlimited Secured Storage</li>
+            </ul>
+            <Button tag={'Request Plan'} onClick={goToFamilyPremiumPlan}/>
+          </motion.div>
+        </div>
+      </section>
     </section>
-  </section>
- )
+  )
 }

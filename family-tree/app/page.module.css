@@ -116,7 +116,16 @@
   border-radius: 10px;
   object-fit: cover;
 }
+.howItWorks{
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .howItWorksCards {
+  width: 80%;
   display: flex;
   margin-top: 2em;
   gap: 2em;
@@ -126,8 +135,8 @@
 .howItWorksCard {
   background: #fff;
   color: var(--color-black-text);
-  width: 28%;
-  padding: 2.5em 0.5em;
+  width: 500px;
+  padding: 2.5em 1em;
   border-radius: 10px;
   font-size: 1.1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
@@ -366,6 +375,7 @@
     text-align: center;
     background: url('../public/images/family15.png') center no-repeat;
     background-size: 400px;
+    margin-top: -1px;
   }
   .heroBgImage{
     display: none;
@@ -404,12 +414,12 @@
     width: 100%;
     height: 30vh;
   }
-
   .howItWorksCards {
+    width: 100%;
     flex-direction: column;
   }
   .howItWorksCard {
-    width: 90%;
+    width: 100%;
   }
 
   .testimonies {

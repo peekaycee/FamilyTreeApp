@@ -1,9 +1,10 @@
-// app/legacy/page.tsx
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./legacy.module.css";
+import Link from "next/link";
+import HeroPics from '../../../../../public/images/pee2.png';
 import { CornerDownLeft, Calendar, User, Play } from "lucide-react";
 
 /**
@@ -15,7 +16,7 @@ const timelineData = [
     year: 1920,
     title: "Migration to new land",
     excerpt: "The family moved to the city looking for new opportunities.",
-    images: [],
+    images: [HeroPics],
     details: "A long migration story with letters and photographs.",
   },
   {
@@ -90,14 +91,14 @@ export default function LegacyPage() {
         >
           <h1 className={styles.heroTitle}>Legacy — Family Heritage</h1>
           <p className={styles.heroLead}>
-            Preserve the stories, deeds and milestones that built our family.
+            Preserving the stories, deeds and milestones that built our family.
           </p>
           <div className={styles.heroCTAs}>
             <button className={styles.ctaPrimary}>
-              <Play size={16} /> Explore Stories
+              <Play size={16} /> <Link href={"/basic/stories"}>Explore Stories</Link>
             </button>
             <button className={styles.ctaGhost}>
-              <CornerDownLeft size={14} /> View Family Tree
+              <CornerDownLeft size={14} /> <Link href={"/basic/dashboard/family-builder"}>View Family Tree</Link>
             </button>
           </div>
         </motion.div>
@@ -117,7 +118,7 @@ export default function LegacyPage() {
                   whileHover={{ scale: 1.03 }}
                   onClick={() => alert(`${p.name} — born ${p.birth}`)}
                 >
-                  <div className={styles.nodeAvatar} />
+                  <div className={styles.nodeAvatar}></div>
                   <div>
                     <strong>{p.name}</strong>
                     <div className={styles.nodeMeta}>{p.birth}</div>

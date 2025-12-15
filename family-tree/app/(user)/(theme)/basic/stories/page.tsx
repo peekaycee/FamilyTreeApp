@@ -18,8 +18,9 @@ export default function OurStoryPage() {
         <div className={styles.heroContent}>
           <h1 className={styles.title}>Our Story</h1>
           <p className={styles.subtitle}>
-            A journey through generations — preserving memories, honoring heritage, 
-            and celebrating the beautiful connections that make each family unique.
+            The story of the Awolowo family — a journey shaped by heritage,
+            resilience, shared values, and the generations that continue to
+            carry our name forward with pride.
           </p>
         </div>
 
@@ -30,8 +31,8 @@ export default function OurStoryPage() {
           transition={{ delay: 0.3, duration: 1 }}
         >
           <Image
-            src="/images/pee2.png"
-            alt="Family Legacy"
+            src="/images/family21.png"
+            alt="Awolowo Family Legacy"
             fill
             className={styles.heroImage}
           />
@@ -55,13 +56,14 @@ export default function OurStoryPage() {
             className={styles.textBlock}
           >
             <h2 className={styles.heading}>
-              Every Family Has a Story Worth Telling
+              The Roots of the Awolowo Family
             </h2>
             <p className={styles.text}>
-              The Family Tree was born from a simple belief — that memories 
-              fade, but stories live forever when preserved with intention.  
-              Our mission is to help families document their legacy, 
-              celebrate their roots, and keep generations connected.
+              This platform exists to document and preserve the story of the
+              Awolowo family — our beginnings, our journeys, our challenges,
+              and our triumphs. What started as shared memories passed down by
+              word of mouth is now carefully recorded so that no chapter of our
+              history is ever lost.
             </p>
           </motion.div>
 
@@ -74,7 +76,7 @@ export default function OurStoryPage() {
           >
             <Image
               src="/images/icon.png"
-              alt="Family"
+              alt="Awolowo family heritage"
               fill
               className={styles.sectionImage}
               loading="eager"
@@ -91,7 +93,7 @@ export default function OurStoryPage() {
           viewport={{ once: true }}
           className={styles.valuesTitle}
         >
-          What We Stand For
+          What Defines Us as a Family
         </motion.h3>
 
         <div className={styles.valuesGrid}>
@@ -104,10 +106,11 @@ export default function OurStoryPage() {
             transition={{ duration: 0.5 }}
           >
             <Heart className={styles.icon} />
-            <h4>Love & Connection</h4>
+            <h4>Love & Togetherness</h4>
             <p>
-              We cherish the bonds that make every family unique — the laughter, 
-              the challenges, and the moments that shape who we are.
+              At the heart of the Awolowo family is love — expressed through
+              unity, mutual respect, shared laughter, and standing together
+              through every season of life.
             </p>
           </motion.div>
 
@@ -120,10 +123,11 @@ export default function OurStoryPage() {
             transition={{ duration: 0.6 }}
           >
             <Users className={styles.icon} />
-            <h4>Generational Unity</h4>
+            <h4>Generational Bond</h4>
             <p>
-              Our platform helps bridge the gap between the past, present, and future, 
-              giving every generation a voice and a place in the story.
+              From elders to the youngest members, our family story is one
+              continuous thread. This space ensures that every generation of
+              the Awolowos remains connected, informed, and represented.
             </p>
           </motion.div>
 
@@ -136,10 +140,12 @@ export default function OurStoryPage() {
             transition={{ duration: 0.7 }}
           >
             <BookOpen className={styles.icon} />
-            <h4>Legacy Preservation</h4>
+            <h4>Preserving Our Legacy</h4>
             <p>
-              We believe in documenting memories the right way — thoughtfully, 
-              beautifully, and in a format that future generations can truly treasure.
+              We are committed to documenting our history with intention —
+              preserving stories, photographs, milestones, and memories so
+              future generations of the Awolowo family can know exactly where
+              they come from.
             </p>
           </motion.div>
         </div>
@@ -163,7 +169,7 @@ export default function OurStoryPage() {
           >
             <Image
               src="/images/pee2.png"
-              alt="Family generations"
+              alt="Awolowo family generations"
               fill
               className={styles.sectionImage}
             />
@@ -176,11 +182,12 @@ export default function OurStoryPage() {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            <h2 className={styles.heading}>A Legacy That Lives On</h2>
+            <h2 className={styles.heading}>A Story That Continues</h2>
             <p className={styles.text}>
-              The Family Tree is more than a digital archive — it is a place 
-              where stories are honored, loved ones are remembered, and 
-              generations stay connected no matter how far apart they may be.
+              The Awolowo family story is still being written. This platform
+              serves as a living archive — a place where memories are honored,
+              loved ones are remembered, and every new chapter adds meaning to
+              the legacy we leave behind.
             </p>
           </motion.div>
         </motion.div>

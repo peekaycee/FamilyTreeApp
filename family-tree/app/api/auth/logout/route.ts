@@ -78,6 +78,7 @@ export async function POST() {
     });
 
     return res;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return NextResponse.json(
       { message: err.message ?? "Logout failed" },

@@ -87,7 +87,8 @@ export default function Login() {
           <LoginContent />
         </Suspense>
         <p>
-          Don&apos;t have an account? <a href="/auth/register">Register</a>
+          {/* Don&apos;t have an account? <a href="/auth/register">Register</a> */}
+          Don&apos;t have an account? <a href="/plans">Register</a>
         </p>
       </div>
     </section>

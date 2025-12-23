@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+// import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { controlPlaneAdmin } from '../../../lib/supabase/controlPlaneAdmin';
 import { createClient } from '@supabase/supabase-js';
+
+
+
 
 export async function POST(req: Request) {
   try {
@@ -32,13 +36,14 @@ export async function POST(req: Request) {
     }
 
     // Generate signed upload URL (2 minutes validity)
-    const { data, error } = await supabaseAdmin.storage
+    const { data, error } = await controlPlaneAdmin.storage
       .from('avatars')
       .createSignedUploadUrl(path);
 
     if (error) throw error;
 
     return NextResponse.json({ token: data.token, path });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error('Signed upload error:', err.message);
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });

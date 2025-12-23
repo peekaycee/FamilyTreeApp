@@ -103,7 +103,7 @@
 }
 /* Shimmer wrapper (parent for Next.js Image fill) */
 .shimmerWrapper {
-  position: relative; /* still required for Image */
+  position: relative;
   width: 100%;
   overflow: hidden;
   background: #e3e3e3;

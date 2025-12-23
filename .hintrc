@@ -16,6 +16,13 @@
           "backdrop-filter"
         ]
       }
+    ],
+    "axe/forms": [
+      "default",
+      {
+        "label": "off",
+        "select-name": "off"
+      }
     ]
   }
 }

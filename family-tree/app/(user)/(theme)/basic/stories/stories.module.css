@@ -12,18 +12,16 @@
 .hero {
   position: relative;
   width: 100%;
-  padding: 6rem 2rem;
+  padding: 3rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
   text-align: center;
 }
-
 .heroContent {
   max-width: 700px;
   margin: 0 auto;
 }
-
 .title {
   font-family: var(--font-primary);
   font-size: 3.8rem;
@@ -31,7 +29,6 @@
   color: var(--color-primary);
   margin-bottom: 1rem;
 }
-
 .subtitle {
   width: 80%;
   margin: 0 auto;
@@ -40,7 +37,6 @@
   line-height: 1.8;
   color: var(--color-black-text);
 }
-
 .heroImageWrap {
   position: relative;
   width: 75%;
@@ -50,7 +46,6 @@
   overflow: hidden;
   box-shadow: 0 25px 50px rgba(0,0,0,0.12);
 }
-
 .heroImage {
   object-fit: cover;
   border-radius: 24px;
@@ -60,42 +55,35 @@
 .section, .sectionAlt {
   padding: 6rem 2rem;
 }
-
 .split, .splitReverse {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
 }
-
 .splitReverse {
   direction: rtl;
 }
-
 .splitReverse > * {
   direction: ltr;
 }
-
 .textBlock {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
-
 .heading {
   font-family: var(--font-primary);
   font-size: 2.3rem;
   font-weight: 700;
   color: var(--color-primary);
 }
-
 .text {
   font-family: var(--font-secondary);
   font-size: 1.15rem;
   line-height: 1.8;
   color: var(--color-black-text);
 }
-
 .imageBlock {
   position: relative;
   width: 100%;
@@ -103,7 +91,6 @@
   border-radius: 20px;
   overflow: hidden;
 }
-
 .sectionImage {
   object-fit: contain;
   border-radius: 20px;
@@ -115,20 +102,17 @@
   padding: 6rem 2rem;
   text-align: center;
 }
-
 .valuesTitle {
   font-family: var(--font-primary);
   font-size: 2.5rem;
   margin-bottom: 3rem;
   color: var(--color-primary);
 }
-
 .valuesGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2.5rem;
 }
-
 .valueCard {
   background: var(--color-bg);
   padding: 2rem;
@@ -136,33 +120,28 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .valueCard:hover {
   transform: translateY(-8px);
   box-shadow: 0 15px 35px rgba(0,0,0,0.12);
 }
-
 .valueCard h4 {
   font-family: var(--font-primary);
   font-size: 1.5rem;
   margin: 1rem 0;
   color: var(--color-primary);
 }
-
 .valueCard p {
   font-family: var(--font-secondary);
   font-size: 1.05rem;
   color: var(--color-black-text);
   line-height: 1.6;
 }
-
 .icon {
   width: 48px;
   height: 48px;
   color: var(--color-secondary);
   margin-bottom: 1rem;
 }
-
 /* ---------------- RESPONSIVE ---------------- */
 @media (max-width: 1024px) {
   .split, .splitReverse {
@@ -173,18 +152,28 @@
     height: 360px;
   }
 }
-
 @media (max-width: 768px) {
+  .container{
+    padding: 0;
+  }
   .valuesGrid {
     grid-template-columns: 1fr;
   }
   .title {
     font-size: 2.8rem;
   }
+  .subtitle{
+    width: 100%;
+  }
   .heading {
     font-size: 2.2rem;
+    text-align: center;
+  }
+  .text{
+    text-align: center;
   }
   .heroImageWrap {
+    width: 100%;
     height: 300px;
   }
 }

@@ -1,3 +1,24 @@
+.hero{
+  background: var(--color-primary);
+  width: 100%;
+  height: 75vh;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2em;
+}
+.title{
+  font-size: clamp(3rem, 4vw, 2.6rem);
+  color: var(--color-white-text);
+}
+.subtitle{
+  margin-top: 0.5rem;
+  color: var(--color-white-text);
+  opacity: 0.85;
+  max-width: 600px;
+}
 .wrapper {
   width: 100%;
   padding: 40px 7em;
@@ -18,12 +39,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 24px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(27, 58, 46, 0.1);
 }
 
 /* ----------------------------- */
@@ -31,26 +46,47 @@
 /* ----------------------------- */
 
 .search {
-  flex: 1;
-  padding: 14px 18px;
+  width: 100%;
+  padding: 14px 0px;
   font-size: 1rem;
   background: var(--color-bg);
-  border: 1px solid rgba(27, 58, 46, 0.25);
-  border-radius: 12px;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid rgba(27, 58, 46, 0.25);
   color: var(--color-black-text);
   transition: all 0.25s ease;
 }
 
 .search::placeholder {
   color: rgba(51, 51, 51, 0.55);
-  font-family: var(--font-secondary);
 }
 
 .search:focus {
   outline: none;
-  border-color: var(--color-secondary);
-  box-shadow: 0 0 0 3px rgba(201, 166, 70, 0.25);
+  border-bottom-color:  var(--color-secondary);
   transform: translateY(-1px);
+}
+
+.searchWrap {
+  position: relative;
+  width: 30%;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-black-text);
+  opacity: 0.6;
+}
+.clearBtn:hover{
+  background: transparent;
 }
 
 /* ----------------------------- */
@@ -369,7 +405,6 @@
   /* Search input full width */
   .search {
     width: 100%;
-    padding: 12px 14px;
     font-size: 0.95rem;
   }
 
@@ -387,6 +422,12 @@
 }
 
 @media (max-width: 500px) {
+  .hero{
+    height: 80vh;
+  }
+  .title{
+    font-size: clamp(2.5rem, 6vw, 2rem);
+  }
   .grid{
     display: block;
   }
@@ -402,5 +443,8 @@
 
   .cardBack p {
     font-size: 14px;
+  }
+  .searchWrap {
+    width: 100%;
   }
 }

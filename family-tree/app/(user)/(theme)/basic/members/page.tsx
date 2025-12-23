@@ -22,6 +22,7 @@ export default function FamilyMembersPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [search, setSearch] = useState("");
+  const [q, setQ] = useState("");
 
   const redirectToTreeBuilder = () => {
     window.location.href = "/basic/dashboard/family-builder";
@@ -74,57 +75,79 @@ export default function FamilyMembersPage() {
   );
 
   return (
-    <div className={styles.wrapper}>
-      {/* Toolbar */}
-      <div className={styles.toolbar}>
-        <input
-          type="text"
-          placeholder="Search members..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={styles.search}
-        />
-        <button className={styles.addBtn} onClick={redirectToTreeBuilder}>
-          + Add Member
-        </button>
-      </div>
+    <>
+      <section className={styles.hero}>
+        <h1 className={styles.title}>Family Members</h1>
+        <p className={styles.subtitle}>
+          View all members of your family tree.
+        </p>
+      </section>
+      <div className={styles.wrapper}>
+        {/* Toolbar */}
+        <div className={styles.toolbar}>
+         <div className={styles.searchWrap}>
+          <input
+            type="text"
+            placeholder="Search members..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={styles.search}
+          />
 
-      {/* Members Grid */}
-      <div className={styles.grid}>
-        {filtered.slice(0, visibleCount).map((m, i) => (
-          <motion.div
-            key={m.id}
-            className={styles.card}
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ delay: i * 0.05 }}
-          >
-            <div className={styles.cardInner}>
-              {/* FRONT: Avatar */}
-              <div className={styles.cardFront}>
-                {m.avatar_url ? (
-                  <Image
-                    src={m.avatar_url}
-                    alt={m.name}
-                    className={styles.avatar}
-                    fill
-                    sizes="300px"
-                  />
-                ) : (
-                  <div className={styles.placeholder}>No Image</div>
-                )}
-              </div>
+          {search && (
+            <button
+              type="button"
+              className={styles.clearBtn}
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+          
+          <button className={styles.addBtn} onClick={redirectToTreeBuilder}>
+            + Add Member
+          </button>
+        </div>
 
-              {/* BACK: Details */}
-              <div className={styles.cardBack}>
-                <h3>{m.name}</h3>
-                <p>{m.role || "—"}</p>
+        {/* Members Grid */}
+        <div className={styles.grid}>
+          {filtered.slice(0, visibleCount).map((m, i) => (
+            <motion.div
+              key={m.id}
+              className={styles.card}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <div className={styles.cardInner}>
+                {/* FRONT: Avatar */}
+                <div className={styles.cardFront}>
+                  {m.avatar_url ? (
+                    <Image
+                      src={m.avatar_url}
+                      alt={m.name}
+                      className={styles.avatar}
+                      fill
+                      sizes="300px"
+                    />
+                  ) : (
+                    <div className={styles.placeholder}>No Image</div>
+                  )}
+                </div>
+
+                {/* BACK: Details */}
+                <div className={styles.cardBack}>
+                  <h3>{m.name}</h3>
+                  <p>{m.role || "—"}</p>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

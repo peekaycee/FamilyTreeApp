@@ -1,0 +1,104 @@
+/* Hero */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-white-text);
+  font-size: 1.2rem;
+  overflow: hidden;
+}
+/* PLANS */
+.plans {
+  padding: 5em 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+}
+.plans h1 { 
+  font-size: 2.2rem; 
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: bold; 
+}
+.plan{
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 2em;
+  border: 3px solid var(--color-secondary);
+  border-radius: 10px;
+  gap: 0.7em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+}
+.plan h2,
+.plan p{
+  text-align: center;
+}
+.plan ul{
+  padding-left: 3em;
+}
+.plan ul li{
+  padding: 0.5em 0;
+  font-size: 1.1rem;
+}
+.plan button{
+  width: fit-content;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+.plan:hover{
+  border: 3px solid var(--color-accent);
+  transform: scale(1.05);
+}
+.plan:hover button{
+  background-color: var(--color-accent); 
+}
+.planCards{
+  display: flex;
+  gap: 2em;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+/* Large screens (901px and above) */
+@media screen and (min-width: 901px) {
+  .planCards {
+    flex-direction: row;
+  }
+}
+
+/* Tablets (601px - 900px) */
+@media screen and (min-width: 601px) and (max-width: 900px) {
+  .planCards {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .plan {
+    width: 45%;
+  }
+}
+
+/* Mobile (max-width: 600px) */
+@media (max-width: 600px) {
+  .links {
+    display: none;
+  }
+  .planCards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .plan {
+    width: 90%;
+  }
+  .plans h1{
+    font-size: 1.7rem;
+  }
+}

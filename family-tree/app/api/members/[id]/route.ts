@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabaseClient';
+// import { supabase } from '../../../../lib/supabaseClient';
+import { getSubscriber } from '../../../../lib/supabase/getSubscriber';
+import { createSubscriberSupabaseClient } from '../../../../lib/supabase/supabaseFactory';
+
+const subscriber = await getSubscriber('default');
+
+const supabase = createSubscriberSupabaseClient(
+  subscriber.supabase_url,
+  subscriber.supabase_anon_key
+);
+
+await supabase.from('posts').select('*');
+
 
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {

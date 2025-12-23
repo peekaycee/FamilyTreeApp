@@ -1,5 +1,20 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabaseClient';
+// import { supabase } from '../../../lib/supabaseClient';
+
+
+import { getSubscriber } from '../../../lib/supabase/getSubscriber';
+import { createSubscriberSupabaseClient } from '../../../lib/supabase/supabaseFactory';
+
+const subscriber = await getSubscriber('default');
+
+const supabase = createSubscriberSupabaseClient(
+  subscriber.supabase_url,
+  subscriber.supabase_anon_key
+);
+
+await supabase.from('posts').select('*');
+
+
 
 // GET: fetch all members
 export async function GET() {
@@ -11,6 +26,7 @@ export async function GET() {
 
     if (error) throw error;
     return NextResponse.json(data || []);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error('GET /members error:', err.message);
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
@@ -40,6 +56,7 @@ export async function POST(req: Request) {
 
     if (error) throw error;
     return NextResponse.json(data);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error('POST /members error:', err.message);
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });

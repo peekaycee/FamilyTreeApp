@@ -16,7 +16,8 @@ export default function Home() {
   const goToFamilyHeritagePlan = () => router.push("/familyHeritagePlan");
   const goToFamilyLegacyPlan = () => router.push("/familyLegacyPlan");
   const goToFamilyPremiumPlan = () => router.push("/familyPremiumPlan");
-  const goToRegistration = () => router.push("/auth/register");
+  // const goToRegistration = () => router.push("/auth/register");
+  const goToPlans = () => router.push("/plans");
 
   // useRef keeps the interval id stable
   const intervalRef = useRef<number | null>(null);
@@ -54,7 +55,7 @@ export default function Home() {
           <div className={styles.HeroTextContent}>
             <h1>Preserve Your Legacy, <br/>Share Your Story.</h1>
             <p>A secure, private space to celebrate your family heritage.</p>
-            <Button tag={'Start Your Family Tree'} onClick={goToRegistration}/>
+            <Button tag={'Start Your Family Tree'} onClick={goToPlans}/>
           </div>
         </div>
         <div className={styles.heroBgImage}>

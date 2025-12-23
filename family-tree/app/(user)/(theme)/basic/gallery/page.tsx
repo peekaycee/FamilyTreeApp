@@ -86,6 +86,18 @@ export default function GalleryPage() {
   // ---------------------------
   // INFINITE SCROLL
   // ---------------------------
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const loadMore = () => {
+    if (visibleItems.length >= bucketImages.length) return;
+
+    const nextItems = bucketImages.slice(
+      0,
+      visibleItems.length + ITEMS_PER_LOAD
+    );
+
+    setVisibleItems(nextItems);
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -98,31 +110,22 @@ export default function GalleryPage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [visibleItems, bucketImages]);
-
-  const loadMore = () => {
-    if (visibleItems.length >= bucketImages.length) return;
-
-    const nextItems = bucketImages.slice(
-      0,
-      visibleItems.length + ITEMS_PER_LOAD
-    );
-
-    setVisibleItems(nextItems);
-  };
+  }, [visibleItems, bucketImages, loadMore]);
 
   // ---------------------------
   // RENDER
   // ---------------------------
   return (
     <div className={styles.container}>
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={styles.title}
-      >
-        Gallery
-      </motion.h1>
+      <div className={styles.hero}>
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={styles.title}
+        >
+          Gallery
+        </motion.h1>
+      </div>
 
       <div className={styles.masonryGrid}>
         {visibleItems.map((item, idx) => (

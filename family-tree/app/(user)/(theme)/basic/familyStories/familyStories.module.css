@@ -1,7 +1,13 @@
+.page {
+  /* padding: 32px;
+  max-width: 1100px; */
+  margin: 0 auto;
+  color: var(--color-white-text);
+}
+
 /* HERO */
 .hero {
   background: var(--color-primary);
-  color: var(--color-white-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,8 +91,9 @@
 .treeViewer {
   width: fit-content;
   background: var(--color-bg);
-  background: transparent;
   padding:14px; 
+  border-radius:10px; 
+  box-shadow: 0 6px 18px rgba(2,6,23,0.15);
 }
 .treeList { 
   display:flex; 
@@ -98,16 +105,15 @@
   display:flex; gap:10px; 
   align-items:center; 
   padding:10px; 
-  border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  border-radius:8px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.15); 
   background: var(--color-primary); 
   cursor:pointer; 
 }
 .nodeAvatar {
   width:48px; 
   height:48px; 
-  border-radius: 16px; 
+  border-radius: 8px; 
   background: var(--color-bg); 
   background-position: center;
   background-size: cover;
@@ -115,9 +121,8 @@
 .nodeAvatarImg,
 .featureAvatarImg {
   object-fit: contain;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-  border-radius: 16px; 
+  box-shadow: 0 6px 18px rgba(2,6,23,0.25); 
+  border-radius: 8px; 
   height: 100%;
 }
 .nodeMeta { 
@@ -133,11 +138,10 @@
 /* Aside */
 .treeAside { 
   width:320px; 
-  background-color: var(--color-bg);
-  border-radius: 16px;
+  background-color: #fff;
+  border-radius: 8px;
   padding: 1em; 
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.04); 
 }
 .featureCard { 
   width: fit-content;
@@ -145,21 +149,19 @@
   gap: 12px; 
   margin-top: 0.5em;
   align-items: center; 
-  background: var(--color-bg); 
+  background:#fff; 
   padding: 0.75em; 
-  border-radius:16px; 
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  border-radius:10px; border:1px solid rgba(15,23,42,0.04); 
+  box-shadow: 0 6px 18px rgba(2,6,23,0.04); 
 }
 .featureAvatar { 
   width: fit-content; 
   height: 75px; 
   flex-shrink: 0; 
-  border-radius: 16px; 
+  border-radius: 8px; 
   background: var(--color-bg); 
   margin: 8px 0;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  box-shadow: 0 6px 18px rgba(2,6,23,0.25); 
 }
 .featureCard p{
   margin-bottom: 0.5rem;
@@ -188,11 +190,10 @@
 }
 .timelineCard { 
   min-width:260px; 
-  background: var(--color-bg);
+  background: #fff;
   padding: 1em 1.5em; 
-  border-radius: 16px; 
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  border-radius:10px; 
+  border:1px solid rgba(15,23,42,0.04); 
   cursor:pointer; 
 }
 .timelineYear { 
@@ -209,7 +210,6 @@
 .storiesSection { 
   margin-top: 28px;
   padding: 0 5em 7em;
-  color: var(--color-white-text);
 }
 .storiesGrid { 
   display:grid; 
@@ -220,10 +220,9 @@
 }
 .storyCard { 
   background: var(--color-bg);
-  border-radius: 16px; 
+  border-radius: 8px; 
   overflow: hidden; 
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  box-shadow: 0 6px 20px rgba(2,6,23,0.15); 
   display: flex; 
   flex-direction: column;
   align-items: center;
@@ -242,8 +241,7 @@
   margin: 0 auto;
 }
 .storyBody { 
-  width: 100%;
-  height: 100%;
+  width: 100% ;
   padding: 1em 1.5em;
   background: var(--color-primary);
  }
@@ -257,11 +255,7 @@
 .storyBody button:first-child:hover{
    background: var(--color-accent);
  }
-.viewAll{
-  margin: 0 auto;
-  text-align: center;
-  margin-top: -25px;
-}
+
 /* modal */
 .modalBackdrop { 
   position:fixed; 
@@ -274,8 +268,8 @@
   z-index:50; 
 }
 .detailModal { 
-  background: var(--color-bg); 
-  border-radius: 16px; 
+  background: #fff; 
+  border-radius: 1em; 
   padding: 1.5em; 
   width: min(780px,92%); 
   position: relative; 
@@ -290,7 +284,7 @@
   border: none; 
   background: transparent; 
   cursor:pointer; 
-  color:var(--color-black-text); 
+  color:#94a3b8; 
 }
 .closeBtn:hover {
   color: var(--color-white-text);

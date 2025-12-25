@@ -242,6 +242,16 @@
   margin-top: 2rem;
   display: flex;
   gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.modalActions button:nth-child(2){
+  background: var(--color-primary);
+  color: var(--color-white-text);
+}
+.modalActions button:nth-child(2):hover{
+  background: var(--color-accent);
+  color: var(--color-black-text);
 }
 
 /* FORM */

@@ -1,12 +1,61 @@
+.homepage { 
+  width: 100%;
+  height: auto;
+}
+.hero { 
+  width: 100%;
+  height: 75vh;
+  display: flex;
+  color: var(--color-white-text); 
+  background-color: var(--color-primary); 
+  background-blend-mode: overlay; 
+}
+.heroText{
+  width: 55%;
+  height: 100%;
+  display: flex;
+  padding: 0 1em 0 7em;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.heroBgImage{
+  flex: 1;
+  background: url('../../../../../public/images/pee2.png') center no-repeat;
+  background-size: contain;
+}
+.hero h1 { 
+  font-size: 2.5rem; 
+  margin-bottom: 0.5rem;
+  line-height: 3.5rem;
+  font-weight: bold; 
+}
+.hero p { 
+  font-size: 1rem; 
+  margin-bottom: 1.5rem; 
+}
+.cta { 
+  background-color: var(--color-secondary); 
+  color: var(--color-white-text); 
+  padding: 0.75rem 1rem; 
+  border-radius: 5px; 
+  font-weight: 400; 
+  display:inline-block; 
+  transition: all 0.3s ease;
+}
+.cta:hover{
+  background-color: var(--color-accent);
+}
+
 .heroScatteredContainer {
   position: relative;
-  width: 65%;
-  height: 460px;
-  margin-top: 2rem;
+  /* flex: 1; */
+  width: 70%;
+  height: 70vh;
 }
 
 /* General photo style */
-.heroImage {
+.heroImage { 
   position: absolute;
   width: auto;
   height: auto;
@@ -85,54 +134,6 @@
     transform: translateX(-50%) rotate(-5deg);
   }
 }
-.homepage { 
-  width: 100%;
-  height: auto;
-}
-.hero { 
-  width: 100%;
-  height: 80vh;
-  display: flex;
-  color: var(--color-white-text); 
-  background-color: var(--color-primary); 
-  background-blend-mode: overlay; 
-}
-.heroText{
-  width: 50%;
-  height: 100%;
-  display: flex;
-  padding: 0 1em 0 7em;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-}
-.heroBgImage{
-  flex: 1;
-  background: url('../../../../../public/images/pee2.png') center no-repeat;
-  background-size: contain;
-}
-.hero h1 { 
-  font-size: 2.5rem; 
-  margin-bottom: 0.5rem;
-  line-height: 3.5rem;
-  font-weight: bold; 
-}
-.hero p { 
-  font-size: 1rem; 
-  margin-bottom: 1.5rem; 
-}
-.cta { 
-  background-color: var(--color-secondary); 
-  color: var(--color-white-text); 
-  padding: 0.75rem 1rem; 
-  border-radius: 5px; 
-  font-weight: 400; 
-  display:inline-block; 
-  transition: all 0.3s ease;
-}
-.cta:hover{
-  background-color: var(--color-accent);
-}
 
 /* Features */
 .features { 
@@ -151,13 +152,14 @@
   display: grid; 
   gap: 2em;
   margin-top: 2.5em; 
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+  grid-template-columns: repeat( auto-fit, minmax(220px, 1fr)); 
 }
 .card { 
-  background: #fff; 
+  background: var(--color-bg); 
   border-radius: 10px; 
   padding: 2.5rem 4em; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
 }
 .card h3{
   margin: 0.5em 0;
@@ -172,24 +174,15 @@
 }
 
 /* Video Clips */
-.videoClip,
-.howItWorks {
-  width: 85%;
+.videoClip {
+  width: 100%;
   height: auto;
-  margin: 0 auto;
-  padding: 3em 0;
+  padding: 3em 5em 7em;
 }
-.howItWorks{
-  padding: 2em 0 5em;
-}
-.videoClip h1,
-.howItWorks h1,
-.howItWorksCard p {
-  text-align: center;
-}
+
 .video {
   margin: 0 auto;
-  width: 100%;
+  width: 60%;
   height: 80vh;
   border-radius: 10px;
   margin-top: 2em;
@@ -200,21 +193,41 @@
   border-radius: 10px;
   object-fit: cover;
 }
+.howItWorks{
+  width: 100%;
+  height: auto;
+  padding: 3em 7em 7em;
+}
+.videoClip h1,
+.howItWorks h1,
+.howItWorksCard p {
+  text-align: center;
+  line-height: 1.5;
+}
 .howItWorksCards {
+  width: 100%;
+  height: auto;
   display: flex;
   margin-top: 2em;
-  gap: 2em;
+  gap: 1em;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 }
 .howItWorksCard {
-  background: #fff;
+  background: var(--color-bg);
   color: var(--color-black-text);
-  width: 28%;
-  padding: 2.5em 0.5em;
+  width: 30%;
+  min-width: 250px;
+  height: 100px;
+  padding: 2.5em 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 10px;
   font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);  
 }
 .howItWorksCard span{
   color: var(--color-secondary);
@@ -249,10 +262,12 @@
   gap: 3.5em;
   align-items: center;
   justify-content: center;
+  width: 100%; 
+  flex-shrink: 0;
 }
 /* ========================= */
 .testimonials h1{
-  margin-bottom: 1em;
+  margin-bottom: 2em;
 }
 .testimonies,
 .testimony{
@@ -260,18 +275,25 @@
   align-items: center;
   justify-content: center;
 }
-.testimonyImage{
+.testimonyImage {
   width: 300px;
   height: 300px;
-  object-fit: cover;
-  background: white;
+  background: var(--color-bg);
   border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.testimony img{
+
+.testimonyImage img {
   width: 100%;
   height: 100%;
+  object-fit: cover; 
+  object-position: center;
   border-radius: 50%;
 }
+
 .testifierText {
   font-size: 1.2rem;
 }
@@ -279,96 +301,26 @@
   line-height: 2rem;
 }
 
-/* PLANS */
-.plans {
-  padding: 5em 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
-}
-.plans h1 { 
-  font-size: 2.2rem; 
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-weight: bold; 
-}
-.plan{
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  padding: 2em;
-  border: 3px solid var(--color-secondary);
-  border-radius: 10px;
-  gap: 0.7em;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  transition: all 0.3s ease;
-}
-.plan h2,
-.plan p{
-  text-align: center;
-}
-.plan ul{
-  padding-left: 3em;
-}
-.plan ul li{
-  padding: 0.5em 0;
-  font-size: 1.1rem;
-}
-.plan button{
-  width: fit-content;
-  margin: 0 auto;
-  transition: all 0.3s ease;
-}
-.plan:hover{
-  border: 3px solid var(--color-accent);
-  transform: scale(1.05);
-}
-.plan:hover button{
-  background-color: var(--color-accent); 
-}
-.planCards{
-  display: flex;
-  gap: 2em;
-}
-
-
-/* =========================
-   RESPONSIVE DESIGN
-========================= */
-
-/* Large screens (901px and above) */
-@media screen and (min-width: 901px) {
-  .heroText {
-    width: 45%;
-    padding: 0 1em 0 7em;
-  }
-
-  .video {
-    height: 80vh;
-  }
-
-  .howItWorksCards {
-    flex-direction: row;
-  }
-
-  .planCards {
-    flex-direction: row;
-  }
-}
+  /* =========================
+  RESPONSIVE DESIGN
+  ========================= */
 
 /* Tablets (601px - 900px) */
 @media screen and (min-width: 601px) and (max-width: 900px) {
   .hero {
-    flex-direction: column;
-    height: 75vh;
-    text-align: center;
-  }
+      position: relative;
+      flex-direction: column;
+      height: 75vh;
+      text-align: center;
+      background: url('../../../../../public/images/family15.png') center no-repeat;
+      background-size: contain;
+    }
   .heroText {
     width: 100%;
     padding: 2em;
     align-items: center;
-    margin-top: 5em;
+    margin-top: 8em;
+    z-index: 1;
   }
   .heroBgImage {
     display: none;
@@ -376,103 +328,128 @@
   .heroImage {
     display: none;
   }
-  .features {
-    padding: 3em 2em;
+  .overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+  }
+  .heroText h1{
+    font-size: 2rem;
+    /* margin-bottom: 0.25em; */
+  }
+  .heroText p {
+    margin-bottom: 1.35em;
+  }
+  .features{
+    padding: 5em 0 3em;
   }
   .cards{
+    width: 100%;
     display: flex;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
+    gap: 1em; 
     align-items: center;
     justify-content: center;
   }
-
-  .howItWorksCards {
-    flex-wrap: wrap;
-  }
-  .howItWorksCard {
+  .card{
     width: 45%;
   }
-
+  .video {
+    width: 90%;
+    height: 70vh;
+  }
+  .howItWorksCard {
+    width: 100%;
+  } 
   .testimonies {
     flex-direction: column;
   }
-
   .testimonyItem {
     gap: 2em;
   }
   .testimonyImage{
-    width: 200px;
-    height: 200px;
-  }
-
-  .planCards {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .plan {
-    width: 45%;
+    width: 150px;
+    height: 150px;
   }
 }
-
 /* Mobile (max-width: 600px) */
 @media (max-width: 600px) {
   .links {
     display: none;
   }
   .hero {
+    position: relative;
     flex-direction: column;
-    text-align: center;
     height: 80vh;
-    padding: 0 1em;
-    margin-top: -2em;
+    text-align: center;
+    background: url('../../../../../public/images/family15.png') center no-repeat;
+    background-size: 400px;
+    margin-top: -1px;
+    margin-bottom: 2em;
   }
-  .heroText {
+  .overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 1em;
-    align-items: center;
-    margin-top: 12em;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
   }
-  .heroText h1{
-    font-size: 2rem;
+  .heroBgImage{
+    display: none;
   }
   .heroImage{
     display: none;
   }
-  .heroBgImage {
+.heroText {
+    font-size: 1.5rem;
     width: 100%;
-    height: 40vh;
-    background-size: cover;
+    padding: 10em 2em 0;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .heroText h1{
+    width: 100%;
+    font-size: 1.75rem;
+    line-height: 1.25em;
+  }
+  .heroText p{
+    width: 100%;
+    margin-bottom: 2em;
   }
   .features {
     padding: 2em 1em;
   }
+ 
   .cards {
     grid-template-columns: 1fr;
+  }
+  .videoClip{
+    padding: 3em 1em 5em;
   }
   .video {
     width: 100%;
     height: 30vh;
   }
-
+  .howItWorks{
+    padding: 1em 1em 5em;
+  }
   .howItWorksCards {
     flex-direction: column;
   }
   .howItWorksCard {
-    width: 90%;
+    width: 100%;
   }
-
   .testimonies {
     flex-direction: column;
     gap: 2em;
   }
-  .planCards {
-    flex-direction: column;
-    align-items: center;
-  }
-  .plan {
-    width: 90%;
-  }
   .testifierText {
+    width: 22%;
     font-size: 1rem;
     text-align: left;
   }
@@ -481,23 +458,179 @@
     font-weight: bold;
   }
   .testimonyItem{
-    margin-left: 0.2em;
-    padding: 0 1em;
+    margin-left: 0.1em;
+    padding: 0 3em;
   }
   .testimonyImage {
-    width: 50%;
-    height: 50%;
-    margin-right: -2.5em;
+    width: 120px;
+    height: 120px;
+    margin-right: -2em;
   }
   .testimonyImage img{
     width: 100%;
     height: 100%;
   }
-  .plans h1,
   .testimonials h1,
   .features h1,
   .howItWorks h1,
   .videoClip h1{
-    font-size: 1.7rem;
+    font-size: 1.3rem;
+  }
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  stroke-width: 1.75;
+} 
+
+/* ===========================
+   FEATURED ANCESTORS SECTION
+=========================== */
+
+.featuredAncestors {
+  padding: 6rem 2rem;
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.featuredAncestors h1 {
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.featuredAncestors > p {
+  max-width: 640px;
+  margin: 0 auto 4rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--color-black-text);
+}
+
+.ancestorCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 3rem;
+  max-width: 1100px;
+  margin: 0 auto 4rem;
+}
+
+.ancestorCard {
+  background: var(--color-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2.5rem 2rem 3rem;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.ancestorCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+.ancestorCard img {
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1.5rem;
+}
+
+.ancestorCard h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.ancestorCard p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-black-text);
+  max-width: 280px;
+  margin: 0 auto;
+}
+.featuredAncestors button{
+  background: var(--color-primary);
+  margin-top: -30px;
+}
+
+/* ===========================
+   CTA SECTION
+=========================== */
+
+.ctaSection {
+  padding: 1rem 2rem 6rem;
+  background: var(--color-bg);
+  color: var(--color-black-text);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaSection::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ctaSection h1 {
+  font-size: clamp(2.2rem, 3vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.2rem;
+}
+
+.ctaSection p {
+  max-width: 640px;
+  margin: 0 auto 3rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--color-black-text);
+}
+
+.ctaActions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* ===========================
+   RESPONSIVE TUNING
+=========================== */
+
+@media (max-width: 768px) {
+  .featuredAncestors {
+    padding: 4rem 1.5rem;
+  }
+  
+  .featuredAncestors h1 {
+    font-size: clamp(1.75rem, 3vw, 3rem);
+  }
+
+  .ctaSection {
+    padding: 4.5rem 1.5rem;
+    margin-top: -3em;
+  }
+
+  .ctaSection h1 {
+    font-size: clamp(1.75rem, 3vw, 3rem);
+  }
+
+  .ancestorCards {
+    gap: 2rem;
+  }
+  .ctaActions{
+    display: flex;
+    padding:0;
+    gap: 0.5rem;
+  }
+  .ctaActions button{
+    width: 45%;
   }
 }

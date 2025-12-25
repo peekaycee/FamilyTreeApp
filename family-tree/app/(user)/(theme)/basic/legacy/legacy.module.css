@@ -27,9 +27,6 @@
   gap: 12px; 
   margin-top: 16px; 
 }
-.storyActions{
-  display: flex;
-}
 .ctaPrimary {
   background: var(--color-secondary);
   color: var(--color-black-text);
@@ -247,10 +244,17 @@
   padding: 1em 1.5em;
   background: var(--color-primary);
  }
- .storyBody button{
-  margin-right: 5px;
+ .storyBody p{
+  margin-top: 1em;
+ }
+ .storyActions{
+  width: 100%;
+  height: 50px;
   margin-top: 10px;
-}
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+ }
 .storyBody button:first-child{
    background: var(--color-secondary);
  }
@@ -281,7 +285,10 @@
   position: relative; 
 }
 .detailModal p{
-  margin-top: 7px;
+  margin-top: 1em;
+}
+.detailModal .muted{
+  margin-top: 2px;
 }
 .closeBtn { 
   position:absolute; 
@@ -300,13 +307,18 @@
 .muted { 
   color:var(--color-black-text);
   opacity: 0.75; 
-  font-size:13px; 
+  font-size: 14px; 
 }
 .small { 
-  font-size:13px; 
+  font-size: 14px; 
   color: var(--color-black-text);
   opacity: 0.75;
   margin: 0.75em 0;
+}
+.mute { 
+  color: var(--color-white-text);
+  opacity: 0.5; 
+  font-size: 14px;
 }
 /* ============================= */
 /* TABLET (≤ 1024px) */
@@ -436,5 +448,8 @@
   .closeBtn{
     right: 15px;
     font-size: 1.2rem;
+  }
+  .ctaSmall{
+    width: 100%;
   }
 }

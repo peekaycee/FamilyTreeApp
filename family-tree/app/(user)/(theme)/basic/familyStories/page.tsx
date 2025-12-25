@@ -37,6 +37,10 @@ export default function LegacyPage() {
 
   return (
     <main className={styles.page}>
+      <section className={styles.hero}>
+        <h1>Legacy Stories</h1>
+        <p>Discover the Rich History and Narratives of our Family Legacy.</p>
+      </section>
       {/* STORIES GRID */}
       <section className={styles.storiesSection}>
         <h2 className={styles.sectionTitle}>Legacy Stories</h2>
@@ -63,7 +67,7 @@ export default function LegacyPage() {
             </div>
               <div className={styles.storyBody}>
                 <h3>{s.title}</h3>
-                <small className={styles.muted}>By {s.author}</small>
+                <small className={styles.mute}>By {s.author}</small>
                 <p>{s.excerpt}</p>
                 <div className={styles.storyActions}>
                   <button className={styles.ctaSmall} onClick={() => setSelectedStory(s.id)}>Read</button>

@@ -2,7 +2,6 @@
 
 import styles from './homepage.module.css'
 import Image from 'next/image';
-import HeroPics from '../../../../../public/images/pee2.png';
 import Family16 from '../../../../../public/images/family16.png';
 import Family19 from '../../../../../public/images/family19.png';
 import Family25 from '../../../../../public/images/family25.png';
@@ -16,10 +15,9 @@ import { useRouter } from "next/navigation";
 export default function HomePage() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
-  const goToFamilyHeritagePlan = () => router.push("/familyHeritagePlan");
-  const goToFamilyLegacyPlan = () => router.push("/familyLegacyPlan");
-  const goToFamilyPremiumPlan = () => router.push("/familyPremiumPlan");
   const goToStory = () => router.push("/basic/stories");
+  const goToTree = () => router.push('/basic/dashboard/family-builder');
+  const goToMembers = () => router.push('/basic/members');
   
 
   // Automatically change testimonial every 3 seconds
@@ -33,10 +31,11 @@ export default function HomePage() {
   return (
     <section className={styles.homepage}>
       <section className={styles.hero}>
+        <div className={styles.overlay}></div>
         <div className={styles.heroText}>
-          <h1>Welcome! <br />THE AWOLOWO&apos;S.</h1>
-          <p>Treasure and Celebrate Every Memory, Milestone, and Generation.</p>
-          <Button tag={'Our Family Story'} onClick={goToStory}/>
+          <h1>Welcome Home! <br /> The Awolowo Family</h1>
+          <p>Celebrating our roots, memories, and enduring legacy.</p>
+          <Button tag={'Explore Our Story'} onClick={goToStory}/>
         </div>
         <div className={styles.heroScatteredContainer}>
       
@@ -99,61 +98,99 @@ export default function HomePage() {
       
       {/* Why Choose Family Tree */}
       <section className={styles.features}>
-        <h1>Why Choose Family Tree</h1>
+        <h1>Why This Family Archive Matters</h1>
         <div className={styles.cards}>
-          <div className={styles.card}>
-            <div className={styles.featureIcon}>
-              <Image src={HeroPics} alt="Features Image" width={40} height={40} />
-            </div>
-            <h3>Preserve Memories</h3>
-            <p>Upload family photos and documents to protect your legacy.</p>
-          </div>
-          <div className={styles.card}>
-            <div className={styles.featureIcon}>
-              <Image src={HeroPics} alt="Features Image" width={40} height={40} />
-            </div>
+          <motion.div 
+            className={styles.card}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+             <div className={styles.featureIcon}>🌿</div>
+            <h3>Preserve Our Heritage</h3>
+            <p>
+             Safely store photographs, documents, and stories that define who we are as a family.
+            </p>
+          </motion.div>
+          <motion.div 
+            className={styles.card}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
             <h3>Connect Generations</h3>
-            <p>Explore relationships and build your family tree interactively.</p>
-          </div>
-          <div className={styles.card}>
-            <div className={styles.featureIcon}>
-              <Image src={HeroPics} alt="Features Image" width={40} height={40} />
-            </div>
-            <h3>Secure Your History</h3>
-            <p>Your family&apos;s private archive, encrypted and backed up in the cloud.</p>
-          </div>
+            <p>Visualize relationships, understand lineage, and keep everyone connected.</p>
+          </motion.div>
+          <motion.div 
+                      className={styles.card}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.2 }}
+                      viewport={{ once: true }}
+                    >
+            <div className={styles.featureIcon}>🛡️</div>
+            <h3>Private & Secure</h3>
+            <p>Our family history remains private, protected, and accessible only to us.</p>
+          </motion.div>
         </div>
       </section>
 
       {/* Video Clips */}
       <section className={styles.videoClip}>
-        <h1>Visualize Your Family Legacy</h1>
-        <div className={styles.video}>
+        <h1>Our Story, Brought to Life</h1>
+        <motion.div 
+          className={styles.video}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.2 }}
+          viewport={{ once: true }}
+        >
           <video muted loop autoPlay>
             <source src="/videos/TFTVid.mp4" type="video/mp4"></source>
           </video>
-        </div>
+        </motion.div>
       </section>
       
       {/* How It Works */}
       <section className={styles.howItWorks}>
-        <h1>How It Works</h1>
+        <h1>How Our Family Tree Grows</h1>
         <div className={styles.howItWorksCards}>
-          <div className={styles.howItWorksCard}>
-            <p><span>1.</span> Create Your Family Tree</p>
-          </div>
-          <div className={styles.howItWorksCard}>
-            <p><span>2.</span> Invite Family Members</p>
-          </div>
-          <div className={styles.howItWorksCard}>
-            <p><span>3.</span> Preserve and Share Memories</p>
-          </div>
+          <motion.div 
+            className={styles.howItWorksCard}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <p><span>1.</span> Build The Family Tree</p>
+          </motion.div>
+          <motion.div 
+            className={styles.howItWorksCard}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <p><span>2.</span> Add Family Members & Stories</p>
+          </motion.div>
+          <motion.div 
+            className={styles.howItWorksCard}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <p><span>3.</span> Preserve Memories for Future Generations</p>
+          </motion.div>
         </div>
       </section>
 
       {/* Testimonials */}
       <section className={styles.testimonials}>
-        <h1>Family Stories</h1>
+        <h1>Family Member&apos;s Voices</h1>
         <div className={styles.testimonyContainer}>
           <motion.div
             className={styles.testimony}
@@ -174,7 +211,6 @@ export default function HomePage() {
                 <div
                   key={t.id}
                   className={styles.testimonyItem}
-                  style={{ width: '100%', flexShrink: 0 }}
                 >
                   <div className={styles.testimonyImage}>
                     <Image src={t.image} alt="testifier" width={200} height={200} />
@@ -191,49 +227,61 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-    
-    {/* PLANS */}
-    <section className={styles.plans}>
-      <h1>Our plans</h1>
-      <div className={styles.planCards}>
-        <div className={styles.plan}>
-          <h2>Family Heritage Plan</h2>
-          <p>NGN350,000 Setup + NGN100,000/Year</p>
-          <ul>
-            <li>Private Family Website</li>
-            <li>Basic Tree (up to 10 members)</li>
-            <li>Photo and Video Gallery</li>
-            <li>Event Calenders</li>
-            <li>1GB Secured Storage</li>
-          </ul>
-          <Button tag={'Request Plan'} onClick={goToFamilyHeritagePlan}/>
-        </div>
-        <div className={styles.plan}>
-          <h2>Family Legacy Plan</h2>
-          <p>NGN500,000 Setup + NGN150,000/Year</p>
-          <ul>
-            <li>Private Family Website</li>
-            <li>Basic Tree (up to 100 members)</li>
-            <li>Photo and Video Gallery</li>
-            <li>Event Calenders</li>
-            <li>100GB Secured Storage</li>
-          </ul>
-          <Button tag={'Request Plan'} onClick={goToFamilyLegacyPlan}/>
-        </div>
-        <div className={styles.plan}>
-          <h2>Family Premium Plan</h2>
-          <p>NGN700,000 Setup + NGN200,000/Year</p>
-          <ul>
-            <li>Private Family Website</li>
-            <li>Basic Tree (unlimited members)</li>
-            <li>Photo and Video Gallery</li>
-            <li>Event Calenders</li>
-            <li>Unlimited Secured Storage</li>
-          </ul>
-          <Button tag={'Request Plan'} onClick={goToFamilyPremiumPlan}/>
-        </div>
-      </div>
-    </section>
+
+      {/* FEATURED ANCESTORS */}
+       <section className={styles.featuredAncestors}>
+         <h1>Legacy Spotlight</h1>
+         <p>
+           Honoring the pillars of the Awolowo family whose courage, wisdom, and
+           sacrifices shaped generations.
+         </p>
+
+         <div className={styles.ancestorCards}>
+           <motion.div 
+              className={styles.ancestorCard}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.2 }}
+              viewport={{ once: true }}
+            >
+             <Image src={Family16} alt="Ancestor" width={220} height={220} />
+             <h3>Chief Samuel Awolowo</h3>
+             <p>
+               A visionary leader whose values of unity and discipline continue
+               to guide our family today.
+             </p>
+           </motion.div>
+
+           <motion.div 
+              className={styles.ancestorCard}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.2 }}
+              viewport={{ once: true }}
+            >             <Image src={Family19} alt="Ancestor" width={220} height={220} />
+             <h3>Madam Esther Awolowo</h3>
+             <p>
+               The heart of the family—known for resilience, kindness, and
+               unwavering faith.
+             </p>
+           </motion.div>
+         </div>
+         <Button tag="View Family Members" onClick={goToMembers} />
+       </section>
+
+       {/* CTA */}
+       <section className={styles.ctaSection}>
+         <h1>Every Name Has a Story</h1>
+         <p>
+           Help us complete the Awolowo family legacy by adding members,
+           memories, and stories that must never be forgotten.
+         </p>
+
+         <div className={styles.ctaActions}>
+           <Button tag="Add Family Members" onClick={goToTree} />
+           <Button tag="Continue Exploring" onClick={goToStory} />
+         </div>
+       </section>
   </section>
   )
 }

@@ -7,7 +7,7 @@ export const testimonies = [
     {
       id: 1,
       name: 'Mr. Gbenga',
-      text: '“It’s more than a website — it’s our family’s digital home.”',
+      text: '“It’s more than a website, it’s our family’s digital home.”',
       image: Face1,
     },
     {

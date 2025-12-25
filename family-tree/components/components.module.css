@@ -2,9 +2,9 @@
 .nav { 
   width: 100%;
   height: 120px;
-  display:flex; 
-  justify-content: space-between; 
+  display: flex; 
   align-items: center; 
+  justify-content: space-between; 
   padding: 0 5em; 
   background: var(--color-primary);
   color: var(--color-white-text); 
@@ -20,14 +20,16 @@
   border-radius: 4px;
   text-align: center;
   margin: 0 0.25rem;
+ 
 }
 .links .dropLinks {
-  margin: 0;
+  margin: 0;  
 }
 .links a:hover,
 .link a:active {
   color: var(--color-accent);
   background: rgba(255, 255, 255, 0.1);
+  z-index: 1000000;
 }
 .mobileLogout,
 .logout {
@@ -94,6 +96,7 @@
   border-radius: 0 0 4px 4px;
   visibility: hidden;
   pointer-events: none;
+  z-index: 100;
 }
 .showDropdown {
   visibility: visible;
@@ -131,6 +134,7 @@
 .open .chevron {
   transform: rotate(180deg);
 }
+
 
 /* Mobile dropdown */
 .mobileDropdown {
@@ -195,7 +199,7 @@
   padding: 2rem 1rem;
   gap: 1rem;
   transition: right 0.4s ease;
-  z-index: 200;
+  z-index: 12;
 }
 .showDrawer {
   right: 0;

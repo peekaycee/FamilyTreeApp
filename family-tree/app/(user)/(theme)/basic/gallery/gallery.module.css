@@ -4,7 +4,7 @@
 }
 
 .title {
-  font-size: 42px;
+  font-size: clamp(2.2rem, 3vw, 4rem);
   font-weight: 600;
   margin-bottom: 40px;
 }

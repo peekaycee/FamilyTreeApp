@@ -9,20 +9,41 @@ export default function OurStoryPage() {
   return (
     <div className={styles.container}>
       {/* --------------------------- HERO --------------------------- */}
-      <motion.section
-        className={styles.hero}
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className={styles.heroContent}>
-          <h1 className={styles.title}>Our Story</h1>
+      <section className={styles.hero}>
+        <h1 className={styles.title}>
+          Our Story
+          <span>
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1] }}
+                transition={{
+                  duration: 0.4,
+                  delay: i * 0.4,
+                  repeat: Infinity,
+                  repeatDelay: 1.2,
+                }}
+              >
+                .
+              </motion.span>
+            ))}
+          </span>
+        </h1>
+      </section>
+      <section className={styles.contentContainer}>
+        <motion.div 
+          className={styles.heroContent}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
           <p className={styles.subtitle}>
-            The story of the Awolowo family — a journey shaped by heritage,
+            The story of the Awolowo family, a journey shaped by heritage,
             resilience, shared values, and the generations that continue to
-            carry our name forward with pride.
+            carry our name forward with dignity and pride.
           </p>
-        </div>
+        </motion.div>
 
         <motion.div
           className={styles.heroImageWrap}
@@ -37,7 +58,7 @@ export default function OurStoryPage() {
             className={styles.heroImage}
           />
         </motion.div>
-      </motion.section>
+      </section>
 
       {/* --------------------------- SECTION 1 --------------------------- */}
       <section className={styles.section}>
@@ -56,11 +77,11 @@ export default function OurStoryPage() {
             className={styles.textBlock}
           >
             <h2 className={styles.heading}>
-              The Roots of the Awolowo Family
+              The Awolowo Family Roots
             </h2>
             <p className={styles.text}>
               This platform exists to document and preserve the story of the
-              Awolowo family — our beginnings, our journeys, our challenges,
+              Awolowo family, our beginnings, our journeys, our challenges,
               and our triumphs. What started as shared memories passed down by
               word of mouth is now carefully recorded so that no chapter of our
               history is ever lost.
@@ -75,7 +96,7 @@ export default function OurStoryPage() {
             className={styles.imageBlock}
           >
             <Image
-              src="/images/icon.png"
+              src="/images/family25.png"
               alt="Awolowo family heritage"
               fill
               className={styles.sectionImage}
@@ -168,7 +189,7 @@ export default function OurStoryPage() {
             }}
           >
             <Image
-              src="/images/pee2.png"
+              src="/images/family10.png"
               alt="Awolowo family generations"
               fill
               className={styles.sectionImage}

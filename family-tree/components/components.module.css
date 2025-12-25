@@ -7,9 +7,9 @@
   align-items: center; 
   padding: 0 5em; 
   background: var(--color-primary);
-  color: white; 
+  color: var(--color-white-text); 
   position: relative;
-  z-index: 150; 
+  z-index: 10; 
 }
 .links a {
   color: var(--color-white-text); 
@@ -1404,5 +1404,12 @@
   }
   .hamburger{
     margin-top: 1.5em;
+  }
+  .copyright{
+    height: 60px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

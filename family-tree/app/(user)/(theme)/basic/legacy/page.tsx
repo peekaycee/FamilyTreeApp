@@ -306,7 +306,7 @@ export default function LegacyPage() {
             </div>
               <div className={styles.storyBody}>
                 <h3>{s.title}</h3>
-                <small className={styles.muted}>By {s.author}</small>
+                <small className={styles.mute}>By {s.author}</small>
                 <p>{s.excerpt}</p>
                 <div className={styles.storyActions}>
                   <button className={styles.ctaSmall} onClick={() => setSelectedStory(s.id)}>Read</button>

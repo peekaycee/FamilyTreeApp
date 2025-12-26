@@ -22,19 +22,6 @@ type Memorial = {
 type CandleMap = Record<string, number>;
 type MessageMap = Record<string, string[]>;
 
-/* ---------------- Seed Data ---------------- */
-
-// const SAMPLE: Memorial[] = [
-//   {
-//     id: "m1",
-//     name: "Elder Thomas",
-//     born: 1930,
-//     died: 2010,
-//     tribute: "Beloved community leader",
-//     bio: "Elder Thomas dedicated his life to service, wisdom, and unity within the family.",
-//   },
-// ];
-
 /* ---------------- Component ---------------- */
 
 export default function MemorialsPage() {
@@ -57,6 +44,10 @@ export default function MemorialsPage() {
     picture: null as string | null,
   });
 
+  /* Toast state */
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<"success" | "error" | null>(null);
+
   /* ---------------- Persistence ---------------- */
 
   useEffect(() => {
@@ -64,7 +55,7 @@ export default function MemorialsPage() {
     const savedCandles = localStorage.getItem("ft_candles");
     const savedMessages = localStorage.getItem("ft_memorial_msgs");
 
-    // setMemorials(savedMemorials ? JSON.parse(savedMemorials) : SAMPLE);
+    if (savedMemorials) setMemorials(JSON.parse(savedMemorials));
     if (savedCandles) setCandles(JSON.parse(savedCandles));
     if (savedMessages) setMessages(JSON.parse(savedMessages));
   }, []);
@@ -81,25 +72,21 @@ export default function MemorialsPage() {
     localStorage.setItem("ft_memorial_msgs", JSON.stringify(messages));
   }, [messages]);
 
-// Preventing Image leakages 
+  /* Prevent image URL leaks */
   useEffect(() => {
-  return () => {
-    if (form.picture?.startsWith("blob:")) {
-      URL.revokeObjectURL(form.picture);
-    }
-  };
-}, [form.picture]);
+    return () => {
+      if (form.picture?.startsWith("blob:")) {
+        URL.revokeObjectURL(form.picture);
+      }
+    };
+  }, [form.picture]);
 
   /* ---------------- Helpers ---------------- */
 
   const handleImageUpload = (file: File) => {
-  const previewUrl = URL.createObjectURL(file);
-
-  setForm((prev) => ({
-    ...prev,
-    picture: previewUrl,
-  }));
-};
+    const previewUrl = URL.createObjectURL(file);
+    setForm((prev) => ({ ...prev, picture: previewUrl }));
+  };
 
   /* ---------------- Derived ---------------- */
 
@@ -116,7 +103,80 @@ export default function MemorialsPage() {
   /* ---------------- Actions ---------------- */
 
   const lightCandle = (id: string) => {
-    setCandles((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    try {
+      setCandles((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+      setToastMessage("Candle lit successfully.");
+      setToastType("success");
+    } catch (error) {
+      setToastMessage("Failed to light candle.");
+      setToastType("error");
+    } finally {
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
+  const deleteMemorial = (id: string) => {
+    try {
+      setMemorials((prev) => prev.filter((m) => m.id !== id));
+      setCandles((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setMessages((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setToastMessage("Memorial deleted successfully.");
+      setToastType("success");
+    } catch (error) {
+      setToastMessage("Failed to delete memorial.");
+      setToastType("error");
+    } finally {
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
+  const saveMemorial = () => {
+    const { name, born, died, tribute, bio, picture } = form;
+    if (!name || !born || !died || !tribute || !bio) {
+      setToastMessage("Failed to save memorial. Please fill all fields.");
+      setToastType("error");
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+
+    try {
+      if (editingId) {
+        // Edit existing memorial
+        setMemorials((prev) =>
+          prev.map((m) =>
+            m.id === editingId
+              ? { ...m, name, born: Number(born), died: Number(died), tribute, bio, picture }
+              : m
+          )
+        );
+        setToastMessage("Memorial updated successfully.");
+        setToastType("success");
+      } else {
+        // Add new memorial
+        setMemorials((prev) => [
+          { id: crypto.randomUUID(), name, born: Number(born), died: Number(died), tribute, bio, picture },
+          ...prev,
+        ]);
+        setToastMessage("Memorial added successfully.");
+        setToastType("success");
+      }
+
+      setShowAdd(false);
+      setEditingId(null);
+    } catch (error) {
+      setToastMessage("An error occurred while saving the memorial.");
+      setToastType("error");
+    } finally {
+      setTimeout(() => setToastMessage(null), 3000);
+    }
   };
 
   const openAdd = () => {
@@ -145,51 +205,17 @@ export default function MemorialsPage() {
     setShowAdd(true);
   };
 
-  const saveMemorial = () => {
-    const { name, born, died, tribute, bio, picture } = form;
-    if (!name || !born || !died || !tribute || !bio) return;
-
-    if (editingId) {
-      // EDIT
-      setMemorials((prev) =>
-        prev.map((m) =>
-          m.id === editingId
-            ? {
-                ...m,
-                name,
-                born: Number(born),
-                died: Number(died),
-                tribute,
-                bio,
-                picture,
-              }
-            : m
-        )
-      );
-    } else {
-      // ADD
-      setMemorials((prev) => [
-        {
-          id: crypto.randomUUID(),
-          name,
-          born: Number(born),
-          died: Number(died),
-          tribute,
-          bio,
-          picture,
-        },
-        ...prev,
-      ]);
-    }
-
-    setShowAdd(false);
-    setEditingId(null);
-  };
-
   /* ---------------- Render ---------------- */
 
   return (
     <main className={styles.page}>
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className={`${styles.toast} ${styles[toastType]}`}>
+          {toastMessage}
+        </div>
+      )}
+
       {/* HERO */}
       <section className={styles.hero}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
@@ -200,32 +226,31 @@ export default function MemorialsPage() {
         </motion.div>
       </section>
 
-     {/* SEARCH + ADD */}
-<section className={styles.searchWrap}>
-  <div className={styles.searchField}>
-    <input
-      className={styles.searchInner}
-      placeholder="Search by name or year"
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-    />
+      {/* SEARCH + ADD */}
+      <section className={styles.searchWrap}>
+        <div className={styles.searchField}>
+          <input
+            className={styles.searchInner}
+            placeholder="Search by name or year"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
 
-    {query && (
-      <button
-        type="button"
-        className={styles.clearSearch}
-        aria-label="Clear search"
-        onClick={() => setQuery("")}
-      >
-        ×
-      </button>
-    )}
-  </div>
-  <button type="button" className={styles.cta} onClick={openAdd}>
-    + Add Memorial
-  </button>
-</section>
-
+          {query && (
+            <button
+              type="button"
+              className={styles.clearSearch}
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <button type="button" className={styles.cta} onClick={openAdd}>
+          + Add Memorial
+        </button>
+      </section>
 
       {/* GRID */}
       <section className={styles.grid}>
@@ -233,10 +258,15 @@ export default function MemorialsPage() {
           <motion.article key={m.id} className={styles.card} whileHover={{ scale: 1.02 }}>
             <div className={styles.cardImage}>
               {m.picture ? (
-                <Image src={m.picture} alt={m.name} width={0} height={0}/>
+                <Image src={m.picture} alt={m.name} width={0} height={0} />
               ) : (
                 <div className={styles.imagePlaceholder}>
-                  <Image src={"/images/image-placeholder-removebg-preview (1).png"} alt="Image Placeholder" width={500} height={500} />
+                  <Image
+                    src={"/images/image-placeholder-removebg-preview (1).png"}
+                    alt="Image Placeholder"
+                    width={500}
+                    height={500}
+                  />
                 </div>
               )}
             </div>
@@ -253,17 +283,15 @@ export default function MemorialsPage() {
                   View
                 </Link>
 
-                <button
-                  className={styles.ghost}
-                  onClick={() => openEdit(m)}
-                >
+                <button className={styles.ghost} onClick={() => openEdit(m)}>
                   Edit
                 </button>
 
-                <button
-                  className={styles.candleBtn}
-                  onClick={() => lightCandle(m.id)}
-                >
+                <button className={styles.ghost} onClick={() => deleteMemorial(m.id)}>
+                  Delete
+                </button>
+
+                <button className={styles.candleBtn} onClick={() => lightCandle(m.id)}>
                   🕯 {candles[m.id] || 0}
                 </button>
               </div>
@@ -323,14 +351,18 @@ export default function MemorialsPage() {
                   type="file"
                   accept="image/*"
                   hidden
-                  onChange={(e) =>
-                    e.target.files && handleImageUpload(e.target.files[0])
-                  }
+                  onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
                 />
               </label>
 
               {form.picture && (
-                <Image src={form.picture} className={styles.preview} alt="Preview" width={0} height={0}/>
+                <Image
+                  src={form.picture}
+                  className={styles.preview}
+                  alt="Preview"
+                  width={0}
+                  height={0}
+                />
               )}
 
               <div className={styles.modalActions}>

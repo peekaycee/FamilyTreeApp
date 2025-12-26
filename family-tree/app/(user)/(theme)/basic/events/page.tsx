@@ -17,6 +17,14 @@ interface EventItem {
   images: string[];
 }
 
+type ToastType = "success" | "error";
+
+type Toast = {
+  id: string;
+  message: string;
+  type: ToastType;
+};
+
 /* ================= HELPERS ================= */
 
 function isFuture(dateISO: string) {
@@ -106,25 +114,45 @@ export default function EventsPage() {
   const [showForm, setShowForm] = useState(false);
   const [importPreview, setImportPreview] = useState<EventItem[] | null>(null);
 
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  /* ================= IMPORT HANDLER ================= */
+  /* ================= TOAST ================= */
+
+  const pushToast = (message: string, type: ToastType = "success") => {
+    const id = crypto.randomUUID();
+    setToasts((t) => [...t, { id, message, type }]);
+
+    setTimeout(() => {
+      setToasts((t) => t.filter((toast) => toast.id !== id));
+    }, 3500);
+  };
+
+  /* ================= IMPORT ================= */
 
   const handleImportCalendar = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const parsed = parseICS(reader.result as string);
+      try {
+        const parsed = parseICS(reader.result as string);
+        const deduped = parsed.filter(
+          (p) => !events.some((e) => e.title === p.title && e.date === p.date)
+        );
 
-      const deduped = parsed.filter(
-        (p) => !events.some((e) => e.title === p.title && e.date === p.date)
-      );
+        if (!deduped.length) {
+          pushToast("No new events to import", "error");
+          return;
+        }
 
-      if (deduped.length) setImportPreview(deduped);
+        setImportPreview(deduped);
+      } catch {
+        pushToast("Failed to import calendar", "error");
+      }
     };
     reader.readAsText(file);
   };
 
-  /* ================= SORTED EVENTS ================= */
+  /* ================= SORTED ================= */
 
   const upcoming = useMemo(
     () =>
@@ -167,16 +195,32 @@ export default function EventsPage() {
     return () => clearInterval(t);
   }, [nextEvent]);
 
-  /* ================= SAVE EVENT ================= */
+  /* ================= ACTIONS ================= */
 
   const saveEvent = (ev: EventItem) => {
-    setEvents((prev) => {
-      const exists = prev.find((e) => e.id === ev.id);
-      return exists ? prev.map((e) => (e.id === ev.id ? ev : e)) : [ev, ...prev];
-    });
+    try {
+      setEvents((prev) => {
+        const exists = prev.find((e) => e.id === ev.id);
+        return exists
+          ? prev.map((e) => (e.id === ev.id ? ev : e))
+          : [ev, ...prev];
+      });
 
-    setShowForm(false);
-    setEditing(null);
+      pushToast(editing ? "Event updated successfully" : "Event created successfully");
+      setShowForm(false);
+      setEditing(null);
+    } catch {
+      pushToast("Failed to save event", "error");
+    }
+  };
+
+  const deleteEvent = (id: string) => {
+    try {
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      pushToast("Event deleted successfully");
+    } catch {
+      pushToast("Failed to delete event", "error");
+    }
   };
 
   /* ================= RENDER ================= */
@@ -202,7 +246,14 @@ export default function EventsPage() {
 
           <button
             className={styles.ghost}
-            onClick={() => downloadICS(events, "family-events.ics")}
+            onClick={() => {
+              try {
+                downloadICS(events, "family-events.ics");
+                pushToast("Events exported successfully");
+              } catch {
+                pushToast("Export failed", "error");
+              }
+            }}
           >
             <Download size={16} /> Export All
           </button>
@@ -251,11 +302,7 @@ export default function EventsPage() {
 
         <div className={styles.grid}>
           {(tab === "upcoming" ? upcoming : past).map((ev) => (
-            <motion.article
-              key={ev.id}
-              className={styles.eventCard}
-              whileHover={{ y: -4 }}
-            >
+            <motion.article key={ev.id} className={styles.eventCard} whileHover={{ y: -4 }}>
               <small>{new Date(ev.date).toLocaleDateString()}</small>
               <h4>{ev.title}</h4>
 
@@ -264,14 +311,12 @@ export default function EventsPage() {
               </div>
 
               <div className={styles.cardActions}>
-                <button onClick={() => setSelected(ev)}>Details</button>
-                <button
-                  onClick={() => {
-                    setEditing(ev);
-                    setShowForm(true);
-                  }}
-                >
+                <button type="button" onClick={() => setSelected(ev)}>Details</button>
+                <button type="button" onClick={() => { setEditing(ev); setShowForm(true); }}>
                   Edit
+                </button>
+                <button type="button" className={styles.deleteBtn} onClick={() => deleteEvent(ev.id)}>
+                  Delete
                 </button>
               </div>
             </motion.article>
@@ -279,17 +324,11 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* IMPORT PREVIEW MODAL */}
+      {/* IMPORT PREVIEW */}
       <AnimatePresence>
         {importPreview && (
-          <motion.div
-            className={styles.modalBack}
-            onClick={() => setImportPreview(null)}
-          >
-            <motion.div
-              className={styles.modal}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <motion.div className={styles.modalBack} onClick={() => setImportPreview(null)}>
+            <motion.div className={styles.modal} onClick={(e) => e.stopPropagation()}>
               <h3>Import {importPreview.length} Event(s)?</h3>
 
               <ul>
@@ -302,16 +341,14 @@ export default function EventsPage() {
               </ul>
 
               <div className={styles.modalActions}>
-                <button
-                  className={styles.ghost}
-                  onClick={() => setImportPreview(null)}
-                >
+                <button className={styles.ghost} onClick={() => setImportPreview(null)}>
                   Cancel
                 </button>
                 <button
                   className={styles.cta}
                   onClick={() => {
                     setEvents((prev) => [...importPreview, ...prev]);
+                    pushToast(`Imported ${importPreview.length} event(s)`);
                     setImportPreview(null);
                   }}
                 >
@@ -323,17 +360,11 @@ export default function EventsPage() {
         )}
       </AnimatePresence>
 
-      {/* DETAILS MODAL */}
+      {/* DETAILS */}
       <AnimatePresence>
         {selected && (
-          <motion.div
-            className={styles.modalBack}
-            onClick={() => setSelected(null)}
-          >
-            <motion.div
-              className={styles.modal}
-              onClick={(e) => e.stopPropagation()}
-            >
+          <motion.div className={styles.modalBack} onClick={() => setSelected(null)}>
+            <motion.div className={styles.modal} onClick={(e) => e.stopPropagation()}>
               <h3>{selected.title}</h3>
               <p>{new Date(selected.date).toLocaleString()}</p>
               <p>{selected.description}</p>
@@ -345,15 +376,10 @@ export default function EventsPage() {
               </div>
 
               <div className={styles.modalActions}>
-                <button
-                  type="button"
-                  className={styles.ghost}
-                  onClick={() => setSelected(null)}
-                >
+                <button className={styles.ghost} onClick={() => setSelected(null)}>
                   Close
                 </button>
                 <button
-                  type="button"
                   className={styles.cta}
                   onClick={() => downloadICS([selected], `${selected.title}.ics`)}
                 >
@@ -365,7 +391,7 @@ export default function EventsPage() {
         )}
       </AnimatePresence>
 
-      {/* CREATE / EDIT FORM */}
+      {/* FORM */}
       <AnimatePresence>
         {showForm && (
           <EventForm
@@ -375,23 +401,43 @@ export default function EventsPage() {
               setShowForm(false);
               setEditing(null);
             }}
+            pushToast={pushToast}
           />
         )}
       </AnimatePresence>
+
+      {/* TOASTS */}
+      <div className={styles.toastWrap}>
+        <AnimatePresence>
+          {toasts.map((t) => (
+            <motion.div
+              key={t.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              className={`${styles.toast} ${styles[t.type]}`}
+            >
+              {t.message}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </main>
   );
 }
 
-/* ================= EVENT FORM ================= */
+/* ================= FORM ================= */
 
 function EventForm({
   initial,
   onSave,
   onClose,
+  pushToast,
 }: {
   initial: EventItem | null;
   onSave: (e: EventItem) => void;
   onClose: () => void;
+  pushToast: (msg: string, type?: ToastType) => void;
 }) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [date, setDate] = useState(initial?.date ?? "");
@@ -411,6 +457,12 @@ function EventForm({
         className={styles.form}
         onSubmit={(e) => {
           e.preventDefault();
+
+          if (!title || !date) {
+            pushToast("Title and date are required", "error");
+            return;
+          }
+
           onSave({
             id: initial?.id ?? `e_${Date.now()}`,
             title,
@@ -423,18 +475,10 @@ function EventForm({
       >
         <h3>{initial ? "Edit Event" : "Create Event"}</h3>
 
-        <input value={title} onChange={(e) => setTitle(e.target.value)} required />
-        <input
-          type="datetime-local"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-        />
-        <input value={location} onChange={(e) => setLocation(e.target.value)} />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Event Title" required />
+        <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} required />
+        <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" required />
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" required/>
 
         <input type="file" multiple accept="image/*" onChange={(e) => handleImages(e.target.files)} />
 

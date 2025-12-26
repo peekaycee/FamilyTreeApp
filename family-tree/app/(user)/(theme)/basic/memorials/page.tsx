@@ -21,6 +21,7 @@ type Memorial = {
 
 type CandleMap = Record<string, number>;
 type MessageMap = Record<string, string[]>;
+type ToastType = "success" | "error" | "info";
 
 /* ---------------- Component ---------------- */
 
@@ -46,7 +47,18 @@ export default function MemorialsPage() {
 
   /* Toast state */
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<"success" | "error" | null>(null);
+  const [toastType, setToastType] = useState<ToastType>("info");
+
+  /* ---------------- Toast Helper ---------------- */
+
+  const showToast = (message: string, type: ToastType = "info") => {
+    setToastType(type);
+    setToastMessage(message);
+
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   /* ---------------- Persistence ---------------- */
 
@@ -105,77 +117,80 @@ export default function MemorialsPage() {
   const lightCandle = (id: string) => {
     try {
       setCandles((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-      setToastMessage("Candle lit successfully.");
-      setToastType("success");
-    } catch (error) {
-      setToastMessage("Failed to light candle.");
-      setToastType("error");
-    } finally {
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast("Candle lit successfully.", "success");
+    } catch {
+      showToast("Failed to light candle.", "error");
     }
   };
 
   const deleteMemorial = (id: string) => {
     try {
       setMemorials((prev) => prev.filter((m) => m.id !== id));
+
       setCandles((prev) => {
         const next = { ...prev };
         delete next[id];
         return next;
       });
+
       setMessages((prev) => {
         const next = { ...prev };
         delete next[id];
         return next;
       });
-      setToastMessage("Memorial deleted successfully.");
-      setToastType("success");
-    } catch (error) {
-      setToastMessage("Failed to delete memorial.");
-      setToastType("error");
-    } finally {
-      setTimeout(() => setToastMessage(null), 3000);
+
+      showToast("Memorial deleted successfully.", "success");
+    } catch {
+      showToast("Failed to delete memorial.", "error");
     }
   };
 
   const saveMemorial = () => {
     const { name, born, died, tribute, bio, picture } = form;
+
     if (!name || !born || !died || !tribute || !bio) {
-      setToastMessage("Failed to save memorial. Please fill all fields.");
-      setToastType("error");
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast("Failed to save memorial. Please fill all fields.", "error");
       return;
     }
 
     try {
       if (editingId) {
-        // Edit existing memorial
         setMemorials((prev) =>
           prev.map((m) =>
             m.id === editingId
-              ? { ...m, name, born: Number(born), died: Number(died), tribute, bio, picture }
+              ? {
+                  ...m,
+                  name,
+                  born: Number(born),
+                  died: Number(died),
+                  tribute,
+                  bio,
+                  picture,
+                }
               : m
           )
         );
-        setToastMessage("Memorial updated successfully.");
-        setToastType("success");
+        showToast("Memorial updated successfully.", "success");
       } else {
-        // Add new memorial
         setMemorials((prev) => [
-          { id: crypto.randomUUID(), name, born: Number(born), died: Number(died), tribute, bio, picture },
+          {
+            id: crypto.randomUUID(),
+            name,
+            born: Number(born),
+            died: Number(died),
+            tribute,
+            bio,
+            picture,
+          },
           ...prev,
         ]);
-        setToastMessage("Memorial added successfully.");
-        setToastType("success");
+        showToast("Memorial added successfully.", "success");
       }
 
       setShowAdd(false);
       setEditingId(null);
-    } catch (error) {
-      setToastMessage("An error occurred while saving the memorial.");
-      setToastType("error");
-    } finally {
-      setTimeout(() => setToastMessage(null), 3000);
+    } catch {
+      showToast("An error occurred while saving the memorial.", "error");
     }
   };
 
@@ -209,7 +224,7 @@ export default function MemorialsPage() {
 
   return (
     <main className={styles.page}>
-      {/* TOAST NOTIFICATION */}
+      {/* TOAST */}
       {toastMessage && (
         <div className={`${styles.toast} ${styles[toastType]}`}>
           {toastMessage}
@@ -235,18 +250,17 @@ export default function MemorialsPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-
           {query && (
             <button
               type="button"
               className={styles.clearSearch}
-              aria-label="Clear search"
               onClick={() => setQuery("")}
             >
               ×
             </button>
           )}
         </div>
+
         <button type="button" className={styles.cta} onClick={openAdd}>
           + Add Memorial
         </button>
@@ -262,7 +276,7 @@ export default function MemorialsPage() {
               ) : (
                 <div className={styles.imagePlaceholder}>
                   <Image
-                    src={"/images/image-placeholder-removebg-preview (1).png"}
+                    src="/images/image-placeholder-removebg-preview (1).png"
                     alt="Image Placeholder"
                     width={500}
                     height={500}
@@ -351,7 +365,9 @@ export default function MemorialsPage() {
                   type="file"
                   accept="image/*"
                   hidden
-                  onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
+                  onChange={(e) =>
+                    e.target.files && handleImageUpload(e.target.files[0])
+                  }
                 />
               </label>
 

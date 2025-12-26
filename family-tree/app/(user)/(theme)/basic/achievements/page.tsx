@@ -196,6 +196,7 @@ export default function AchievementsPage() {
           {categories.map((c) => (
             <button
               key={c}
+              type="button"
               className={filter === c ? styles.active : ""}
               onClick={() => setFilter(c)}
             >
@@ -249,7 +250,8 @@ export default function AchievementsPage() {
                     Edit
                   </button>
                   <button
-                    className={styles.danger}
+                    className={styles.deleteBtn}
+                    type="button"
                     onClick={() => handleDelete(a.id)}
                   >
                     Delete

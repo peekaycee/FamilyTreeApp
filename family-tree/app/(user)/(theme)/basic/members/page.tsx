@@ -1,6 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-// FamilyMembersPage.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,7 +19,6 @@ export default function FamilyMembersPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [search, setSearch] = useState("");
-  const [q, setQ] = useState("");
 
   const redirectToTreeBuilder = () => {
     window.location.href = "/basic/dashboard/family-builder";

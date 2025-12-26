@@ -1,96 +1,346 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-// app/memorials/page.tsx
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./memorials.module.css";
-import { Search } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
-/**
- * sample memorials
- */
-const sample = [
-  { id: "m1", name: "Elder Thomas", born: 1930, died: 2010, tribute: "Beloved community leader", bio: "Full biography...", picture: null },
-  { id: "m2", name: "Aunty Rose", born: 1940, died: 2018, tribute: "Kind heart", bio: "Full biography...", picture: null },
-];
+/* ---------------- Types ---------------- */
+
+type Memorial = {
+  id: string;
+  name: string;
+  born: number;
+  died: number;
+  tribute: string;
+  bio: string;
+  picture?: string | null;
+};
+
+type CandleMap = Record<string, number>;
+type MessageMap = Record<string, string[]>;
+
+/* ---------------- Seed Data ---------------- */
+
+// const SAMPLE: Memorial[] = [
+//   {
+//     id: "m1",
+//     name: "Elder Thomas",
+//     born: 1930,
+//     died: 2010,
+//     tribute: "Beloved community leader",
+//     bio: "Elder Thomas dedicated his life to service, wisdom, and unity within the family.",
+//   },
+// ];
+
+/* ---------------- Component ---------------- */
 
 export default function MemorialsPage() {
-  const [memorials, setMemorials] = useState(sample);
+  const [memorials, setMemorials] = useState<Memorial[]>([]);
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<string | null>(null);
-  const [candles, setCandles] = useState<Record<string, number>>({});
+
+  const [candles, setCandles] = useState<CandleMap>({});
+  const [messages, setMessages] = useState<MessageMap>({});
+
+  /* Modal state */
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [form, setForm] = useState({
+    name: "",
+    born: "",
+    died: "",
+    tribute: "",
+    bio: "",
+    picture: null as string | null,
+  });
+
+  /* ---------------- Persistence ---------------- */
 
   useEffect(() => {
-    const raw = localStorage.getItem("ft_candles");
-    if (raw) setCandles(JSON.parse(raw));
+    const savedMemorials = localStorage.getItem("ft_memorials");
+    const savedCandles = localStorage.getItem("ft_candles");
+    const savedMessages = localStorage.getItem("ft_memorial_msgs");
+
+    // setMemorials(savedMemorials ? JSON.parse(savedMemorials) : SAMPLE);
+    if (savedCandles) setCandles(JSON.parse(savedCandles));
+    if (savedMessages) setMessages(JSON.parse(savedMessages));
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ft_memorials", JSON.stringify(memorials));
+  }, [memorials]);
 
   useEffect(() => {
     localStorage.setItem("ft_candles", JSON.stringify(candles));
   }, [candles]);
 
-  const filtered = memorials.filter(m => m.name.toLowerCase().includes(query.toLowerCase()));
+  useEffect(() => {
+    localStorage.setItem("ft_memorial_msgs", JSON.stringify(messages));
+  }, [messages]);
+
+// Preventing Image leakages 
+  useEffect(() => {
+  return () => {
+    if (form.picture?.startsWith("blob:")) {
+      URL.revokeObjectURL(form.picture);
+    }
+  };
+}, [form.picture]);
+
+  /* ---------------- Helpers ---------------- */
+
+  const handleImageUpload = (file: File) => {
+  const previewUrl = URL.createObjectURL(file);
+
+  setForm((prev) => ({
+    ...prev,
+    picture: previewUrl,
+  }));
+};
+
+  /* ---------------- Derived ---------------- */
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase();
+    return memorials.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        String(m.born).includes(q) ||
+        String(m.died).includes(q)
+    );
+  }, [query, memorials]);
+
+  /* ---------------- Actions ---------------- */
 
   const lightCandle = (id: string) => {
-    setCandles(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    setCandles((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
   };
+
+  const openAdd = () => {
+    setEditingId(null);
+    setForm({
+      name: "",
+      born: "",
+      died: "",
+      tribute: "",
+      bio: "",
+      picture: null,
+    });
+    setShowAdd(true);
+  };
+
+  const openEdit = (m: Memorial) => {
+    setEditingId(m.id);
+    setForm({
+      name: m.name,
+      born: String(m.born),
+      died: String(m.died),
+      tribute: m.tribute,
+      bio: m.bio,
+      picture: m.picture || null,
+    });
+    setShowAdd(true);
+  };
+
+  const saveMemorial = () => {
+    const { name, born, died, tribute, bio, picture } = form;
+    if (!name || !born || !died || !tribute || !bio) return;
+
+    if (editingId) {
+      // EDIT
+      setMemorials((prev) =>
+        prev.map((m) =>
+          m.id === editingId
+            ? {
+                ...m,
+                name,
+                born: Number(born),
+                died: Number(died),
+                tribute,
+                bio,
+                picture,
+              }
+            : m
+        )
+      );
+    } else {
+      // ADD
+      setMemorials((prev) => [
+        {
+          id: crypto.randomUUID(),
+          name,
+          born: Number(born),
+          died: Number(died),
+          tribute,
+          bio,
+          picture,
+        },
+        ...prev,
+      ]);
+    }
+
+    setShowAdd(false);
+    setEditingId(null);
+  };
+
+  /* ---------------- Render ---------------- */
 
   return (
     <main className={styles.page}>
+      {/* HERO */}
       <section className={styles.hero}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className={styles.title}>Memorials — Forever in our Hearts</h1>
-          <p className={styles.lead}>Create tributes, leave messages, and light a virtual candle.</p>
+          <h1 className={styles.title}>Memorials — Forever in Our Hearts</h1>
+          <p className={styles.lead}>
+            Create tributes, leave messages, and light a virtual candle.
+          </p>
         </motion.div>
       </section>
 
-      <section className={styles.searchWrap}>
-        <div className={styles.searchInner}>
-          <Search size={18} />
-          <input placeholder="Search by name or year" value={query} onChange={(e)=>setQuery(e.target.value)} />
-        </div>
-      </section>
+     {/* SEARCH + ADD */}
+<section className={styles.searchWrap}>
+  <div className={styles.searchField}>
+    <input
+      className={styles.searchInner}
+      placeholder="Search by name or year"
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+    />
 
+    {query && (
+      <button
+        type="button"
+        className={styles.clearSearch}
+        aria-label="Clear search"
+        onClick={() => setQuery("")}
+      >
+        ×
+      </button>
+    )}
+  </div>
+  <button type="button" className={styles.cta} onClick={openAdd}>
+    + Add Memorial
+  </button>
+</section>
+
+
+      {/* GRID */}
       <section className={styles.grid}>
-        {filtered.map(m => (
+        {filtered.map((m) => (
           <motion.article key={m.id} className={styles.card} whileHover={{ scale: 1.02 }}>
-            <div className={styles.cardHero} />
+            <div className={styles.cardImage}>
+              {m.picture ? (
+                <Image src={m.picture} alt={m.name} width={0} height={0}/>
+              ) : (
+                <div className={styles.imagePlaceholder}>
+                  <Image src={"/images/image-placeholder-removebg-preview (1).png"} alt="Image Placeholder" width={500} height={500} />
+                </div>
+              )}
+            </div>
+
             <div className={styles.cardBody}>
               <h3>{m.name}</h3>
-              <p className={styles.muted}>{m.born} — {m.died}</p>
+              <p className={styles.muted}>
+                {m.born} — {m.died}
+              </p>
               <p>{m.tribute}</p>
+
               <div className={styles.cardActions}>
-                <button onClick={()=>setSelected(m.id)} className={styles.cta}>View Tribute</button>
-                <button className={styles.candleBtn} onClick={()=>lightCandle(m.id)}>Light a candle ({candles[m.id]||0})</button>
+                <Link href={`/memorials/${m.id}`} prefetch={false} className={styles.cta}>
+                  View
+                </Link>
+
+                <button
+                  className={styles.ghost}
+                  onClick={() => openEdit(m)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  className={styles.candleBtn}
+                  onClick={() => lightCandle(m.id)}
+                >
+                  🕯 {candles[m.id] || 0}
+                </button>
               </div>
             </div>
           </motion.article>
         ))}
       </section>
 
+      {/* ADD / EDIT MODAL */}
       <AnimatePresence>
-        {selected && (
-          <motion.div className={styles.modalBack} initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} onClick={()=>setSelected(null)}>
-            <motion.div className={styles.modal} initial={{ y:8, scale:0.98 }} animate={{ y:0, scale:1 }} exit={{ y:8, scale:0.98 }} onClick={(e)=>e.stopPropagation()}>
-              <button className={styles.close} onClick={()=>setSelected(null)}>Close</button>
-              {(() => {
-                const m = memorials.find(x=> x.id === selected)!;
-                return (
-                  <>
-                    <h3>{m.name}</h3>
-                    <p className={styles.muted}>{m.born} — {m.died}</p>
-                    <p>{m.bio}</p>
-                    <div style={{marginTop:12}}>
-                      <textarea placeholder="Leave a condolence..." style={{width:"100%",minHeight:80}} />
-                      <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginTop:8}}>
-                        <button className={styles.ghost} onClick={()=>alert("Saved locally (demo)")}>Post</button>
-                        <button className={styles.cta} onClick={()=>{ lightCandle(m.id); alert("Candle lit"); }}>Light Candle</button>
-                      </div>
-                    </div>
-                  </>
-                );
-              })()}
+        {showAdd && (
+          <motion.div className={styles.modalBack} onClick={() => setShowAdd(false)}>
+            <motion.div
+              className={styles.modal}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.96, y: 12 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.96, y: 12 }}
+            >
+              <h3>{editingId ? "Edit Memorial" : "Add Memorial"}</h3>
+
+              <input
+                placeholder="Full name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+
+              <input
+                placeholder="Year born"
+                type="number"
+                value={form.born}
+                onChange={(e) => setForm({ ...form, born: e.target.value })}
+              />
+
+              <input
+                placeholder="Year died"
+                type="number"
+                value={form.died}
+                onChange={(e) => setForm({ ...form, died: e.target.value })}
+              />
+
+              <input
+                placeholder="Short tribute"
+                value={form.tribute}
+                onChange={(e) => setForm({ ...form, tribute: e.target.value })}
+              />
+
+              <textarea
+                placeholder="Full biography"
+                value={form.bio}
+                onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              />
+
+              <label className={styles.upload}>
+                Upload photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) =>
+                    e.target.files && handleImageUpload(e.target.files[0])
+                  }
+                />
+              </label>
+
+              {form.picture && (
+                <Image src={form.picture} className={styles.preview} alt="Preview" width={0} height={0}/>
+              )}
+
+              <div className={styles.modalActions}>
+                <button className={styles.ghost} onClick={() => setShowAdd(false)}>
+                  Cancel
+                </button>
+                <button className={styles.cta} onClick={saveMemorial}>
+                  {editingId ? "Save Changes" : "Save Memorial"}
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

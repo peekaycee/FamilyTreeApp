@@ -29,7 +29,7 @@
 }
 .ctaPrimary {
   background: var(--color-secondary);
-  color: var(--color-black-text);
+  color: var(--color-white-text);
   border-radius: 8px;
   padding: 10px 14px;
   display:flex; 
@@ -37,6 +37,13 @@
   align-items: center;
   border: none; 
   cursor: pointer;
+  transition: all 0.25s ease;
+}
+.ctaPrimary a {
+  color: var(--color-white-text);
+}
+.ctaGhost:hover a{
+  color: var(--color-white-text);
 }
 .ctaGhost {
   background: var(--color-bg);
@@ -48,6 +55,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.25s ease;
+}
+.ctaGhost:hover{
+  color: var(--color-white-text);
 }
 .ctaSmall {
   background: var(--color-primary); 
@@ -56,6 +67,7 @@
   padding:6px 10px; 
   border:none; 
   cursor:pointer;
+  transition: all 0.25s ease;
 }
 .sendCaret{
   transform: rotate(180deg);

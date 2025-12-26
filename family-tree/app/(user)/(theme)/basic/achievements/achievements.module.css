@@ -56,9 +56,10 @@
 }
 
 .filterRow button {
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.08);
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+  border: 0;
+  outline: none;
   background: var(--color-secondary);
   cursor: pointer;
   font-size: 0.85rem;
@@ -194,11 +195,9 @@
 .cardActions button:hover{
   background: var(--color-accent);
 }
-
-.danger {
-  color: #ef4444;
+.cardActions .deleteBtn{
+  background: var(--color-secondary);
 }
-
 /* =========================
    SIDEBAR
 ========================= */

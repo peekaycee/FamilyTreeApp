@@ -2,9 +2,7 @@
   /* padding: 4rem 6vw 6rem; */
   background: var(--color-bg);
   color: var(--color-white-text);
-  min-height: 100vh;
 }
-
 /* HERO */
 .hero {
   background: var(--color-primary);
@@ -38,39 +36,50 @@
   margin-top: 2rem; 
 }
 
-.primary {
-  background: var(--color-secondary);
-  color: var(--color-black-text);
+.primary,
+.cta {
+  flex: 1;
+  background: var(--color-primary);
+  color: var(--color-white-text);
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 12px 10px;
   display:flex; 
-  gap:8px; 
+  gap: 8px;
   align-items: center;
+  justify-content: center;
   border: none; 
   cursor: pointer;
 }
+.primary{
+  background: var(--color-secondary);
+}
 
-.primary:hover {
+.cta:hover {
   background: var(--color-accent);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
 }
 
 .ghost {
   background: var(--color-bg);
   color: var(--color-black-text);
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 12px 10px;
   display: flex;
-  gap: 5px;
+  gap: 2px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
+.modalActions .ghost:hover,
 .ghost:hover {
   background: var(--color-accent);
+  color: var(--color-white-text);
   transform: translateY(-1px);
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+}
+.modalActions .ghost{
+  background: var(--color-secondary);
+  color: var(--color-white-text);
+  width: 20%;
 }
 
 /* COUNTDOWN */
@@ -189,6 +198,7 @@
 }
 
 .cardActions button {
+  
   border: none;
   outline: none;
   font-size: 0.9rem;
@@ -197,7 +207,7 @@
 }
 .cardActions button:first-child{
  background: var(--color-secondary);
- color: var(--color-black-text);
+ color: var(--color-white-text);
 }
 .cardActions button:nth-child(2){
  background: var(--color-bg);
@@ -206,7 +216,7 @@
 .cardActions button:nth-child(2):hover,
 .cardActions button:first-child:hover{
   background: var(--color-accent);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+  color: var(--color-white-text);
 }
 
 /* MODAL */
@@ -251,7 +261,7 @@
 }
 .modalActions button:nth-child(2):hover{
   background: var(--color-accent);
-  color: var(--color-black-text);
+  color: var(--color-white-text);
 }
 
 /* FORM */
@@ -309,13 +319,138 @@
   border-radius: 16px;
 }
 
-/* MOBILE */
-@media (max-width: 640px) {
-  .page {
-    padding: 3rem 1.2rem 4rem;
+/* RESPONSIVENESS */
+@media (max-width: 1024px) {
+  /* HERO */
+  .hero {
+    height: 65vh;
+    padding: 0 2rem;
   }
 
+  /* ACTIONS */
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .primary,
+  .cta {
+    flex: unset;
+    min-width: 220px;
+  }
+
+  /* GRID */
+  .grid {
+    padding: 1em 2em;
+    gap: 1.5rem;
+  }
+
+  /* MODAL */
+  .modal {
+    max-width: 480px;
+    padding: 2rem;
+  }
+
+  /* FORM */
+  .form {
+    padding: 1.25em 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* PAGE */
+  .page {
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    height: 70vh;
+    padding: 4rem 1.25rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  /* ACTIONS */
   .actions {
     flex-direction: column;
+    width: 100%;
+  }
+.ghost{
+  width: 60%;
+}
+  /* COUNTDOWN */
+  .countdown {
+    width: 90%;
+    margin: 2rem auto;
+    transform: none;
+  }
+
+  .countdown:hover {
+    transform: none;
+  }
+
+  /* TABS */
+  .tabBtns {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* GRID */
+  .grid {
+    padding: 1em 1.25em;
+    gap: 1.25rem;
+  }
+
+  /* EVENT CARD */
+  .eventCard {
+    width: 100%;
+    padding: 1.5rem;
+    margin: 0 auto;
+  }
+
+  .cardActions {
+    gap: 0.6rem;
+  }
+
+  .cardActions button {
+    width: 50%;
+  }
+
+  /* MODAL */
+  .modal {
+    width: 90%;
+    max-width: none;
+    border-radius: 16px;
+    padding: 1.75rem 1.25rem;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  /* MODAL ACTIONS */
+  .modalActions {
+    gap: 0.6rem;
+  }
+  .modalActions .ghost {
+    width: 100%;
+  }
+
+  /* FORM */
+  .form {
+    width: 90%;
+    margin: 0 auto;
+    max-width: none;
+    padding: 1.25rem;
+  }
+
+  /* IMAGE STRIP */
+  .imageStrip img {
+    width: 90px;
+    height: 90px;
   }
 }

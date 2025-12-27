@@ -292,12 +292,21 @@
 }
 
 .toast.success {
-  background-color: var(--color-accent);
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.95),
+    rgba(16, 185, 129, 0.95)
+  );
 }
 
 .toast.error {
-  background-color: rgb(236, 71, 71);
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.95),
+    rgba(239, 68, 68, 0.95)
+  );
 }
+
 
 /* ========================= */
 /* TABLET RESPONSIVE (≤1024px) */
@@ -410,7 +419,8 @@
     height: auto;
   }
   .toast {
-    right: -110px;;
+    top: 24px;
+    right: -90px;;
   }
 }
 

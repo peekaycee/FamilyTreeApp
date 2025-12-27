@@ -6,6 +6,8 @@ import styles from "./achievements.module.css";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
+/* ================= TYPES ================= */
+
 type Achievement = {
   id: string;
   title: string;
@@ -16,6 +18,10 @@ type Achievement = {
   img: string | null;
   detail: string;
 };
+
+type ToastType = "success" | "error" | "info";
+
+/* ================= SAMPLE DATA ================= */
 
 const sample: Achievement[] = [
   {
@@ -59,6 +65,8 @@ const categories = [
   "Entrepreneurship",
 ];
 
+/* ================= COMPONENT ================= */
+
 export default function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>(sample);
   const [showModal, setShowModal] = useState(false);
@@ -77,9 +85,19 @@ export default function AchievementsPage() {
   const [filter, setFilter] = useState("All");
   const [q, setQ] = useState("");
 
-  /* =========================
-     FILTERING + SEARCH
-  ========================== */
+  /* ================= TOAST ================= */
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<ToastType>("info");
+
+  const showToast = (msg: string, type: ToastType) => {
+    setToastType(type);
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  /* ================= FILTERING + SEARCH ================= */
+
   const filtered = useMemo(() => {
     return achievements.filter(
       (a) =>
@@ -90,9 +108,8 @@ export default function AchievementsPage() {
     );
   }, [achievements, filter, q]);
 
-  /* =========================
-     LEADERBOARD
-  ========================== */
+  /* ================= LEADERBOARD ================= */
+
   const leaderboard = useMemo(() => {
     const counts: Record<string, number> = {};
     achievements.forEach(
@@ -103,37 +120,42 @@ export default function AchievementsPage() {
       .slice(0, 5);
   }, [achievements]);
 
-  /* =========================
-     IMAGE UPLOAD
-  ========================== */
+  /* ================= IMAGE UPLOAD ================= */
+
   const handleImageUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      setForm((prev) => ({ ...prev, img: reader.result as string }));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setForm((prev) => ({ ...prev, img: reader.result as string }));
+      };
+      reader.onerror = () => {
+        showToast("Unable to preview selected image.", "error");
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      showToast("Image preview failed.", "error");
+    }
   };
 
-  /* =========================
-     SUBMIT (CREATE / EDIT)
-  ========================== */
+  /* ================= SUBMIT (CREATE / EDIT) ================= */
+
   const handleSubmit = () => {
-    if (!form.title || !form.person || !form.detail) return;
+    if (!form.title || !form.person || !form.detail) {
+      showToast("Please fill all required fields.", "error");
+      return;
+    }
 
     if (editingId) {
       setAchievements((prev) =>
-        prev.map((a) =>
-          a.id === editingId ? { ...a, ...form } : a
-        )
+        prev.map((a) => (a.id === editingId ? { ...a, ...form } : a))
       );
+      showToast("Achievement updated.", "success");
     } else {
       setAchievements((prev) => [
-        {
-          id: crypto.randomUUID(),
-          ...form,
-        },
+        { id: crypto.randomUUID(), ...form },
         ...prev,
       ]);
+      showToast("Achievement added.", "success");
     }
 
     resetModal();
@@ -153,12 +175,14 @@ export default function AchievementsPage() {
     });
   };
 
-  /* =========================
-     DELETE
-  ========================== */
+  /* ================= DELETE ================= */
+
   const handleDelete = (id: string) => {
     setAchievements((prev) => prev.filter((a) => a.id !== id));
+    showToast("Achievement deleted.", "success");
   };
+
+  /* ================= RENDER ================= */
 
   return (
     <main className={styles.page}>
@@ -180,18 +204,17 @@ export default function AchievementsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-
           {q && (
             <button
               type="button"
               className={styles.clearBtn}
               onClick={() => setQ("")}
-              aria-label="Clear search"
             >
               ×
             </button>
           )}
         </div>
+
         <div className={styles.filterRow}>
           {categories.map((c) => (
             <button
@@ -210,11 +233,7 @@ export default function AchievementsPage() {
       <section className={styles.grid}>
         <div className={styles.gridLeft}>
           {filtered.map((a) => (
-            <motion.article
-              className={styles.card}
-              key={a.id}
-              whileHover={{ scale: 1.01 }}
-            >
+            <motion.article key={a.id} className={styles.card} whileHover={{ scale: 1.01 }}>
               <div className={styles.cardLeft}>
                 <div className={`${styles.badge} ${styles[a.badge]}`}>
                   <Star size={16} />
@@ -228,13 +247,7 @@ export default function AchievementsPage() {
                 </p>
 
                 {a.img && (
-                  <Image
-                    src={a.img}
-                    alt={a.title}
-                    className={styles.cardImg}
-                    width={150}
-                    height={150}
-                  />
+                  <Image src={a.img} alt={a.title} width={150} height={150} />
                 )}
 
                 <p>{a.detail}</p>
@@ -249,9 +262,9 @@ export default function AchievementsPage() {
                   >
                     Edit
                   </button>
+
                   <button
                     className={styles.deleteBtn}
-                    type="button"
                     onClick={() => handleDelete(a.id)}
                   >
                     Delete
@@ -274,6 +287,7 @@ export default function AchievementsPage() {
                 </li>
               ))}
             </ol>
+
             <button
               className={styles.cta}
               onClick={() => setShowModal(true)}
@@ -298,39 +312,29 @@ export default function AchievementsPage() {
             <input
               placeholder="Title"
               value={form.title}
-              onChange={(e) =>
-                setForm({ ...form, title: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
 
             <input
               placeholder="Person"
               value={form.person}
-              onChange={(e) =>
-                setForm({ ...form, person: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, person: e.target.value })}
             />
 
             <input
               type="number"
               placeholder="Year"
               value={form.year}
-              onChange={(e) =>
-                setForm({ ...form, year: Number(e.target.value) })
-              }
+              onChange={(e) => setForm({ ...form, year: Number(e.target.value) })}
             />
 
             <select
               value={form.category}
-              onChange={(e) =>
-                setForm({ ...form, category: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
             >
-              {categories
-                .filter((c) => c !== "All")
-                .map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
+              {categories.filter((c) => c !== "All").map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </select>
 
             <select
@@ -351,36 +355,36 @@ export default function AchievementsPage() {
               type="file"
               accept="image/*"
               onChange={(e) =>
-                e.target.files &&
-                handleImageUpload(e.target.files[0])
+                e.target.files && handleImageUpload(e.target.files[0])
               }
             />
 
             {form.img && (
-              <Image
-                src={form.img}
-                className={styles.previewImg}
-                alt="Preview"
-                width={100}
-                height={100}
-              />
+              <Image src={form.img} alt="Preview" width={100} height={100} />
             )}
 
             <textarea
               placeholder="Achievement details"
               value={form.detail}
-              onChange={(e) =>
-                setForm({ ...form, detail: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, detail: e.target.value })}
             />
 
             <div className={styles.modalActions}>
-              <button onClick={resetModal}>Cancel</button>
-              <button className={styles.cta} onClick={handleSubmit}>
+              <button type="button" onClick={resetModal}>
+                Cancel
+              </button>
+              <button type="button" className={styles.cta} onClick={handleSubmit}>
                 {editingId ? "Update" : "Submit"}
               </button>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {/* TOAST */}
+      {toastMessage && (
+        <div className={`${styles.toast} ${styles[toastType]}`}>
+          {toastMessage}
         </div>
       )}
     </main>

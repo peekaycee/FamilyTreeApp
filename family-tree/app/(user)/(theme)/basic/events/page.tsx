@@ -447,7 +447,9 @@ function EventForm({
 
   const handleImages = (files: FileList | null) => {
     if (!files) return;
-    const previews = Array.from(files).map((f) => URL.createObjectURL(f));
+    const previews = Array.from(files).map((f) =>
+      URL.createObjectURL(f)
+    );
     setImages((prev) => [...prev, ...previews]);
   };
 
@@ -458,8 +460,8 @@ function EventForm({
         onSubmit={(e) => {
           e.preventDefault();
 
-          if (!title || !date) {
-            pushToast("Title and date are required", "error");
+          if (!title || !date || !location || !description) {
+            pushToast("Please fill in all required fields.", "error");
             return;
           }
 
@@ -475,12 +477,36 @@ function EventForm({
       >
         <h3>{initial ? "Edit Event" : "Create Event"}</h3>
 
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Event Title" required />
-        <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} required />
-        <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" required />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" required/>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Event Title"
+        />
 
-        <input type="file" multiple accept="image/*" onChange={(e) => handleImages(e.target.files)} />
+        <input
+          type="datetime-local"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+
+        <input
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Location"
+        />
+
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+        />
+
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={(e) => handleImages(e.target.files)}
+        />
 
         <div className={styles.imageStrip}>
           {images.map((img, i) => (
@@ -489,7 +515,11 @@ function EventForm({
         </div>
 
         <div className={styles.modalActions}>
-          <button type="button" className={styles.ghost} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.ghost}
+            onClick={onClose}
+          >
             Cancel
           </button>
           <button className={styles.cta} type="submit">

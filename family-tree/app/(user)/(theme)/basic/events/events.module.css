@@ -345,12 +345,21 @@
 }
 
 .toast.success {
-  background: var(--color-accent);
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.95),
+    rgba(16, 185, 129, 0.95)
+  );
 }
 
 .toast.error {
-  background: rgb(236, 71, 71);
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.95),
+    rgba(239, 68, 68, 0.95)
+  );
 }
+
 
 /* RESPONSIVENESS */
 @media (max-width: 1024px) {

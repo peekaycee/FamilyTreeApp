@@ -1,3 +1,6 @@
+.page{
+  position: relative;
+}
 /* =========================
    HERO
 ========================= */
@@ -313,5 +316,58 @@
   }
   .searchWrap {
     width: 100%;
+  }
+}
+
+/* =========================
+   BASE TOAST
+========================= */
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: fit-content;
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--color-white-text);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+  z-index: 9999;
+}
+
+/* =========================
+   VARIANTS
+========================= */
+.success {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.95),
+    rgba(16, 185, 129, 0.95)
+  );
+}
+
+.error {
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.95),
+    rgba(239, 68, 68, 0.95)
+  );
+}
+
+/* =========================
+   RESPONSIVE (TOP-RIGHT STILL)
+========================= */
+@media (max-width: 640px) {
+  .toast {
+    min-width: 240px;
+    max-width: 90vw;
   }
 }

@@ -149,7 +149,7 @@ export default function MemorialsPage() {
     const { name, born, died, tribute, bio, picture } = form;
 
     if (!name || !born || !died || !tribute || !bio) {
-      showToast("Failed to save memorial. Please fill all fields.", "error");
+      showToast("Please fill all required fields.", "error");
       return;
     }
 

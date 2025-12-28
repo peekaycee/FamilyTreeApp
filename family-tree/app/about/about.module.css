@@ -250,7 +250,7 @@
   }
   .stats{
     flex-direction: column;
-    margin: 3em 0 0;
+    margin: 3em 0;
   }
   .stats div{
     border-bottom: 0.1px solid rgba(0, 0, 0, 0.06);
@@ -268,7 +268,7 @@
     border-bottom: none;
   }
   .visionSection{
-    padding: 3em 1em 1em;
+    padding: 3.5em 1em 4em;
   }
   .visionImage{
     margin-top: 3em;

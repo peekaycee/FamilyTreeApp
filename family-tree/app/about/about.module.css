@@ -222,18 +222,25 @@
     height: auto;
   }
 }
-@media (max-width: 600px) {  
+@media (max-width: 600px) { 
+  .heroSection{
+    height: 80vh;
+  } 
+  .storySection{
+    padding: 5em 1em 2em;
+  }
   .storyContainer,
   .visionContent {
     flex-direction: column;
   }
   .storyImage{
     width: 100%;
+    height: auto;
   }
   .storyImage img,
   .visionImage img {
     width: 100%;
-    height: auto;
+    height: 400px;
   }
   .storyText h2{
     text-align: center;
@@ -260,8 +267,14 @@
   .stats div:last-child{
     border-bottom: none;
   }
+  .visionSection{
+    padding: 3em 1em 1em;
+  }
   .visionImage{
     margin-top: 3em;
+  }
+  .visionText{
+    width: 100%;
   }
   .visionText h2{
     text-align: center;
@@ -271,5 +284,13 @@
   .visionText h3{
     margin-bottom: 0.75em;
     text-align: center;
+  }
+  .valueCard,
+  .teamCard{
+    width: 100%;
+  }
+  .teamCard img{
+    object-fit: cover;
+    object-position: center;
   }
 }

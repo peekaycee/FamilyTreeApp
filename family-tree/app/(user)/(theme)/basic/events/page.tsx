@@ -417,7 +417,7 @@ export default function EventsPage() {
               exit={{ opacity: 0, y: 12 }}
               className={`${styles.toast} ${styles[t.type]}`}
             >
-              {t.message}
+              <p>{t.message}</p>
             </motion.div>
           ))}
         </AnimatePresence>

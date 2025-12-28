@@ -173,12 +173,14 @@
   margin: 0.25rem 0 0.5rem;
 }
 
-.cardImg {
+.cardImage {
   width: fit-content;
   max-height: 220px;
-  object-fit: contain;
-  border-radius: 12px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 16px;
   margin: 0.5rem 0;
+  /* display: none; */
 }
 
 .cardActions {
@@ -260,7 +262,6 @@
   flex-direction: column;
   gap: 0.65rem;
 }
-
 .modal input,
 .modal textarea,
 .modal select {
@@ -275,16 +276,14 @@
   resize: vertical;
   min-height: 60px;
 }
-
-.previewImg {
+.modalImage {
   width: fit-content;
   max-height: 110px;
   object-fit: contain;
-  object-position: left;
+  object-position: center;
   border-radius: 16px;
   margin: 0 auto;
 }
-
 .modalActions {
   display: flex;
   justify-content: flex-end;

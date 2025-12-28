@@ -247,7 +247,7 @@ export default function AchievementsPage() {
                 </p>
 
                 {a.img && (
-                  <Image src={a.img} alt={a.title} width={150} height={150} />
+                  <Image className={styles.cardImage} src={a.img} alt={a.title} width={150} height={150} />
                 )}
 
                 <p>{a.detail}</p>
@@ -360,7 +360,7 @@ export default function AchievementsPage() {
             />
 
             {form.img && (
-              <Image src={form.img} alt="Preview" width={100} height={100} />
+              <Image className={styles.modalImage} src={form.img} alt="Preview" width={100} height={100} />
             )}
 
             <textarea
@@ -384,7 +384,7 @@ export default function AchievementsPage() {
       {/* TOAST */}
       {toastMessage && (
         <div className={`${styles.toast} ${styles[toastType]}`}>
-          {toastMessage}
+         <p>{toastMessage}</p>
         </div>
       )}
     </main>

@@ -227,7 +227,7 @@ export default function MemorialsPage() {
       {/* TOAST */}
       {toastMessage && (
         <div className={`${styles.toast} ${styles[toastType]}`}>
-          {toastMessage}
+          <p>{toastMessage}</p>
         </div>
       )}
 

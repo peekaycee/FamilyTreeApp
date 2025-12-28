@@ -11,6 +11,8 @@ import Logo from '../public/images/logo.png';
 import styles from './components.module.css'
 import Button from './Button'
 import useGlobalAuth from "@/app/hooks/useGlobalAuth";
+import { Settings } from "lucide-react";
+
 
 
 export default function Navbar() {
@@ -181,9 +183,14 @@ export default function Navbar() {
             <Button onClick={handleLogout} tag="Logout" className={styles.logout} />
             <Link 
               href="/basic/settings" 
-              className={isActive('/basic/settings') ? styles.active : ''}
+              className={`${isActive('/basic/settings') ? styles.active : ''} ${styles.settings}`}
             >
-              Settings
+              <Settings size={18}/>
+            </Link>
+            <Link href="/basic/settings" className={styles.profileImageLink}>
+              <div className={styles.profileImage}>
+                <Image src="/images/pee2.png" alt="Profile Image" width={100} height={100}/>
+              </div>
             </Link>
           </>
         )}

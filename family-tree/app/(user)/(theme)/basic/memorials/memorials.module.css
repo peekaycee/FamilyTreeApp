@@ -333,9 +333,8 @@
   }
 
   .cardImage {
-    height: 300px;
+    height: 300px; 
   }
-
   .ghost {
     width: auto;
     padding: 12px 16px;

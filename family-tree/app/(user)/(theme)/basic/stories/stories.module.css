@@ -114,7 +114,7 @@
 
 /* ---------------- VALUES ---------------- */
 .values {
-  background: var(--color-white-text);
+  background: var(--color-bg);
   padding: 2rem 7rem;
   text-align: center;
 }
@@ -127,7 +127,7 @@
 .valuesGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  gap: 2rem;
 }
 .valueCard {
   background: var(--color-bg);

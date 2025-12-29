@@ -12,8 +12,7 @@ import styles from './components.module.css'
 import Button from './Button'
 import useGlobalAuth from "@/app/hooks/useGlobalAuth";
 import { Settings } from "lucide-react";
-
-
+import { useToast } from '../app/ToastContext';
 
 export default function Navbar() {
   // const [loggedIn, setLoggedIn] = useState(false)
@@ -23,34 +22,7 @@ export default function Navbar() {
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-
-  // Check login status
-  // const checkLoginStatus = () => {
-  //   try {
-  //     const flag = localStorage.getItem('ft_logged_in')
-  //     if (flag === '1') { setLoggedIn(true); return }
-  //   } catch {}
-  //   const cookies =
-  //     typeof document !== 'undefined'
-  //       ? document.cookie.split(';').map(c => c.trim())
-  //       : []
-  //   const hasSession = cookies.some(c => c.startsWith('familytree_session='))
-  //   setLoggedIn(hasSession)
-  // }
-
-  // useEffect(() => {
-  //   checkLoginStatus()
-  //   const onAuthChange = () => setTimeout(checkLoginStatus, 120)
-  //   const onStorage = (e: StorageEvent) => {
-  //     if (e.key === 'ft_last_changed') setTimeout(checkLoginStatus, 60)
-  //   }
-  //   window.addEventListener('authChange', onAuthChange)
-  //   window.addEventListener('storage', onStorage)
-  //   return () => {
-  //     window.removeEventListener('authChange', onAuthChange)
-  //     window.removeEventListener('storage', onStorage)
-  //   }
-  // }, [pathname])
+  const { showToast } = useToast();
 
   // Close drawer when clicking outside
   useEffect(() => {
@@ -75,8 +47,16 @@ export default function Navbar() {
       localStorage.setItem('ft_last_changed', String(Date.now()))
     } catch {}
     localStorage.setItem("ft_last_changed", String(Date.now()));
+    localStorage.setItem(
+      'pending_toast',
+      JSON.stringify({
+        message: 'Logged out successfully.',
+        type: 'success',
+      })
+    );
+    showToast({ message: 'Logged out successfully.', type: 'success' });
     window.dispatchEvent(new Event("authChange"));
-    router.push('/')
+    router.push('/auth/login');
   }
 
   const toggleMenu = () => setMenuOpen(!menuOpen)

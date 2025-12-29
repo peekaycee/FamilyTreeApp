@@ -438,7 +438,6 @@
   z-index: 9999;
   padding: 14px 18px;
   border-radius: 10px;
-  /* background: #111; */
   color: var(--color-white-text);
   font-size: 0.9rem;
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
@@ -456,7 +455,6 @@
     rgba(16, 185, 129, 0.95)
   );
 }
-
 .toast.error {
   background: linear-gradient(
     135deg,
@@ -795,7 +793,7 @@
 
 .btnPrimary {
   background-color: #007bff;
-  color: #fff;
+  color: var(--color-white-text);
 }
 
 .btnPrimary:disabled {
@@ -804,12 +802,12 @@
 }
 
 .btnSecondary {
-  background-color: #f0f0f0;
+  background-color: var(--color-bg);
 }
 
 .btnExport {
   background-color: #28a745;
-  color: #fff;
+  color: var(--color-white-text);
   margin-top: 20px;
 }
 
@@ -827,7 +825,7 @@
 
 .treeContainer {
   margin-top: 20px;
-  background: #fafafa;
+  background: var(--color-bg);
   border-radius: 12px;
   padding: 20px;
   overflow: hidden;
@@ -863,8 +861,7 @@
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 8px;
-  background: #fff;
-  background: red;
+  background: var(--color-bg);
   min-width: 140px;
   text-align: center;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -910,7 +907,7 @@
 
 .btnEdit {
   background-color: #007bff;
-  color: #fff;
+  color: var(--color-white-text);
   margin-right: 6px;
 }
 
@@ -920,7 +917,7 @@
 
 .btnDelete {
   background-color: #dc3545;
-  color: #fff;
+  color: var(--color-white-text);
 }
 
 .btnDelete:hover {
@@ -1013,7 +1010,7 @@
   min-height: 600px;
   background: linear-gradient(180deg, #071025 0%, #071028 100%);
   padding: 18px;
-  color: #e6eef8;
+  color: var(--color-white-text);
 }
 
 /* Controls */
@@ -1026,7 +1023,7 @@
 .controls button {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.04);
-  color: #fff;
+  color: var(--color-white-text);
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;

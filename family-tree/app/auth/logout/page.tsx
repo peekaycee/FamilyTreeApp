@@ -1,4 +1,3 @@
-// /app/auth/logout/page.tsx
 'use client';
 
 import { useEffect } from 'react';

@@ -15,7 +15,7 @@ export default function Home() {
     <section className={styles.homepage}>
       {/* Hero */}
       <section className={styles.hero}>
-        <h1>Our Plans</h1>
+        <h1>Choose Your Plan</h1>
       </section>
       {/* PLANS */}
       <section className={styles.plans}>

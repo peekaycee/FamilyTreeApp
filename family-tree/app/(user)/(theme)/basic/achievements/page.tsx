@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import styles from "./achievements.module.css";
 import Image from "next/image";
 import { Star } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 /* ================= TYPES ================= */
-
 type Achievement = {
   id: string;
   title: string;
@@ -15,46 +15,13 @@ type Achievement = {
   year: number;
   category: string;
   badge: "gold" | "silver" | "bronze";
-  img: string | null;
+  image_path: string | null;
   detail: string;
+  created_by?: string | null;
+  user_id?: string | null;
 };
 
 type ToastType = "success" | "error" | "info";
-
-/* ================= SAMPLE DATA ================= */
-
-const sample: Achievement[] = [
-  {
-    id: "a1",
-    title: "MBA Graduate",
-    person: "Oluchi",
-    year: 2020,
-    category: "Academics",
-    badge: "gold",
-    img: null,
-    detail: "Completed MBA with distinction.",
-  },
-  {
-    id: "a2",
-    title: "National Champion (Athletics)",
-    person: "Chima",
-    year: 2018,
-    category: "Sports",
-    badge: "gold",
-    img: null,
-    detail: "Won national 400m.",
-  },
-  {
-    id: "a3",
-    title: "Community Award",
-    person: "Ngozi",
-    year: 2022,
-    category: "Community",
-    badge: "silver",
-    img: null,
-    detail: "Led community empowerment projects.",
-  },
-];
 
 const categories = [
   "All",
@@ -66,9 +33,8 @@ const categories = [
 ];
 
 /* ================= COMPONENT ================= */
-
 export default function AchievementsPage() {
-  const [achievements, setAchievements] = useState<Achievement[]>(sample);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -78,38 +44,49 @@ export default function AchievementsPage() {
     year: new Date().getFullYear(),
     category: "Academics",
     badge: "bronze",
-    img: null,
+    image_path: null,
     detail: "",
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [filter, setFilter] = useState("All");
   const [q, setQ] = useState("");
-
-  /* ================= TOAST ================= */
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<ToastType>("info");
 
+  /* ================= TOAST ================= */
   const showToast = (msg: string, type: ToastType) => {
     setToastType(type);
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  /* ================= FILTERING + SEARCH ================= */
+  /* ================= LOAD FROM SUPABASE ================= */
+  useEffect(() => {
+    supabase
+      .from("achievements")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) setAchievements(data as Achievement[]);
+      });
+  }, []);
 
-  const filtered = useMemo(() => {
-    return achievements.filter(
-      (a) =>
-        (filter === "All" || a.category === filter) &&
-        `${a.title} ${a.person} ${a.year}`
-          .toLowerCase()
-          .includes(q.toLowerCase())
-    );
-  }, [achievements, filter, q]);
+  /* ================= FILTER + SEARCH ================= */
+  const filtered = useMemo(
+    () =>
+      achievements.filter(
+        (a) =>
+          (filter === "All" || a.category === filter) &&
+          `${a.title} ${a.person} ${a.year}`
+            .toLowerCase()
+            .includes(q.toLowerCase())
+      ),
+    [achievements, filter, q]
+  );
 
   /* ================= LEADERBOARD ================= */
-
   const leaderboard = useMemo(() => {
     const counts: Record<string, number> = {};
     achievements.forEach(
@@ -120,70 +97,122 @@ export default function AchievementsPage() {
       .slice(0, 5);
   }, [achievements]);
 
-  /* ================= IMAGE UPLOAD ================= */
-
+  /* ================= IMAGE PREVIEW ================= */
   const handleImageUpload = (file: File) => {
-    try {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setForm((prev) => ({ ...prev, img: reader.result as string }));
-      };
-      reader.onerror = () => {
-        showToast("Unable to preview selected image.", "error");
-      };
-      reader.readAsDataURL(file);
-    } catch {
-      showToast("Image preview failed.", "error");
-    }
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () =>
+      setForm((prev) => ({ ...prev, image_path: reader.result as string }));
+    reader.onerror = () => showToast("Unable to preview image.", "error");
+    reader.readAsDataURL(file);
   };
 
-  /* ================= SUBMIT (CREATE / EDIT) ================= */
+  /* ================= IMAGE UPLOAD ================= */
+  const uploadImageToSupabase = async () => {
+    if (!imageFile) return null;
 
-  const handleSubmit = () => {
+    const filePath = `${crypto.randomUUID()}-${imageFile.name}`;
+    const { error } = await supabase.storage
+      .from("achievements")
+      .upload(filePath, imageFile, { cacheControl: "3600", upsert: false });
+
+    if (error) {
+      console.error("Image upload error:", error.message);
+      throw new Error("Image upload failed");
+    }
+
+    const { data } = supabase.storage
+      .from("achievements")
+      .getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  /* ================= SUBMIT ================= */
+  const handleSubmit = async () => {
     if (!form.title || !form.person || !form.detail) {
       showToast("Please fill all required fields.", "error");
       return;
     }
 
-    if (editingId) {
-      setAchievements((prev) =>
-        prev.map((a) => (a.id === editingId ? { ...a, ...form } : a))
-      );
-      showToast("Achievement updated.", "success");
-    } else {
-      setAchievements((prev) => [
-        { id: crypto.randomUUID(), ...form },
-        ...prev,
-      ]);
-      showToast("Achievement added.", "success");
-    }
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        showToast("You must be logged in to submit an achievement.", "error");
+        return;
+      }
 
-    resetModal();
+      const imageUrl = await uploadImageToSupabase();
+
+      const payload: Omit<Achievement, "id"> & { created_by: string; user_id: string; image_path?: string | null } = {
+        title: form.title,
+        person: form.person,
+        year: form.year,
+        category: form.category,
+        badge: form.badge,
+        image_path: imageUrl ?? form.image_path ?? null,
+        detail: form.detail,
+        created_by: session.user.id,
+        user_id: session.user.id,
+      };
+
+      let data, error;
+      if (editingId) {
+        ({ data, error } = await supabase
+          .from("achievements")
+          .update(payload)
+          .eq("id", editingId)
+          .select()
+          .single());
+      } else {
+        ({ data, error } = await supabase
+          .from("achievements")
+          .insert(payload)
+          .select()
+          .single());
+      }
+
+      if (error) {
+        console.error("Supabase insert/update error:", error);
+        showToast(error.message, "error");
+        return;
+      }
+
+      setAchievements((prev) =>
+        editingId ? prev.map((a) => (a.id === editingId ? data : a)) : [data, ...prev]
+      );
+
+      showToast(editingId ? "Achievement updated." : "Achievement added.", "success");
+      resetModal();
+    } catch (err) {
+      console.error("Submission error:", err);
+      showToast("Submission failed.", "error");
+    }
   };
 
+  /* ================= RESET MODAL ================= */
   const resetModal = () => {
     setShowModal(false);
     setEditingId(null);
+    setImageFile(null);
     setForm({
       title: "",
       person: "",
       year: new Date().getFullYear(),
       category: "Academics",
       badge: "bronze",
-      img: null,
+      image_path: null,
       detail: "",
     });
   };
 
   /* ================= DELETE ================= */
-
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    await supabase.from("achievements").delete().eq("id", id);
     setAchievements((prev) => prev.filter((a) => a.id !== id));
     showToast("Achievement deleted.", "success");
   };
 
   /* ================= RENDER ================= */
-
   return (
     <main className={styles.page}>
       {/* HERO */}
@@ -205,11 +234,7 @@ export default function AchievementsPage() {
             onChange={(e) => setQ(e.target.value)}
           />
           {q && (
-            <button
-              type="button"
-              className={styles.clearBtn}
-              onClick={() => setQ("")}
-            >
+            <button type="button" className={styles.clearBtn} onClick={() => setQ("")}>
               ×
             </button>
           )}
@@ -233,7 +258,11 @@ export default function AchievementsPage() {
       <section className={styles.grid}>
         <div className={styles.gridLeft}>
           {filtered.map((a) => (
-            <motion.article key={a.id} className={styles.card} whileHover={{ scale: 1.01 }}>
+            <motion.article
+              key={a.id}
+              className={styles.card}
+              whileHover={{ scale: 1.01 }}
+            >
               <div className={styles.cardLeft}>
                 <div className={`${styles.badge} ${styles[a.badge]}`}>
                   <Star size={16} />
@@ -246,8 +275,14 @@ export default function AchievementsPage() {
                   {a.person} • {a.year}
                 </p>
 
-                {a.img && (
-                  <Image className={styles.cardImage} src={a.img} alt={a.title} width={150} height={150} />
+                {a.image_path && (
+                  <Image
+                    className={styles.cardImage}
+                    src={a.image_path}
+                    alt={a.title}
+                    width={150}
+                    height={150}
+                  />
                 )}
 
                 <p>{a.detail}</p>
@@ -263,10 +298,7 @@ export default function AchievementsPage() {
                     Edit
                   </button>
 
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(a.id)}
-                  >
+                  <button className={styles.deleteBtn} onClick={() => handleDelete(a.id)}>
                     Delete
                   </button>
                 </div>
@@ -288,10 +320,7 @@ export default function AchievementsPage() {
               ))}
             </ol>
 
-            <button
-              className={styles.cta}
-              onClick={() => setShowModal(true)}
-            >
+            <button className={styles.cta} onClick={() => setShowModal(true)}>
               Submit an Achievement
             </button>
           </div>
@@ -332,19 +361,16 @@ export default function AchievementsPage() {
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
             >
-              {categories.filter((c) => c !== "All").map((c) => (
-                <option key={c}>{c}</option>
-              ))}
+              {categories
+                .filter((c) => c !== "All")
+                .map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
             </select>
 
             <select
               value={form.badge}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  badge: e.target.value as Achievement["badge"],
-                })
-              }
+              onChange={(e) => setForm({ ...form, badge: e.target.value as Achievement["badge"] })}
             >
               <option value="gold">Gold</option>
               <option value="silver">Silver</option>
@@ -354,13 +380,17 @@ export default function AchievementsPage() {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) =>
-                e.target.files && handleImageUpload(e.target.files[0])
-              }
+              onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
             />
 
-            {form.img && (
-              <Image className={styles.modalImage} src={form.img} alt="Preview" width={100} height={100} />
+            {form.image_path && (
+              <Image
+                className={styles.modalImage}
+                src={form.image_path}
+                alt="Preview"
+                width={100}
+                height={100}
+              />
             )}
 
             <textarea
@@ -384,7 +414,7 @@ export default function AchievementsPage() {
       {/* TOAST */}
       {toastMessage && (
         <div className={`${styles.toast} ${styles[toastType]}`}>
-         <p>{toastMessage}</p>
+          <p>{toastMessage}</p>
         </div>
       )}
     </main>

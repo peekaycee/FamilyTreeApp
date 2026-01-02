@@ -334,3 +334,9 @@
 //     </main>
 //   );
 // }
+
+export default function MemorialPage(){
+
+  return <h1>Memorial Page</h1>;
+
+}

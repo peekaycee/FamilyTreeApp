@@ -5,7 +5,6 @@
 // import { buildTree } from '../lib/buildTree'
 // import MemberForm from './MemberForm'
 // import { v4 as uuidv4 } from 'uuid'
-import { FamilyTree } from 'react-family-tree';
 
 // interface TreeNode extends TreeNodeDatum {
 //   name: string

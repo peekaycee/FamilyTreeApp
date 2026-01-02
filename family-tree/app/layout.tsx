@@ -7,6 +7,7 @@ import ClientProtectedWrapper from './ClientProtectedWrapper';
 import { ReactNode } from 'react';
 import PageTransition from './PageTransition';
 import { ToastProvider } from './ToastContext';
+import ToastHandlerWrapper from './ToastHandlerWrapper';
 
 export const metadata = {};
 export const viewport = { width: 'device-width', initialScale: 1 };
@@ -18,12 +19,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body className={styles.body}>
         <ToastProvider>
-          <Navbar />
-          <ClientProtectedWrapper>
-            <PageTransition>
-              <main>{children}</main>
-            </PageTransition>
-          </ClientProtectedWrapper>
+          <ToastHandlerWrapper>
+            <Navbar />
+            <ClientProtectedWrapper>
+              <PageTransition>
+                <main>{children}</main>
+              </PageTransition>
+            </ClientProtectedWrapper>
+          </ToastHandlerWrapper>
         </ToastProvider>
         <Footer />
       </body>

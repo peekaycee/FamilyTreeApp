@@ -40,24 +40,50 @@ export default function Navbar() {
     return () => document.removeEventListener('click', handleClickOutside, true)
   }, [menuOpen])
 
-  const handleLogout = async () => {
-    try { await fetch('/api/auth/logout', { method: 'POST' }) } catch {}
-    try {
-      localStorage.removeItem('ft_logged_in')
-      localStorage.setItem('ft_last_changed', String(Date.now()))
-    } catch {}
-    localStorage.setItem("ft_last_changed", String(Date.now()));
-    localStorage.setItem(
-      'pending_toast',
-      JSON.stringify({
-        message: 'Logged out successfully.',
-        type: 'success',
-      })
-    );
-    showToast({ message: 'Logged out successfully.', type: 'success' });
-    window.dispatchEvent(new Event("authChange"));
-    router.push('/auth/login');
-  }
+  // const handleLogout = async () => {
+  //   try { await fetch('/api/auth/logout', { method: 'POST' }) } catch {}
+  //   try {
+  //     localStorage.removeItem('ft_logged_in')
+  //     localStorage.setItem('ft_last_changed', String(Date.now()))
+  //   } catch {}
+  //   localStorage.setItem("ft_last_changed", String(Date.now()));
+  //   localStorage.setItem(
+  //     'pending_toast',
+  //     JSON.stringify({
+  //       message: 'Logged out successfully.',
+  //       type: 'success',
+  //     })
+  //   );
+  //   showToast({ message: 'Logged out successfully.', type: 'success' });
+  //   window.dispatchEvent(new Event("authChange"));
+  //   router.push('/auth/login');
+  // }
+
+
+const handleLogout = async () => {
+  try { 
+    await fetch('/api/auth/logout', { method: 'POST' }) 
+  } catch {}
+
+  try {
+    localStorage.removeItem('ft_logged_in')
+    localStorage.setItem('ft_last_changed', String(Date.now()))
+  } catch {}
+
+  // Remove any pending toast so we don’t duplicate
+  localStorage.removeItem("pending_toast")
+
+  // Dispatch auth change
+  window.dispatchEvent(new Event("authChange"))
+
+  // Redirect using replace to prevent back button
+  router.replace('/auth/login')
+}
+
+
+
+
+
 
   const toggleMenu = () => setMenuOpen(!menuOpen)
   const toggleDropdown = (name: string) =>

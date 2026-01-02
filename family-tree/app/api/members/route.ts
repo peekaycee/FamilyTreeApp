@@ -1,62 +1,48 @@
-import { NextResponse } from "next/server";
-import { getSubscriber } from "../../../lib/supabase/getSubscriber";
-import { createSubscriberSupabaseClient } from "../../../lib/supabase/supabaseFactory";
+import { NextRequest, NextResponse } from "next/server";
+import { getTenantClient } from "@/lib/supabase/getTenantClient";
 
-/* ------------------------------------------------------------------ */
-/* GET: fetch all members                                              */
-/* ------------------------------------------------------------------ */
-export async function GET() {
+/* ================= GET: fetch all members ================= */
+export async function GET(req: NextRequest) {
   try {
-    const subscriber = await getSubscriber("default");
+    const supabase = getTenantClient(req);
 
-    const supabase = createSubscriberSupabaseClient(
-      subscriber.supabase_url,
-      subscriber.supabase_anon_key
-    );
+    // Get logged-in user ID
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Unauthorized");
 
     const { data, error } = await supabase
       .from("family_members")
       .select("*")
+      .eq("user_id", user.id) // tenant isolation
       .order("created_at", { ascending: true });
 
     if (error) throw error;
 
     return NextResponse.json(data ?? []);
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Server error";
-
+  } catch (err: any) {
+    const message = err?.message ?? "Failed to fetch members";
     console.error("GET /members error:", message);
-
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: message === "Unauthorized" ? 401 : 500 });
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* POST: add or update member                                          */
-/* ------------------------------------------------------------------ */
-export async function POST(req: Request) {
+/* ================= POST: add or update member ================= */
+export async function POST(req: NextRequest) {
   try {
-    const subscriber = await getSubscriber("default");
+    const supabase = getTenantClient(req);
 
-    const supabase = createSubscriberSupabaseClient(
-      subscriber.supabase_url,
-      subscriber.supabase_anon_key
-    );
+    // Get logged-in user ID
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) throw new Error("Unauthorized");
 
     const body = await req.json();
-    const {
-      id,
-      name,
-      role,
-      father_id,
-      mother_id,
-      avatar_url,
-      avatar_path,
-    } = body;
+    const { id, name, role, father_id, mother_id, avatar_url, avatar_path } = body;
 
     const { data, error } = await supabase
       .from("family_members")
@@ -64,6 +50,7 @@ export async function POST(req: Request) {
         [
           {
             id: id || undefined,
+            user_id: user.id, // ensure tenant association
             name,
             role,
             father_id: father_id || null,
@@ -79,15 +66,9 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     return NextResponse.json(data);
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Server error";
-
+  } catch (err: any) {
+    const message = err?.message ?? "Failed to save member";
     console.error("POST /members error:", message);
-
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: message === "Unauthorized" ? 401 : 500 });
   }
 }

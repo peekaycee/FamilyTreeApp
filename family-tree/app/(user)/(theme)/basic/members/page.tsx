@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../../../../lib/supabaseClient";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import styles from "./members.module.css";
+import { useRouter } from "next/navigation";
+
+/* ================= TYPES ================= */
 
 interface MemberRow {
   id: string;
@@ -15,47 +17,48 @@ interface MemberRow {
   created_at: string | null;
 }
 
+/* ================= CONSTANTS ================= */
+
+const PLACEHOLDER_AVATAR = "/images/avatar-placeholder.png";
+
+/* ================= MAIN PAGE ================= */
+
 export default function FamilyMembersPage() {
+  const router = useRouter();
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [search, setSearch] = useState("");
 
-  const redirectToTreeBuilder = () => {
-    window.location.href = "/basic/dashboard/family-builder";
+
+   /* ================= AUTH FETCH ================= */
+  const authFetch = async (input: RequestInfo, init?: RequestInit) => {
+    const res = await fetch(input, { ...init, credentials: "include" });
+    if (res.status === 401) {
+      router.replace("/auth/login"); // redirect if auth fails
+      throw new Error("Session expired");
+    }
+    return res;
   };
+
+  /* ================= FETCH MEMBERS ================= */
 
   const fetchMembers = async () => {
-    const { data, error } = await supabase
-      .from("family_members")
-      .select("*")
-      .order("created_at", { ascending: true });
-
-    if (!error) setMembers(data || []);
+    try {
+      const res = await authFetch("/api/members", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch members");
+      const data: MemberRow[] = await res.json();
+      setMembers(data ?? []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // --- Fetch data & subscribe to realtime updates safely ---
   useEffect(() => {
-  const fetchData = async () => {
-    await fetchMembers();
-  };
-  fetchData();
+    fetchMembers();
+  }, []);
 
-  const channel = supabase
-    .channel("family-members-realtime")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "family_members" },
-      () => { fetchMembers(); }   // FIX: callback no longer async
-    )
-    .subscribe();
+  /* ================= INFINITE SCROLL ================= */
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, []);
-
-
-  // --- Infinite scroll handler ---
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
@@ -66,42 +69,49 @@ export default function FamilyMembersPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  /* ================= FILTER ================= */
+
   const filtered = members.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  /* ================= REDIRECT ================= */
+
+  const redirectToTreeBuilder = () => {
+    window.location.href = "/basic/dashboard/family-builder";
+  };
+
+  /* ================= RENDER ================= */
 
   return (
     <>
       <section className={styles.hero}>
         <h1 className={styles.title}>Family Members</h1>
-        <p className={styles.subtitle}>
-          View all members of your family tree.
-        </p>
+        <p className={styles.subtitle}>View all members of your family tree.</p>
       </section>
+
       <div className={styles.wrapper}>
         {/* Toolbar */}
         <div className={styles.toolbar}>
-         <div className={styles.searchWrap}>
-          <input
-            type="text"
-            placeholder="Search members..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className={styles.search}
-          />
+          <div className={styles.searchWrap}>
+            <input
+              type="text"
+              placeholder="Search members..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className={styles.search}
+            />
+            {search && (
+              <button
+                type="button"
+                className={styles.clearBtn}
+                onClick={() => setSearch("")}
+              >
+                ×
+              </button>
+            )}
+          </div>
 
-          {search && (
-            <button
-              type="button"
-              className={styles.clearBtn}
-              onClick={() => setSearch("")}
-              aria-label="Clear search"
-            >
-              ×
-            </button>
-          )}
-        </div>
-          
           <button className={styles.addBtn} onClick={redirectToTreeBuilder}>
             + Add Member
           </button>
@@ -119,7 +129,6 @@ export default function FamilyMembersPage() {
               transition={{ delay: i * 0.05 }}
             >
               <div className={styles.cardInner}>
-                {/* FRONT: Avatar */}
                 <div className={styles.cardFront}>
                   {m.avatar_url ? (
                     <Image
@@ -128,13 +137,13 @@ export default function FamilyMembersPage() {
                       className={styles.avatar}
                       fill
                       sizes="300px"
+                      unoptimized
                     />
                   ) : (
                     <div className={styles.placeholder}>No Image</div>
                   )}
                 </div>
 
-                {/* BACK: Details */}
                 <div className={styles.cardBack}>
                   <h3>{m.name}</h3>
                   <p>{m.role || "—"}</p>

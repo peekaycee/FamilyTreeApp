@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import styles from "./events.module.css";
 import { Calendar, MapPin, Clock, Plus, Download } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient"; // Supabase client
+import { useRouter } from "next/navigation";
 
 /* ================= TYPES ================= */
 
 interface EventItem {
-  id: string;
+  id?: string;
   title: string;
   date: string;
   location: string;
@@ -29,7 +29,7 @@ type Toast = {
 
 /* ================= CONSTANTS ================= */
 
-const PLACEHOLDER_IMAGE = "/images/image-placeholder.png"; // ensure this exists in /public/images/
+const PLACEHOLDER_IMAGE = "/images/image-placeholder.png";
 
 /* ================= HELPERS ================= */
 
@@ -44,7 +44,6 @@ function buildICS(events: EventItem[]) {
         .toISOString()
         .replace(/[-:]/g, "")
         .split(".")[0];
-
       return `
 BEGIN:VEVENT
 SUMMARY:${event.title}
@@ -72,43 +71,10 @@ function downloadICS(events: EventItem[], filename = "events.ics") {
   link.click();
 }
 
-function parseICS(text: string): EventItem[] {
-  const events: EventItem[] = [];
-  const blocks = text.split("BEGIN:VEVENT").slice(1);
-
-  blocks.forEach((block, i) => {
-    const get = (key: string) =>
-      block.match(new RegExp(`${key}[:;](.*)`))?.[1]?.trim() ?? "";
-
-    const title = get("SUMMARY");
-    const description = get("DESCRIPTION");
-    const location = get("LOCATION");
-    const rawDate = get("DTSTART");
-
-    if (!title || !rawDate) return;
-
-    const clean = rawDate.replace("Z", "");
-    const date = `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(
-      6,
-      8
-    )}T${clean.slice(9, 11)}:${clean.slice(11, 13)}`;
-
-    events.push({
-      id: `ics_${Date.now()}_${i}`,
-      title,
-      description,
-      location,
-      date,
-      images: [PLACEHOLDER_IMAGE], // ensure every imported event has at least one image
-    });
-  });
-
-  return events;
-}
-
 /* ================= MAIN PAGE ================= */
 
 export default function EventsPage() {
+  const router = useRouter();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   const [selected, setSelected] = useState<EventItem | null>(null);
@@ -118,38 +84,82 @@ export default function EventsPage() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  /* ================= TOAST ================= */
-
   const pushToast = (message: string, type: ToastType = "success") => {
     const id = crypto.randomUUID();
     setToasts((t) => [...t, { id, message, type }]);
     setTimeout(() => setToasts((t) => t.filter((toast) => toast.id !== id)), 3500);
   };
 
+
+  /* ================= AUTH FETCH ================= */
+  const authFetch = async (input: RequestInfo, init?: RequestInit) => {
+    const res = await fetch(input, { ...init, credentials: "include" });
+    if (res.status === 401) {
+      router.replace("/auth/login"); // redirect if auth fails
+      throw new Error("Session expired");
+    }
+    return res;
+  };
   /* ================= LOAD EVENTS ================= */
 
+  const fetchEvents = async () => {
+  try {
+    const res = await authFetch("/api/events", {
+      method: "GET",
+      credentials: "include", 
+    });
+    if (!res.ok) throw new Error("Failed to fetch events");
+    const data: EventItem[] = await res.json();
+    setEvents(data);
+  } catch (err) {
+    console.error(err);
+    pushToast("Failed to load events", "error");
+  }
+};
+
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) return console.error(error);
-      if (data) setEvents(data as EventItem[]);
-    };
     fetchEvents();
   }, []);
 
-  /* ================= IMPORT ================= */
+  /* ================= IMPORT / EXPORT ================= */
 
   const handleImportCalendar = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const parsed = parseICS(reader.result as string);
+        const text = reader.result as string;
+        const parsed: EventItem[] = [];
+        const blocks = text.split("BEGIN:VEVENT").slice(1);
+
+        blocks.forEach((block, i) => {
+          const get = (key: string) =>
+            block.match(new RegExp(`${key}[:;](.*)`))?.[1]?.trim() ?? "";
+          const title = get("SUMMARY");
+          const description = get("DESCRIPTION");
+          const location = get("LOCATION");
+          const rawDate = get("DTSTART");
+          if (!title || !rawDate) return;
+
+          const clean = rawDate.replace("Z", "");
+          const date = `${clean.slice(0, 4)}-${clean.slice(4, 6)}-${clean.slice(
+            6,
+            8
+          )}T${clean.slice(9, 11)}:${clean.slice(11, 13)}`;
+
+          parsed.push({
+            title,
+            description,
+            location,
+            date,
+            images: [PLACEHOLDER_IMAGE],
+          });
+        }); 
+
         const deduped = parsed.filter(
           (p) => !events.some((e) => e.title === p.title && e.date === p.date)
         );
+
         if (!deduped.length) {
           pushToast("No new events to import", "error");
           return;
@@ -165,20 +175,20 @@ export default function EventsPage() {
   const confirmImport = async () => {
     if (!importPreview) return;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return pushToast("You must be logged in to import events", "error");
-
-    const payload = importPreview.map((ev) => ({
-      ...ev,
-      user_id: session.user.id,
-    }));
-
-    const { data, error } = await supabase.from("events").insert(payload).select();
-    if (error) return pushToast("Failed to import events", "error");
-
-    setEvents((prev) => [...data, ...prev]);
-    setImportPreview(null);
-    pushToast(`Imported ${data.length} event(s)`);
+    try {
+      const res = await authFetch("/api/events/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ events: importPreview }),
+      });
+      if (!res.ok) throw new Error("Import failed");
+      const data: EventItem[] = await res.json();
+      await fetchEvents();
+      setImportPreview(null);
+      pushToast(`Imported ${data.length} event(s)`);
+    } catch {
+      pushToast("Failed to import events", "error");
+    }
   };
 
   /* ================= SORTED ================= */
@@ -204,7 +214,6 @@ export default function EventsPage() {
   /* ================= COUNTDOWN ================= */
 
   const [countdown, setCountdown] = useState("");
-
   useEffect(() => {
     if (!nextEvent) return;
     const tick = () => {
@@ -220,96 +229,72 @@ export default function EventsPage() {
     return () => clearInterval(t);
   }, [nextEvent]);
 
-  /* ================= IMAGE UPLOAD ================= */
-
-  const uploadImagesToSupabase = async (files: FileList | null) => {
-    if (!files) return [];
-
-    const urls: string[] = [];
-    for (const file of Array.from(files)) {
-      const filePath = `${crypto.randomUUID()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("event-images")
-        .upload(filePath, file, { cacheControl: "3600", upsert: false });
-
-      if (!uploadError) {
-        const { data } = supabase.storage.from("event-images").getPublicUrl(filePath);
-        if (data?.publicUrl) urls.push(data.publicUrl);
-      } else {
-        console.error("Supabase storage error:", uploadError.message);
-      }
-    }
-
-    return urls;
-  };
-
-  /* ================= SAVE / UPDATE EVENT ================= */
+  /* ================= SAVE / UPDATE / DELETE ================= */
 
   const saveEvent = async (ev: Partial<EventItem>, files?: FileList | null) => {
-    try {
-      // Upload images if provided
-      let uploadedImages: string[] = ev.images ?? [];
-      if (files) uploadedImages = await uploadImagesToSupabase(files);
+  try {
+    // Ensure images is always an array
+    let uploadedUrls: string[] = (ev.images ?? []).filter((url) => !url.startsWith("blob:"));
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return pushToast("You must be logged in to create events", "error");
 
-      const payload: Omit<EventItem, "id"> & { user_id: string } = {
-        title: ev.title!,
-        date: ev.date!,
-        location: ev.location!,
-        description: ev.description!,
-        images: uploadedImages.length ? uploadedImages : [PLACEHOLDER_IMAGE],
-        user_id: session.user.id,
-      };
+    // 1. Upload new images
+    if (files && files.length) {
+      const promises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      if (ev.id) {
-        // UPDATE existing event
-        const { data, error } = await supabase
-          .from("events")
-          .update(payload)
-          .eq("id", ev.id) // must be valid UUID
-          .select()
-          .single();
+        const res = await fetch("/api/events/upload", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
 
-        if (error) {
-          console.error("Supabase update error:", JSON.stringify(error));
-          return pushToast("Failed to update event", "error");
-        }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
 
-        if (data) setEvents((prev) => prev.map((e) => (e.id === ev.id ? data : e)));
-        pushToast("Event updated successfully");
-      } else {
-        // INSERT new event
-        const { data, error } = await supabase
-          .from("events")
-          .insert(payload)
-          .select()
-          .single();
+        return data.url as string;
+      });
 
-        if (error) {
-          console.error("Supabase insert error:", JSON.stringify(error));
-          return pushToast("Failed to create event", "error");
-        }
-
-        if (data) setEvents((prev) => [data, ...prev]);
-        pushToast("Event created successfully");
-      }
-
-      setShowForm(false);
-      setEditing(null);
-    } catch (err) {
-      console.error("saveEvent unexpected error:", err);
-      pushToast("Failed to save event", "error");
+      const newUrls = await Promise.all(promises);
+      uploadedUrls = [...uploadedUrls, ...newUrls];
     }
-  };
+
+
+    // 2. Save event with uploaded image URLs
+    const body = { ...ev, images: uploadedUrls };
+
+    // Use POST for new, PATCH for existing
+    const method = ev.id ? "PATCH" : "POST";
+
+    const res = await authFetch("/api/events", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(body),
+    });
+
+    let data;
+    try { data = await res.json(); } catch { data = null; }
+
+    if (!res.ok) throw new Error(data?.error || "Failed to save event");
+
+    await fetchEvents();
+    setShowForm(false);
+    setEditing(null);
+    pushToast(ev.id ? "Event updated successfully" : "Event created successfully");
+  } catch (err: any) {
+    console.error("SAVE EVENT ERROR:", err);
+    pushToast(err.message || "Failed to save event", "error");
+  }
+};
+
 
   const deleteEvent = async (id: string) => {
     try {
-      const { error } = await supabase.from("events").delete().eq("id", id);
-      if (error) return console.error(error);
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-      pushToast("Event deleted successfully");
+      const res = await authFetch(`/api/events?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete event");
+      await fetchEvents();
+        pushToast("Event deleted successfully");
     } catch {
       pushToast("Failed to delete event", "error");
     }
@@ -375,17 +360,27 @@ export default function EventsPage() {
       {/* TABS */}
       <section className={styles.tabs}>
         <div className={styles.tabBtns}>
-          <button className={tab === "upcoming" ? styles.active : ""} onClick={() => setTab("upcoming")}>
+          <button
+            className={tab === "upcoming" ? styles.active : ""}
+            onClick={() => setTab("upcoming")}
+          >
             Upcoming
           </button>
-          <button className={tab === "past" ? styles.active : ""} onClick={() => setTab("past")}>
+          <button
+            className={tab === "past" ? styles.active : ""}
+            onClick={() => setTab("past")}
+          >
             Past
           </button>
         </div>
 
         <div className={styles.grid}>
           {(tab === "upcoming" ? upcoming : past).map((ev) => (
-            <motion.article key={ev.id} className={styles.eventCard} whileHover={{ y: -4 }}>
+            <motion.article
+             key={ev.id}
+              className={styles.eventCard}
+              whileHover={{ y: -4 }}
+            >
               <small>{new Date(ev.date).toLocaleDateString()}</small>
               <h4>{ev.title}</h4>
               <div className={styles.eventFooter}>
@@ -393,11 +388,23 @@ export default function EventsPage() {
               </div>
 
               <div className={styles.cardActions}>
-                <button type="button" onClick={() => setSelected(ev)}>Details</button>
-                <button type="button" onClick={() => { setEditing(ev); setShowForm(true); }}>
+                <button type="button" onClick={() => setSelected(ev)}>
+                  Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditing(ev);
+                    setShowForm(true);
+                  }}
+                >
                   Edit
                 </button>
-                <button type="button" className={styles.deleteBtn} onClick={() => deleteEvent(ev.id)}>
+                <button
+                  type="button"
+                  className={styles.deleteBtn}
+                  onClick={() => ev.id && deleteEvent(ev.id)}
+                >
                   Delete
                 </button>
               </div>
@@ -409,21 +416,32 @@ export default function EventsPage() {
       {/* IMPORT PREVIEW */}
       <AnimatePresence>
         {importPreview && (
-          <motion.div className={styles.modalBack} onClick={() => setImportPreview(null)}>
-            <motion.div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            className={styles.modalBack}
+            onClick={() => setImportPreview(null)}
+          >
+            <motion.div
+              className={styles.modal}
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3>Import {importPreview.length} Event(s)?</h3>
-
               <ul>
                 {importPreview.map((ev) => (
-                  <li key={ev.id}>
+                  <li key={ev.title}>
                     <strong>{ev.title}</strong> — {new Date(ev.date).toLocaleString()}
                   </li>
                 ))}
               </ul>
-
               <div className={styles.modalActions}>
-                <button className={styles.ghost} onClick={() => setImportPreview(null)}>Cancel</button>
-                <button className={styles.cta} onClick={confirmImport}>Confirm Import</button>
+                <button
+                  className={styles.ghost}
+                  onClick={() => setImportPreview(null)}
+                >
+                  Cancel
+                </button>
+                <button className={styles.cta} onClick={confirmImport}>
+                  Confirm Import
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -433,21 +451,37 @@ export default function EventsPage() {
       {/* DETAILS */}
       <AnimatePresence>
         {selected && (
-          <motion.div className={styles.modalBack} onClick={() => setSelected(null)}>
-            <motion.div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            className={styles.modalBack}
+            onClick={() => setSelected(null)}
+          >
+            <motion.div
+              className={styles.modal}
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3>{selected.title}</h3>
               <p>{new Date(selected.date).toLocaleString()}</p>
               <p>{selected.description}</p>
 
               <div className={styles.imageStrip}>
                 {selected.images.map((img, i) => (
-                  <Image key={i} src={img} alt="" width={80} height={80} />
+                  <Image key={i} src={img} alt="" width={80} height={80} unoptimized/>
                 ))}
               </div>
 
               <div className={styles.modalActions}>
-                <button className={styles.ghost} onClick={() => setSelected(null)}>Close</button>
-                <button className={styles.cta} onClick={() => downloadICS([selected], `${selected.title}.ics`)}>
+                <button
+                  className={styles.ghost}
+                  onClick={() => setSelected(null)}
+                >
+                  Close
+                </button>
+                <button
+                  className={styles.cta}
+                  onClick={() =>
+                    downloadICS([selected], `${selected.title}.ics`)
+                  }
+                >
                   Add to Calendar
                 </button>
               </div>
@@ -462,7 +496,10 @@ export default function EventsPage() {
           <EventForm
             initial={editing}
             onSave={saveEvent}
-            onClose={() => { setShowForm(false); setEditing(null); }}
+            onClose={() => {
+              setShowForm(false);
+              setEditing(null);
+            }}
             pushToast={pushToast}
           />
         )}
@@ -525,17 +562,7 @@ function EventForm({
             pushToast("Please fill in all required fields.", "error");
             return;
           }
-          onSave(
-            {
-              id: initial?.id,
-              title,
-              date,
-              location,
-              description,
-              images,
-            },
-            files
-          );
+          onSave({ id: initial?.id, title, date, location, description, images }, files);
         }}
       >
         <h3>{initial ? "Edit Event" : "Create Event"}</h3>
@@ -545,7 +572,7 @@ function EventForm({
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
         <input type="file" multiple accept="image/*" onChange={(e) => handleImages(e.target.files)} />
         <div className={styles.imageStrip}>
-          {images.map((img, i) => <Image key={i} src={img} alt="" width={80} height={80} />)}
+          {images.map((img, i) => <Image key={i} src={img} alt="" width={80} height={80} unoptimized/>)}
         </div>
         <div className={styles.modalActions}>
           <button type="button" className={styles.ghost} onClick={onClose}>Cancel</button>

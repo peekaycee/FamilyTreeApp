@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import styles from "./achievements.module.css";
 import Image from "next/image";
 import { Star } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 /* ================= TYPES ================= */
 type Achievement = {
@@ -17,8 +17,6 @@ type Achievement = {
   badge: "gold" | "silver" | "bronze";
   image_path: string | null;
   detail: string;
-  created_by?: string | null;
-  user_id?: string | null;
 };
 
 type ToastType = "success" | "error" | "info";
@@ -34,6 +32,7 @@ const categories = [
 
 /* ================= COMPONENT ================= */
 export default function AchievementsPage() {
+  const router = useRouter();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -62,18 +61,35 @@ export default function AchievementsPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  /* ================= LOAD FROM SUPABASE ================= */
+  /* ================= AUTH FETCH ================= */
+  const authFetch = async (input: RequestInfo, init?: RequestInit) => {
+    const res = await fetch(input, { ...init, credentials: "include" });
+    if (res.status === 401) {
+      router.replace("/auth/login");
+      throw new Error("Session expired");
+    }
+    return res;
+  };
+
+  /* ================= LOAD ================= */
   useEffect(() => {
-    supabase
-      .from("achievements")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) setAchievements(data as Achievement[]);
-      });
+    (async () => {
+      try {
+        const res = await authFetch("/api/achievements", { method: "GET" });
+        let data;
+        try { data = await res.json(); } catch { data = []; }
+
+        if (!res.ok) throw new Error(data?.error || "Failed to load achievements");
+        setAchievements(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        console.error("Load error:", err);
+        showToast(err.message || "Failed to load achievements", "error");
+        setAchievements([]);
+      }
+    })();
   }, []);
 
-  /* ================= FILTER + SEARCH ================= */
+  /* ================= FILTER ================= */
   const filtered = useMemo(
     () =>
       achievements.filter(
@@ -89,105 +105,123 @@ export default function AchievementsPage() {
   /* ================= LEADERBOARD ================= */
   const leaderboard = useMemo(() => {
     const counts: Record<string, number> = {};
-    achievements.forEach(
-      (a) => (counts[a.person] = (counts[a.person] || 0) + 1)
-    );
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+    achievements.forEach((a) => (counts[a.person] = (counts[a.person] || 0) + 1));
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
   }, [achievements]);
 
-  /* ================= IMAGE PREVIEW ================= */
+  /* ================= IMAGE ================= */
   const handleImageUpload = (file: File) => {
     setImageFile(file);
+    if (form.image_path?.startsWith("blob:")) {
+      URL.revokeObjectURL(form.image_path);
+    }
+
     const reader = new FileReader();
     reader.onload = () =>
-      setForm((prev) => ({ ...prev, image_path: reader.result as string }));
-    reader.onerror = () => showToast("Unable to preview image.", "error");
+      setForm((p) => ({ ...p, image_path: reader.result as string }));
     reader.readAsDataURL(file);
   };
 
-  /* ================= IMAGE UPLOAD ================= */
+  /* ================= SERVER IMAGE UPLOAD ================= */
   const uploadImageToSupabase = async () => {
-    if (!imageFile) return null;
+  if (!imageFile) return form.image_path; // keep existing
 
-    const filePath = `${crypto.randomUUID()}-${imageFile.name}`;
-    const { error } = await supabase.storage
-      .from("achievements")
-      .upload(filePath, imageFile, { cacheControl: "3600", upsert: false });
+  const fd = new FormData();
+  fd.append("file", imageFile);
 
-    if (error) {
-      console.error("Image upload error:", error.message);
-      throw new Error("Image upload failed");
-    }
+  const res = await fetch("/api/achievements/upload", {
+    method: "POST",
+    body: fd,
+    credentials: "include",
+  });
 
-    const { data } = supabase.storage
-      .from("achievements")
-      .getPublicUrl(filePath);
-    return data.publicUrl;
-  };
+  let data;
+  try { data = await res.json(); } catch { data = {}; }
 
-  /* ================= SUBMIT ================= */
+  if (!res.ok) throw new Error(data?.error || "Upload failed");
+
+  return data.url ?? form.image_path ?? null;
+};
+
+  /* ================= SUBMIT (CREATE / UPDATE) ================= */
   const handleSubmit = async () => {
-    if (!form.title || !form.person || !form.detail) {
-      showToast("Please fill all required fields.", "error");
-      return;
+  if (!form.title || !form.person || !form.detail) {
+    showToast("Please fill all required fields.", "error");
+    return;
+  }
+
+  try {
+    // Upload new image if selected
+    const imageUrl = await uploadImageToSupabase();
+
+    // Prepare payload
+    const payload: any = {
+      ...form,
+      image_path: imageUrl ?? form.image_path ?? null,
+    };
+
+    // Only include old_image_path when updating
+    if (editingId) {
+      const current = achievements.find(a => a.id === editingId);
+      if (current?.image_path) {
+        payload.old_image_path = current.image_path;
+      }
     }
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        showToast("You must be logged in to submit an achievement.", "error");
-        return;
-      }
+    // Determine API method & URL
+    const url = editingId ? `/api/achievements/${editingId}` : "/api/achievements";
+    const method = editingId ? "PATCH" : "POST";
 
-      const imageUrl = await uploadImageToSupabase();
+    const res = await authFetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      const payload: Omit<Achievement, "id"> & { created_by: string; user_id: string; image_path?: string | null } = {
-        title: form.title,
-        person: form.person,
-        year: form.year,
-        category: form.category,
-        badge: form.badge,
-        image_path: imageUrl ?? form.image_path ?? null,
-        detail: form.detail,
-        created_by: session.user.id,
-        user_id: session.user.id,
-      };
+    let data: any;
+    try { data = await res.json(); } catch { data = {}; }
 
-      let data, error;
-      if (editingId) {
-        ({ data, error } = await supabase
-          .from("achievements")
-          .update(payload)
-          .eq("id", editingId)
-          .select()
-          .single());
-      } else {
-        ({ data, error } = await supabase
-          .from("achievements")
-          .insert(payload)
-          .select()
-          .single());
-      }
+    if (!res.ok) throw new Error(data?.error || "Submission failed");
 
-      if (error) {
-        console.error("Supabase insert/update error:", error);
-        showToast(error.message, "error");
-        return;
-      }
+    setAchievements(prev =>
+      editingId
+        ? prev.map(a => (a.id === editingId ? data : a))
+        : [data, ...prev]
+    );
 
-      setAchievements((prev) =>
-        editingId ? prev.map((a) => (a.id === editingId ? data : a)) : [data, ...prev]
-      );
+    showToast(editingId ? "Achievement updated." : "Achievement added.", "success");
+    resetModal();
+  } catch (err: any) {
+    console.error("Submit error:", err);
+    showToast(err.message || "Submission failed.", "error");
+  }
+};
 
-      showToast(editingId ? "Achievement updated." : "Achievement added.", "success");
-      resetModal();
-    } catch (err) {
-      console.error("Submission error:", err);
-      showToast("Submission failed.", "error");
-    }
-  };
+
+
+  /* ================= DELETE ================= */
+  const handleDelete = async (id: string) => {
+  if (!id) {
+    showToast("Missing achievement ID.", "error");
+    return;
+  }
+
+  try {
+    const res = await authFetch(`/api/achievements/${id}`, { method: "DELETE" });
+
+    let data: any;
+    try { data = await res.json(); } catch { data = {}; }
+
+    if (!res.ok || data?.error) throw new Error(data?.error || "Delete failed");
+
+    setAchievements(prev => prev.filter(a => a.id !== id));
+    showToast("Achievement deleted.", "success");
+  } catch (err: any) {
+    console.error("Delete error:", err);
+    showToast(err.message || "Delete failed.", "error");
+  }
+};
+
 
   /* ================= RESET MODAL ================= */
   const resetModal = () => {
@@ -203,13 +237,6 @@ export default function AchievementsPage() {
       image_path: null,
       detail: "",
     });
-  };
-
-  /* ================= DELETE ================= */
-  const handleDelete = async (id: string) => {
-    await supabase.from("achievements").delete().eq("id", id);
-    setAchievements((prev) => prev.filter((a) => a.id !== id));
-    showToast("Achievement deleted.", "success");
   };
 
   /* ================= RENDER ================= */
@@ -258,11 +285,7 @@ export default function AchievementsPage() {
       <section className={styles.grid}>
         <div className={styles.gridLeft}>
           {filtered.map((a) => (
-            <motion.article
-              key={a.id}
-              className={styles.card}
-              whileHover={{ scale: 1.01 }}
-            >
+            <motion.article key={a.id} className={styles.card} whileHover={{ scale: 1.01 }}>
               <div className={styles.cardLeft}>
                 <div className={`${styles.badge} ${styles[a.badge]}`}>
                   <Star size={16} />
@@ -297,7 +320,6 @@ export default function AchievementsPage() {
                   >
                     Edit
                   </button>
-
                   <button className={styles.deleteBtn} onClick={() => handleDelete(a.id)}>
                     Delete
                   </button>
@@ -343,13 +365,11 @@ export default function AchievementsPage() {
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
-
             <input
               placeholder="Person"
               value={form.person}
               onChange={(e) => setForm({ ...form, person: e.target.value })}
             />
-
             <input
               type="number"
               placeholder="Year"
@@ -361,16 +381,16 @@ export default function AchievementsPage() {
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
             >
-              {categories
-                .filter((c) => c !== "All")
-                .map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
+              {categories.filter((c) => c !== "All").map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </select>
 
             <select
               value={form.badge}
-              onChange={(e) => setForm({ ...form, badge: e.target.value as Achievement["badge"] })}
+              onChange={(e) =>
+                setForm({ ...form, badge: e.target.value as Achievement["badge"] })
+              }
             >
               <option value="gold">Gold</option>
               <option value="silver">Silver</option>

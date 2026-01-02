@@ -1,6 +1,6 @@
 'use client'
 
-import FamilyCanvas from '../../../../../../components/FamilyCanvas'
+// import FamilyCanvas from '../../../../../../components/FamilyCanvas'
 
 // import dynamic from 'next/dynamic'
 
@@ -12,7 +12,7 @@ import FamilyCanvas from '../../../../../../components/FamilyCanvas'
 export default function Page() {
   return (
     <main>
-      <FamilyCanvas />
+      {/* <FamilyCanvas /> */}
     </main>
   )
 }

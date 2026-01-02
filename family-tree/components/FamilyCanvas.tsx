@@ -1437,3 +1437,8 @@
 // //     </div>
 // //   );
 // // }
+
+
+export default function FamilyCanvas() {
+  return <h1>FamilyCanvas</h1>
+}

@@ -187,6 +187,6 @@
 
 export default function GalleryPage(){
 
-  return () => {}
+  return <h1>Gallery Page</h1>;
 
 }

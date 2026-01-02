@@ -184,3 +184,9 @@
 //     </div>
 //   );
 // }
+
+export default function GalleryPage(){
+
+  return () => {}
+
+}

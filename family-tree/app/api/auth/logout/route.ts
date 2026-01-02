@@ -1,3 +1,4 @@
+// app/api/auth/logout/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -6,27 +7,35 @@ export async function POST() {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: {
-          persistSession: false,
-        },
-      }
+      { auth: { persistSession: false } }
     );
 
+    // Server-side sign out
     const { error } = await supabase.auth.signOut();
-
     if (error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
-    const res = NextResponse.json(
-      { message: "Logged out" },
-      { status: 200 }
-    );
+    // Create response
+    const res = NextResponse.json({ message: "Logged out" }, { status: 200 });
 
+    // Remove Supabase cookies
+    res.cookies.set("sb-access-token", "", {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      expires: new Date(0),
+    });
+    res.cookies.set("sb-refresh-token", "", {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      expires: new Date(0),
+    });
+
+    // Remove your custom session cookie if any
     res.cookies.set("familytree_session", "", {
       path: "/",
       httpOnly: true,
@@ -36,7 +45,6 @@ export async function POST() {
     });
 
     return res;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return NextResponse.json(
       { message: err.message ?? "Logout failed" },

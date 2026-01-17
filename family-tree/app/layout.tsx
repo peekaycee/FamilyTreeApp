@@ -16,8 +16,8 @@ export const revalidate = 0;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={styles.body}>
+    <html lang="en">
+      <body className={styles.body} suppressHydrationWarning>
         <ToastProvider>
           <ToastHandlerWrapper>
             <Navbar />

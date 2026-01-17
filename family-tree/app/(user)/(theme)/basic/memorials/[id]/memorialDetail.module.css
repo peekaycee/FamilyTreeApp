@@ -1,0 +1,226 @@
+.page {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-secondary);
+  line-height: 1.6;
+}
+
+/* ================= Hero Section ================= */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  min-height: 75vh;
+  align-items: center;
+  padding: 2rem 4rem;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  filter: grayscale(15%);
+}
+
+.imageWrapper img:hover {
+  transform: scale(1.05);
+  filter: grayscale(0%);
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.heroContent h1 {
+  font-family: var(--font-primary);
+  font-size: 3rem;
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
+.lifespan {
+  font-style: italic;
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.tribute {
+  max-width: 500px;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+/* ================= Buttons ================= */
+.candleBtn {
+  margin-top: 2rem;
+  padding: 0.75rem 1.8rem;
+  border-radius: 50px;
+  border: 2px solid var(--color-secondary);
+  background: transparent;
+  color: var(--color-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.candleBtn:hover {
+  background: var(--color-secondary);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(249, 115, 22, 0.35);
+}
+
+/* ================= Bio & Messages ================= */
+.bio,
+.messages {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.bio h2,
+.messages h2 {
+  font-family: var(--font-primary);
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+}
+
+.newMessage {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.newMessage input,
+.newMessage textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.newMessage input:focus,
+.newMessage textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.newMessage button {
+  align-self: flex-start;
+  padding: 0.65rem 1.5rem;
+  border-radius: 50px;
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.newMessage button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* ================= Messages List ================= */
+.messageList {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.message {
+  background: var(--color-white);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.message span {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.actions button {
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* ================= Toast / Alerts ================= */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast.success {
+  background: #16a34a;
+}
+
+.toast.error {
+  background: #dc2626;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 2rem;
+  }
+
+  .heroContent {
+    padding: 2rem 0;
+  }
+
+  .bio,
+  .messages {
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroContent h1 {
+    font-size: 2.2rem;
+  }
+
+  .tribute {
+    font-size: 0.95rem;
+  }
+}

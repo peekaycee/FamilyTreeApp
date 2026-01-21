@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./legacy.module.css";
 import Link from "next/link";
@@ -8,11 +8,27 @@ import HeroPics from '../../../../../public/images/pee2.png';
 import Staff1 from '../../../../../public/images/staff1.png';
 import Staff2 from '../../../../../public/images/staff2.png';
 import Staff3 from '../../../../../public/images/staff3.png';
-import { CornerDownLeft, Calendar, User, Play } from "lucide-react";
+import { CornerDownLeft, Play } from "lucide-react";
 import Image from "next/image";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+
+interface FamilyStory {
+  id: string;
+  title: string;
+  author: string;
+  excerpt: string;
+  content: string;
+  image_url?: string;
+  created_at: string;
+}
+
+const supabase: SupabaseClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 /**
- * Dummy sample data — replace with API calls or Supabase queries later.
+ * Dummy sample data — keep timeline and familyTreeSample as-is
  */
 const timelineData = [
   {
@@ -41,29 +57,6 @@ const timelineData = [
   },
 ];
 
-const storiesData = [
-  {
-    id: "s1",
-    title: "The Amazing Voyage",
-    author: "A. Family",
-    excerpt:
-      "A family voyage that shaped the next generation. A story filled with courage.",
-    media: [],
-    content:
-      "Longform story content with images, documents, and audio testimonies.",
-    image: Staff2,
-  },
-  {
-    id: "s2",
-    title: "From Carpentry to Community",
-    author: "B. Family",
-    excerpt: "How a humble workshop became a community institution.",
-    media: [],
-    content: "Detailed content and scanned documents.",
-    image: Staff3,
-  },
-];
-
 const familyTreeSample = [
   { id: "p1", name: "Grandmother", birth: 1920, children: ["p2", "p3"], img: HeroPics, description: "A pioneer who started the craft business that supported the family for decades." },
   { id: "p2", name: "Father", birth: 1950, children: ["p4"], img: Staff1, description: "Second description." },
@@ -75,11 +68,12 @@ export default function LegacyPage() {
   // UI states
   const [selectedTimeline, setSelectedTimeline] = useState<string | null>(null);
   const [selectedStory, setSelectedStory] = useState<string | null>(null);
-  const [highlightIndex, setHighlightIndex] = useState(0);
+  const [, setHighlightIndex] = useState(0);
   const [featured, setFeatured] = useState(familyTreeSample[0]);
   const [showFeaturedModal, setShowFeaturedModal] = useState(false);
 
-
+  // Dynamic stories from Supabase
+  const [stories, setStories] = useState<FamilyStory[]>([]);
 
   // rotate featured ancestor
   useEffect(() => {
@@ -89,9 +83,26 @@ export default function LegacyPage() {
     return () => clearInterval(t);
   }, []);
 
+  // Fetch stories from Supabase
+useEffect(() => {
+  const fetchStories = async () => {
+    const { data, error } = await supabase
+      .from("family_stories")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) setStories(data);
+  };
+  fetchStories();
+}, []);
+
+// Only show latest 2 stories
+const latestStories = stories.slice(0, 2);
+
+  // Update featured based on highlightIndex
   const goToFamilyStories = () => {
     window.location.href = "/basic/familyStories";
-  }
+  };
 
   return (
     <main className={styles.page}>
@@ -117,7 +128,7 @@ export default function LegacyPage() {
         </motion.div>
       </section>
 
-      {/* INTERACTIVE FAMILY TREE (simple interactive list + zoom control) */}
+      {/* INTERACTIVE FAMILY TREE */}
       <section className={styles.treeSection}>
         <h2 className={styles.sectionTitle}>Featured Family Tree</h2>
         <div className={styles.treeRow}>
@@ -151,23 +162,21 @@ export default function LegacyPage() {
 
           <aside className={styles.treeAside}>
             <h3>Featured Family Member</h3>
-          <div className={styles.a}>
-            <div className={styles.featureAvatar}>
-              <Image
-                src={featured.img}
-                alt={featured.name}
-                width={72}
-                height={72}
-                priority
-                className={styles.featureAvatarImg}
-              />
-            </div>              
-            <div>
+            <div className={styles.a}>
+              <div className={styles.featureAvatar}>
+                <Image
+                  src={featured.img}
+                  alt={featured.name}
+                  width={72}
+                  height={72}
+                  priority
+                  className={styles.featureAvatarImg}
+                />
+              </div>              
+              <div>
                 <h4>{featured.name}</h4>
                 <p className={styles.muted}>Born {featured.birth}</p>
-                <p className={styles.small}>
-                  {featured.description}
-                </p>
+                <p className={styles.small}>{featured.description}</p>
                 <button
                   className={styles.ctaSmall}
                   onClick={() => setShowFeaturedModal(true)}
@@ -179,6 +188,7 @@ export default function LegacyPage() {
           </aside>
         </div>
       </section>
+
       <AnimatePresence>
         {showFeaturedModal && (
           <motion.div
@@ -188,41 +198,40 @@ export default function LegacyPage() {
             exit={{ opacity: 0 }}
             onClick={() => setShowFeaturedModal(false)}
           >
-          <motion.article
-            className={styles.detailModal}
-            initial={{ scale: 0.96, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.96, y: 20 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-          <button
-            className={styles.closeBtn}
-            onClick={() => setShowFeaturedModal(false)}
-          >
-            x
-          </button>
+            <motion.article
+              className={styles.detailModal}
+              initial={{ scale: 0.96, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.96, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className={styles.closeBtn}
+                onClick={() => setShowFeaturedModal(false)}
+              >
+                x
+              </button>
 
-          <div className={styles.featureModalHeader}>
-            <Image
-              src={featured.img}
-              alt={featured.name}
-              width={96}
-              height={96}
-              className={styles.featureAvatarImg}
-            />
-            <div>
-              <h3>{featured.name}</h3>
-              <p className={styles.muted}>Born {featured.birth}</p>
-            </div>
-            </div>
+              <div className={styles.featureModalHeader}>
+                <Image
+                  src={featured.img}
+                  alt={featured.name}
+                  width={96}
+                  height={96}
+                  className={styles.featureAvatarImg}
+                />
+                <div>
+                  <h3>{featured.name}</h3>
+                  <p className={styles.muted}>Born {featured.birth}</p>
+                </div>
+              </div>
 
-            <p className={styles.modalBodyText}>
-              {featured.description}
-            </p>
-          </motion.article>
-        </motion.div>
+              <p className={styles.modalBodyText}>{featured.description}</p>
+            </motion.article>
+          </motion.div>
         )}
       </AnimatePresence>
+
       {/* TIMELINE */}
       <section className={styles.timelineSection}>
         <h2 className={styles.sectionTitle}>Family Timeline</h2>
@@ -280,79 +289,83 @@ export default function LegacyPage() {
         </AnimatePresence>
       </section>
 
-      {/* STORIES GRID */}
+      {/* =================== STORIES GRID =================== */}
       <section className={styles.storiesSection}>
-        <h2 className={styles.sectionTitle}>Legacy Stories</h2>
-        <div className={styles.storiesGrid}>
-          {storiesData.map((s) => (
-            <motion.article
-              key={s.id}
-              className={styles.storyCard}
-              initial={{ opacity: 0, y: 10 }}
-              whileHover={{ scale: 1.02 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-             <div className={styles.storyHero}>
-              <Image
-                src={s.image}
-                alt={s.title}
-                width={0}
-                height={0}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={s.id === storiesData[0].id}
-                className={styles.storyImage}
-              />
-            </div>
-              <div className={styles.storyBody}>
-                <h3>{s.title}</h3>
-                <small className={styles.mute}>By {s.author}</small>
-                <p>{s.excerpt}</p>
-                <div className={styles.storyActions}>
-                  <button className={styles.ctaSmall} onClick={() => setSelectedStory(s.id)}>Read</button>
-                  <button className={styles.ctaGhost}>Share<CornerDownLeft size={14} className={styles.sendCaret}/></button>
-                </div>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-
-        <AnimatePresence>
-          {selectedStory && (
-            <motion.div
-              key={selectedStory}
-              className={styles.modalBackdrop}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedStory(null)}
-            >
-              <motion.article
-                className={styles.detailModal}
-                initial={{ scale: 0.98, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.98, y: 20 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button className={styles.closeBtn} onClick={() => setSelectedStory(null)}>x</button>
-                {(() => {
-                  const s = storiesData.find((x) => x.id === selectedStory)!;
-                  return (
-                    <>
-                      <h3>{s.title}</h3>
-                      <p className={styles.muted}>By {s.author}</p>
-                      <p>{s.content}</p>
-                    </>
-                  );
-                })()}
-              </motion.article>
-            </motion.div>
-          )}
-          <div className={styles.viewAll}>
-            <button onClick={() => goToFamilyStories()}>View all</button>
+  <h2 className={styles.sectionTitle}>Legacy Stories</h2>
+  <div className={styles.storiesGrid}>
+    {latestStories.map((s) => (
+      <motion.article
+        key={s.id}
+        className={styles.storyCard}
+        initial={{ opacity: 0, y: 10 }}
+        whileHover={{ scale: 1.02 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+      >
+        {s.image_url && (
+          <div className={styles.storyHero}>
+            <Image
+              src={s.image_url}
+              alt={s.title}
+              width={0}
+              height={0}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
+              className={styles.storyImage}
+            />
           </div>
-        </AnimatePresence>
-      </section>
+        )}
+        <div className={styles.storyBody}>
+          <h3>{s.title}</h3>
+          <small className={styles.mute}>By {s.author}</small>
+          <p>{s.excerpt}</p>
+          <div className={styles.storyActions}>
+            <button className={styles.ctaSmall} onClick={() => setSelectedStory(s.id)}>Read</button>
+            <button className={styles.ctaGhost}>
+              Share<CornerDownLeft size={14} className={styles.sendCaret}/>
+            </button>
+          </div>
+        </div>
+      </motion.article>
+    ))}
+  </div>
+
+  <AnimatePresence>
+    {selectedStory && (
+      <motion.div
+        key={selectedStory}
+        className={styles.modalBackdrop}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setSelectedStory(null)}
+      >
+        <motion.article
+          className={styles.detailModal}
+          initial={{ scale: 0.98, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.98, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button className={styles.closeBtn} onClick={() => setSelectedStory(null)}>x</button>
+          {(() => {
+            const s = stories.find((x) => x.id === selectedStory)!;
+            return (
+              <>
+                <h3>{s.title}</h3>
+                <p className={styles.muted}>By {s.author}</p>
+                <p>{s.content}</p>
+              </>
+            );
+          })()}
+        </motion.article>
+      </motion.div>
+    )}
+    <div className={styles.viewAll}>
+      <button onClick={() => goToFamilyStories()}>View all</button>
+    </div>
+  </AnimatePresence>
+</section>
     </main>
   );
 }

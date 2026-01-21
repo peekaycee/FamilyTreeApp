@@ -223,7 +223,7 @@
 .storiesGrid { 
   display:grid; 
   grid-template-columns: 1fr 1fr; 
-  gap:16px; 
+  gap: 2rem; 
   margin-top: 3em;
   margin-bottom: 3em;
 }
@@ -243,7 +243,7 @@
   height: 300px;  
   flex-shrink: 0;
 }
-.storyImage{
+.storyImage {
   object-fit: cover;
   object-position: center;
   width: 100%;

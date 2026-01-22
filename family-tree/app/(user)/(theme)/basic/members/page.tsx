@@ -88,6 +88,9 @@ export default function FamilyMembersPage() {
       <section className={styles.hero}>
         <h1 className={styles.title}>Family Members</h1>
         <p className={styles.subtitle}>View all members of your family tree.</p>
+        <button className={styles.addBtn} onClick={redirectToTreeBuilder}>
+          + Add Member
+        </button>
       </section>
 
       <div className={styles.wrapper}>
@@ -112,9 +115,6 @@ export default function FamilyMembersPage() {
             )}
           </div>
 
-          <button className={styles.addBtn} onClick={redirectToTreeBuilder}>
-            + Add Member
-          </button>
         </div>
 
         {/* Members Grid */}

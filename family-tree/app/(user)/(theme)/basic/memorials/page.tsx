@@ -54,14 +54,17 @@ export default function MemorialsPage() {
   };
 
   /* ================= AUTH FETCH ================= */
-  const authFetch = async (input: RequestInfo, init?: RequestInit) => {
-    const res = await fetch(input, { ...init, credentials: "include" });
-    if (res.status === 401) {
-      router.replace("/auth/login");
-      throw new Error("Session expired");
-    }
-    return res;
-  };
+  const authFetch = React.useCallback(
+    async (input: RequestInfo, init?: RequestInit) => {
+      const res = await fetch(input, { ...init, credentials: "include" });
+      if (res.status === 401) {
+        router.replace("/auth/login");
+        throw new Error("Session expired");
+      }
+      return res;
+    },
+    [router]
+  );
 
   /* ================= LOAD DATA ================= */
   useEffect(() => {
@@ -80,11 +83,10 @@ export default function MemorialsPage() {
         });
         setCandles(candleMap);
       } catch (err: any) {
-        console.error(err);
         showToast("Failed to load memorials", "error");
       }
     })();
-  }, []);
+  }, [authFetch]);
 
   /* ================= IMAGE ================= */
   const handleImageUpload = (file: File) => {
@@ -259,19 +261,26 @@ const deleteMemorial = async (id: string) => {
           <p className={styles.lead}>
             Create tributes, leave messages, and light a virtual candle.
           </p>
+          <button className={styles.cta} onClick={() => setShowAdd(true)}>
+            + Add Memorial
+          </button>
         </motion.div>
       </section>
 
       {/* SEARCH */}
       <section className={styles.searchWrap}>
-        <input
-          placeholder="Search by name or year"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button className={styles.cta} onClick={() => setShowAdd(true)}>
-          + Add Memorial
-        </button>
+        <div className={styles.search}>
+          <input
+            placeholder="Search by name or year"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button type="button" className={styles.clearBtn} onClick={() => setQuery("")}>
+              ×
+            </button>
+          )}
+        </div>
       </section>
 
       {/* GRID */}
@@ -294,16 +303,19 @@ const deleteMemorial = async (id: string) => {
             <div className={styles.cardBody}>
               <h3>{m.name}</h3>
               <p className={styles.muted}>{m.born} — {m.died}</p>
-              <p>{m.tribute}</p>
+              <p className={styles.tributeText}>{m.tribute}</p>
 
               <div className={styles.cardActions}>
                 <Link href={`/basic/memorials/${m.id}`} className={styles.cta}>
                   View
                 </Link>
-                <button onClick={() => { setEditingId(m.id); setForm({ ...m, born: String(m.born), died: String(m.died) }); setShowAdd(true); }}>
+
+                {/* ============ Admin Control ================ */}
+                {/* <button onClick={() => { setEditingId(m.id); setForm({ ...m, born: String(m.born), died: String(m.died) }); setShowAdd(true); }}>
                   Edit
-                </button>
-                <button onClick={() => deleteMemorial(m.id)}>Delete</button>
+                </button> */}
+                {/* <button onClick={() => deleteMemorial(m.id)}>Delete</button> */}
+
                 <button className={styles.candleBtn} onClick={() => lightCandle(m.id)}>
                   🕯 {candles[m.id] ?? 0}
                 </button>

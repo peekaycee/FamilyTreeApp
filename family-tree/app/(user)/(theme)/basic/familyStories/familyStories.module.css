@@ -15,15 +15,12 @@
   margin-bottom: 0.75rem;
 }
 .ctaGhost {
-  background: var(--color-bg);
-  color: var(--color-black-text);
+  background: var(--color-secondary);
+  color: var(--color-white-text);
   border-radius: 8px;
   padding: 10px 14px;
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  margin-top: 1.5em;
+  /* cursor: pointer; */
 }
 .sendCaret{
   transform: rotate(180deg);

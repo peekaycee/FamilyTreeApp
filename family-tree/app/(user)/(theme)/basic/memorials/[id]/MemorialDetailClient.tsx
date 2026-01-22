@@ -182,7 +182,7 @@ export default function MemorialDetailClient({
 
   /* ================= DELETE MESSAGE ================= */
   const deleteMessage = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this message?")) return;
+    // if (!confirm("Are you sure you want to delete this message?")) return;
 
     const snapshot = memorial.memorial_messages;
 
@@ -255,24 +255,29 @@ export default function MemorialDetailClient({
       )}
 
       <section className={styles.hero}>
-        <h1>{memorial.name}</h1>
-        <p className={styles.muted}>
-          {memorial.born} — {memorial.died}
-        </p>
-        <p>{memorial.tribute}</p>
-
-        {memorial.picture && (
-          <Image
-            src={memorial.picture}
-            alt={memorial.name}
-            width={400}
-            height={400}
-          />
-        )}
-
-        <button className={styles.candleBtn} onClick={lightCandle}>
-          🕯 <span>{Number(memorial.candle_count ?? 0)}</span>
-        </button>
+        <div className={styles.heroImage}>
+          {memorial.picture && (
+            <Image
+              src={memorial.picture}
+              alt={memorial.name}
+              width={400}
+              height={400}
+            />
+          )}
+        </div>
+        <div className={styles.heroText}>
+          <h1>{memorial.name}</h1>
+          <p className={styles.muted}>
+            {memorial.born} — {memorial.died}
+          </p>
+          <p>{memorial.tribute}</p>
+          <div className={styles.candles}>
+            <button className={styles.candleBtn} onClick={lightCandle}>
+              🕯 <span>{Number(memorial.candle_count ?? 0)}</span>
+            </button>
+            <p>Light a candle</p>
+          </div>
+        </div>
       </section>
 
       <section className={styles.bio}>
@@ -326,10 +331,11 @@ export default function MemorialDetailClient({
               transition={{ duration: 0.25 }}
             >
               <p>{m.message}</p>
+              <span>By {m.author}</span><br/>
               <span className={styles.date}>
-                {new Date(m.created_at).toLocaleString()} · {m.author}
+                {new Date(m.created_at).toLocaleString()}
               </span>
-              <div>
+              <div className={styles.actions}>
                 <button onClick={() => startEditMessage(m.id, m.message)}>
                   Edit
                 </button>

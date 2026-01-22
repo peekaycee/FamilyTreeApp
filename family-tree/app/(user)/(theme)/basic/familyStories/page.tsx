@@ -122,46 +122,46 @@ export default function FamilyStoriesPage() {
   };
 
   /* ================= DELETE (Admin) ================= */
-  // const deleteStory = async (story: Story) => {
-  //   if (!confirm("Are you sure you want to delete this story?")) return;
+  const deleteStory = async (story: Story) => {
+    if (!confirm("Are you sure you want to delete this story?")) return;
 
-  //   // Optimistic UI
-  //   setStories((prev) => prev.filter((s) => s.id !== story.id));
+    // Optimistic UI
+    setStories((prev) => prev.filter((s) => s.id !== story.id));
 
-  //   try {
-  //     const res = await fetch(`/api/family-stories/${story.id}`, {
-  //       method: "DELETE",
-  //       credentials: "include",
-  //     });
+    try {
+      const res = await fetch(`/api/family-stories/${story.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
-  //     if (!res.ok) {
-  //       alert("Delete failed");
-  //       fetchStories();
-  //     }
-  //   } catch (err) {
-  //     alert("Unexpected error while deleting story");
-  //     console.error(err);
-  //     fetchStories();
-  //   }
-  // };
+      if (!res.ok) {
+        alert("Delete failed");
+        fetchStories();
+      }
+    } catch (err) {
+      alert("Unexpected error while deleting story");
+      console.error(err);
+      fetchStories();
+    }
+  };
 
   /* ================= EDIT (Admin) ================= */
-  // const editStory = (story: Story) => {
-  //   setEditingId(story.id);
-  //   setTitle(story.title);
-  //   setAuthor(story.author);
-  //   setExcerpt(story.excerpt);
-  //   setContent(story.content);
-  //   setImageFile(null);
-  //   setShowAddModal(true);
-  // };
+  const editStory = (story: Story) => {
+    setEditingId(story.id);
+    setTitle(story.title);
+    setAuthor(story.author);
+    setExcerpt(story.excerpt);
+    setContent(story.content);
+    setImageFile(null);
+    setShowAddModal(true);
+  };
 
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
         <h1>Legacy Stories</h1>
         <p>Discover the Rich History and Narratives of our Family Legacy.</p>
-        <button className={styles.ctaSmall} onClick={() => setShowAddModal(true)}>
+        <button className={styles.ctaGhost} onClick={() => setShowAddModal(true)}>
           Add Story
         </button>
       </section>
@@ -203,8 +203,8 @@ export default function FamilyStoriesPage() {
                     Share <CornerDownLeft size={14} className={styles.sendCaret}/>
                   </button>
                   {/* Admin only */}
-                  {/* <button onClick={() => editStory(s)}>Edit</button>
-                  <button onClick={() => deleteStory(s)}>Delete</button> */}
+                  {/* <button onClick={() => editStory(s)}>Edit</button> */}
+                  {/* <button onClick={() => deleteStory(s)}>Delete</button> */}
                 </div>
               </div>
             </motion.article>

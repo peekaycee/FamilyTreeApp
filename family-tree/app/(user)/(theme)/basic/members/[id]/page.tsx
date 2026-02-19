@@ -88,7 +88,11 @@ export default async function MemberPage({
       )}
 
       <h3>Spouse</h3>
-      {data.spouse ? <p>{data.spouse.name}</p> : <p>Not recorded</p>}
+      {data.spouse?.[0] ? (
+        <p>{data.spouse[0].name}</p>
+      ) : (
+        <p>Not recorded</p>
+      )}
 
       <h3>Children</h3>
       {children && children.length > 0 ? (

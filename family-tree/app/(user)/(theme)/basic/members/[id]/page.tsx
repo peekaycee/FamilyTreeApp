@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import { validate as uuidValidate } from "uuid"
-// import { supabase } from "@/lib/supabase/supabaseClient"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 
@@ -69,15 +69,23 @@ export default async function MemberPage({
       <p>Role: {data.role ?? "N/A"}</p>
       <p>Generation: {data.generation}</p>
       <p>Position: ({data.pos_x}, {data.pos_y})</p>
-      {data.avatar_url && <img src={data.avatar_url} alt="Avatar" />}
+      {data.avatar_url && <Image src={data.avatar_url} alt="Avatar" width={100} height={100} />}
 
       <hr />
 
       <h3>Father</h3>
-      {data.father ? <p>{data.father.name}</p> : <p>Not recorded</p>}
+      {data.father?.[0] ? (
+        <p>{data.father[0].name}</p>
+      ) : (
+        <p>Not recorded</p>
+      )}
 
       <h3>Mother</h3>
-      {data.mother ? <p>{data.mother.name}</p> : <p>Not recorded</p>}
+      {data.mother?.[0] ? (
+        <p>{data.mother[0].name}</p>
+      ) : (
+        <p>Not recorded</p>
+      )}
 
       <h3>Spouse</h3>
       {data.spouse ? <p>{data.spouse.name}</p> : <p>Not recorded</p>}

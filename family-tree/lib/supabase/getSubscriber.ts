@@ -13,5 +13,3 @@ export async function getSubscriber(slug: string) {
 
   return data;
 }
-
-// Perekay_0077

@@ -16,7 +16,7 @@ export const revalidate = 0;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme='light'>
       <body className={styles.body} suppressHydrationWarning>
         <ToastProvider>
           <ToastHandlerWrapper>

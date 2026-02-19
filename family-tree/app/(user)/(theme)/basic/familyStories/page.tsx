@@ -204,7 +204,7 @@ export default function FamilyStoriesPage() {
                   </button>
                   {/* Admin only */}
                   {/* <button onClick={() => editStory(s)}>Edit</button> */}
-                  {/* <button onClick={() => deleteStory(s)}>Delete</button> */}
+                  <button onClick={() => deleteStory(s)}>Delete</button>
                 </div>
               </div>
             </motion.article>

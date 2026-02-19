@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.45.3",
     "framer-motion": "^12.23.25",
     "html2canvas": "^1.4.1",
@@ -33,6 +34,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "16.0.6",
     "typescript": "^5"

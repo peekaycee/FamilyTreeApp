@@ -9,16 +9,16 @@
 
 
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/supabaseClient';
+import { createSupabaseBrowserClient } from '@/lib/supabase/supabaseClient';
 import { cookies } from 'next/headers';
 
 export async function GET() {
-  const access_token = cookies().get('sb-access-token')?.value;
+  const access_token = (await cookies()).get('sb-access-token')?.value;
 
   if (!access_token) {
     return NextResponse.json({ session: null }, { status: 200 });
   }
-
+  const supabase = createSupabaseBrowserClient();
   const { data, error } = await supabase.auth.getSession();
 
   if (error) {

@@ -37,3 +37,21 @@ button:hover {
   background-color:var(--color-accent);
   letter-spacing: 1px; 
 }
+
+/* ==================================================
+   THEME MAPPING (EXTENDABLE, NO REFACTOR)
+================================================== */
+
+[data-theme='light'] {
+  --bg: var(--color-bg);
+  --text: var(--color-black-text);
+  --border: rgba(0, 0, 0, 0.08);
+  --accent: var(--color-secondary);
+}
+
+[data-theme='dark'] {
+  --bg: var(--color-primary);
+  --text: var(--color-white-text);
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: var(--color-accent);
+}

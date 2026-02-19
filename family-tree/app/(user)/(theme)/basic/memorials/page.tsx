@@ -314,7 +314,7 @@ const deleteMemorial = async (id: string) => {
                 {/* <button onClick={() => { setEditingId(m.id); setForm({ ...m, born: String(m.born), died: String(m.died) }); setShowAdd(true); }}>
                   Edit
                 </button> */}
-                {/* <button onClick={() => deleteMemorial(m.id)}>Delete</button> */}
+                <button onClick={() => deleteMemorial(m.id)}>Delete</button>
 
                 <button className={styles.candleBtn} onClick={() => lightCandle(m.id)}>
                   🕯 {candles[m.id] ?? 0}

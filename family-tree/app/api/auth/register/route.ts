@@ -44,7 +44,7 @@
 
 
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/supabaseClient';
+import { createSupabaseBrowserClient } from '@/lib/supabase/supabaseClient';
 
 export async function POST(req: Request) {
   try {
@@ -53,7 +53,8 @@ export async function POST(req: Request) {
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
     }
-
+    const supabase = createSupabaseBrowserClient();
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

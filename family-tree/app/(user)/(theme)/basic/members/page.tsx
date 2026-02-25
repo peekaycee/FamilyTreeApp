@@ -78,7 +78,7 @@ export default function FamilyMembersPage() {
   /* ================= REDIRECT ================= */
 
   const redirectToTreeBuilder = () => {
-    window.location.href = "/basic/dashboard/family-builder";
+    window.location.href = "/basic/family-builder";
   };
 
   /* ================= RENDER ================= */

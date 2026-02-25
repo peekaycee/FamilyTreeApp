@@ -122,7 +122,7 @@ const latestStories = stories.slice(0, 2);
               <Play size={16} /> <Link href={"/basic/familyStories"}>Explore Stories</Link>
             </button>
             <button className={styles.ctaGhost}>
-              <CornerDownLeft size={14} /> <Link href={"/basic/dashboard/family-builder"}>View Family Tree</Link>
+              <CornerDownLeft size={14} /> <Link href={"/basic/family-builder"}>View Family Tree</Link>
             </button>
           </div>
         </motion.div>
@@ -130,7 +130,7 @@ const latestStories = stories.slice(0, 2);
 
       {/* INTERACTIVE FAMILY TREE */}
       <section className={styles.treeSection}>
-        <h2 className={styles.sectionTitle}>Featured Family Tree</h2>
+        <h2 className={styles.sectionTitle}>Featured Family</h2>
         <div className={styles.treeRow}>
           <div className={styles.treeViewer}>
             <small className={styles.muted}>Click to feature a family member</small>
@@ -291,7 +291,7 @@ const latestStories = stories.slice(0, 2);
 
       {/* =================== STORIES GRID =================== */}
       <section className={styles.storiesSection}>
-  <h2 className={styles.sectionTitle}>Legacy Stories</h2>
+  <h2 className={styles.sectionTitle}>Family Stories</h2>
   <div className={styles.storiesGrid}>
     {latestStories.map((s) => (
       <motion.article

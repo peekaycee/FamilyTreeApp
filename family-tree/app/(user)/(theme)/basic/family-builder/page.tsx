@@ -5,7 +5,7 @@
 import dynamic from 'next/dynamic'
 
 const FamilyCanvas = dynamic(
-  () => import('../../../../../../components/FamilyCanvas'),
+  () => import('../../../../../components/FamilyCanvas'),
   { ssr: false }
 )
 

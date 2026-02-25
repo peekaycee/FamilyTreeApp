@@ -56,9 +56,9 @@ export default function FamilyCanvas() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
-  const [setTouchedName] = useState(false);
-  const [setTouchedRole] = useState(false);
-  const [setSubmitted] = useState(false);
+  const [touchedName, setTouchedName] = useState(false);
+  const [TouchedRole, setTouchedRole] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
 
   // Editing modal state
@@ -545,17 +545,6 @@ if (
   );
 
   // ---------------- NORMALIZE LAYOUT AROUND ORIGIN ---------------
-  // if (positioned.length > 0) {
-  //   const bounds = app.stage.getLocalBounds();
-
-  //   const centerX = bounds.x + bounds.width / 2;
-  //   const centerY = bounds.y + bounds.height / 2;
-
-  //   app.stage.x = app.renderer.width / 2 - centerX;
-  //   app.stage.y = app.renderer.height / 2 - centerY;
-  // }
-
-  // ---------------- NORMALIZE LAYOUT AROUND ORIGIN ---------------
   if (positioned.length > 0) {
   const bounds = app.stage.getLocalBounds();
 
@@ -663,16 +652,7 @@ const minAllowedTop = STAGE_TOP_PADDING;
 if (topWorldY < minAllowedTop) {
   app.stage.y += minAllowedTop - topWorldY;
 }
-  // if (positioned.length > 0) {
-  //   const bounds = app.stage.getLocalBounds();
-
-  //   const centerX = bounds.x + bounds.width / 2;
-  //   const centerY = bounds.y + bounds.height / 2;
-
-  //   app.stage.x = app.renderer.width / 2 - centerX * app.stage.scale.x;
-  //   app.stage.y = app.renderer.height / 2 - centerY * app.stage.scale.y;
-  // }
-
+  
   // ================= CAPTURE ORIGINAL VIEW (ONCE) =================
   if (!originalViewRef.current) {
     originalViewRef.current = {
@@ -952,58 +932,7 @@ if (addSpouse) {
   }
 };
 
-// =========================================================================
-
-//  const resetView = () => {
-//   const app = appRef.current;
-//   if (!app) return;
-
-//   const duration = 25;
-
-//   // 1️⃣ Animate nodes back to original layout
-//   Object.entries(spritesRef.current).forEach(([id, node]) => {
-//     const original = originalLayoutRef.current[id];
-//     if (!original) return;
-
-//     const startX = node.x;
-//     const startY = node.y;
-
-//     let frame = 0;
-
-//     const ticker = new PIXI.Ticker();
-//     ticker.add(() => {
-//       frame++;
-//       const t = frame / duration;
-//       const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
-
-//       node.x = startX + (original.x - startX) * ease;
-//       node.y = startY + (original.y - startY) * ease;
-
-//       if (frame >= duration) ticker.stop();
-//     });
-//     ticker.start();
-//   });
-
-//   // 2️⃣ Reset zoom smoothly
-//   const startScale = app.stage.scale.x;
-//   const targetScale = 1;
-
-//   let frame = 0;
-
-//   const zoomTicker = new PIXI.Ticker();
-//   zoomTicker.add(() => {
-//     frame++;
-//     const t = frame / duration;
-//     const ease = 1 - Math.pow(1 - t, 3);
-
-//     const newScale = startScale + (targetScale - startScale) * ease;
-//     app.stage.scale.set(newScale);
-
-//     if (frame >= duration) zoomTicker.stop();
-//   });
-//   zoomTicker.start();
-// };
-
+// =============== Reset View ==================
 const resetView = () => {
   const app = appRef.current;
   const original = originalViewRef.current;

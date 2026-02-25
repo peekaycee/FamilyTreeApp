@@ -159,7 +159,7 @@ export default function FamilyStoriesPage() {
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
-        <h1>Legacy Stories</h1>
+        <h1>Family Stories</h1>
         <p>Discover the Rich History and Narratives of our Family Legacy.</p>
         <button className={styles.ctaGhost} onClick={() => setShowAddModal(true)}>
           Add Story

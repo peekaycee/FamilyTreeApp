@@ -80,7 +80,7 @@ export default function Navbar() {
         {
           name: 'Gallery',
           children: [
-            // { name: 'Album', href: '/basic/gallery' },
+            { name: 'Family Tree', href: '/basic/family-builder' },
             { name: 'Family Album', href: '/basic/members' },
             { name: 'Achievements', href: '/basic/achievements' },
           ],

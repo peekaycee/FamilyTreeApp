@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import { createSupabaseBrowserClient } from "../lib/supabase/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import styles from "./components.module.css";
+import { computeLayout } from "@/lib/tree/layoutEngine";
+import type { Person, Union } from "@/lib/tree/layoutEngine";
 
 export type MemberRow = {
   id: string;
@@ -25,6 +27,8 @@ export type MemberRow = {
 type EditingState = { id: string };
 
 const NODE_RADIUS = 36;
+const STAGE_TOP_PADDING = 10;
+
 
 // Map roles to colors/icons
 const roleColors: Record<string, number> = {
@@ -41,16 +45,21 @@ const roleColors: Record<string, number> = {
   cousin: 0xa78bfa,
   nephew: 0x60a5fa,
   niece: 0xfaa2c1,
-  default: 0xe2e8f0,
+  spouse: 0xe2e8f0,
 };
 
 export default function FamilyCanvas() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const spritesRef = useRef<Record<string, PIXI.Container>>({});
+  const originalLayoutRef = useRef<Record<string, { x: number; y: number }>>({});
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [setTouchedName] = useState(false);
+  const [setTouchedRole] = useState(false);
+  const [setSubmitted] = useState(false);
+  const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
 
   // Editing modal state
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -65,46 +74,45 @@ export default function FamilyCanvas() {
   const [addFile, setAddFile] = useState<File | null>(null);
   const [addFather, setAddFather] = useState<string | null>(null);
   const [addMother, setAddMother] = useState<string | null>(null);
-  const [highlightBloodline, setHighlightBloodline] = useState<string | null>(null);
+  const [addSpouse, setAddSpouse] = useState<string | null>(null);
+  const [addBirthDate, setAddBirthDate] = useState<string | null>(null);
+  const [addDeathDate, setAddDeathDate] = useState<string | null>(null);
+  const [highlightBloodline, setHighlightBloodline] = useState<Set<string>>(new Set());
+  const [spouseLinks, setSpouseLinks] = useState<{ id: string; partnerA: string; partnerB: string }[]>([]);
 
   const supabase = createSupabaseBrowserClient();
 
   // Toast state
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   // REF to block realtime reloads while editing
   const isEditingRef = useRef(false);
 
   const loadMembers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("family_members")
-        .select("*")
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      const rows = Array.isArray(data) ? data : [];
-      const enriched = await Promise.all(
-        rows.map(async (r: MemberRow) => {
-          if (!r.avatar_url && r.avatar_path) {
-            try {
-              const { data: pu } = supabase.storage
-                .from("avatars")
-                .getPublicUrl(r.avatar_path);
-              if (pu?.publicUrl) r.avatar_url = pu.publicUrl;
-            } catch {}
-          }
-          return r;
-        })
-      );
-      setMembers(enriched);
-    } catch (err) {
-      console.error("fetchMembers", err);
-      setMembers([]);
-    } finally {
-      setLoading(false);
+  if (!user?.id) return; // ← CRITICAL GUARD
+
+  setLoading(true);
+  try {
+    const { data, error } = await supabase
+      .from("family_members")
+      .select("*")
+      .eq("user_id", user.id)   // safe now
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Supabase error:", error.message);
+      throw error;
     }
-  }, [supabase]);
+
+    setMembers(data ?? []);
+  } catch (err) {
+    console.error("fetchMembers", err);
+    setMembers([]);
+  } finally {
+    setLoading(false);
+  }
+}, [supabase, user]);
 
   // AUTH SESSION
   useEffect(() => {
@@ -134,6 +142,7 @@ export default function FamilyCanvas() {
 
   // Fetch members & subscribe to realtime
   useEffect(() => {
+    if (!user) return;
     loadMembers();
     const ch = supabase
       .channel("family-members-channel")
@@ -146,169 +155,555 @@ export default function FamilyCanvas() {
       )
       .subscribe();
     return () => void supabase.removeChannel(ch);
-  }, [loadMembers, supabase]);
+  }, [loadMembers, supabase, user]);
 
-  // CREATE PIXI APP
-  useEffect(() => {
-    if (!containerRef.current) return;
 
-    const app = new PIXI.Application({
-      width: Math.max(window.innerWidth - 40, 900),
-      height: Math.max(window.innerHeight - 220, 600),
-      backgroundColor: 0x071025,
-      antialias: true,
-      resolution: window.devicePixelRatio || 1,
-      autoDensity: true,
-    });
-    appRef.current = app;
-    containerRef.current!.appendChild(app.view as unknown as HTMLCanvasElement);
-    (app.view as HTMLCanvasElement).style.cursor = "grab";
+// ================= CREATE PIXI APP =================
+useEffect(() => {
+  if (!containerRef.current) return;
 
-    let isPanning = false;
-    let panStart = { x: 0, y: 0 };
-    let stageStart = { x: 0, y: 0 };
+  const container = containerRef.current;
 
-    const onPointerDown = (e: PointerEvent) => {
-      isPanning = true;
-      panStart = { x: e.clientX, y: e.clientY };
-      stageStart = { x: app.stage.x, y: app.stage.y };
-      (app.view as HTMLCanvasElement).style.cursor = "grabbing";
-    };
+  const app = new PIXI.Application({
+    width: container.clientWidth,
+    height: container.clientHeight,
+    backgroundColor: 0xfAf8f5,
+    antialias: true,
+    resolution: window.devicePixelRatio || 0.5,
+    autoDensity: true,
+  });
 
-    const onPointerMove = (e: PointerEvent) => {
-      if (!isPanning) return;
-      const dx = e.clientX - panStart.x;
-      const dy = e.clientY - panStart.y;
-      app.stage.x = stageStart.x + dx;
-      app.stage.y = stageStart.y + dy;
-    };
-    const onPointerUp = () => {
-      isPanning = false;
-      (app.view as HTMLCanvasElement).style.cursor = "grab";
-    };
-    const onWheel = (ev: WheelEvent) => {
-      ev.preventDefault();
-      const oldScale = app.stage.scale.x;
-      const scaleBy = 1.08;
-      const newScale = ev.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
-      const clamped = Math.max(0.25, Math.min(3, newScale));
-      const rect = (app.view as HTMLCanvasElement).getBoundingClientRect();
-      const pointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
-      const worldPos = { x: (pointer.x - app.stage.x) / oldScale, y: (pointer.y - app.stage.y) / oldScale };
-      app.stage.scale.set(clamped);
-      app.stage.x = pointer.x - worldPos.x * clamped;
-      app.stage.y = pointer.y - worldPos.y * clamped;
-    };
+  
 
-    (app.view as HTMLCanvasElement).addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-    (app.view as HTMLCanvasElement).addEventListener("wheel", onWheel, { passive: false });
+  const onDocumentMouseDown = (e: MouseEvent) => {
+  if (!containerRef.current) return;
 
-    return () => {
-      (app.view as HTMLCanvasElement).removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      (app.view as HTMLCanvasElement).removeEventListener("wheel", onWheel);
-      app.destroy(true, { children: true });
-      appRef.current = null;
-    };
-  }, []);
+  if (!containerRef.current.contains(e.target as Node)) {
+    setHighlightBloodline(new Set());
+    }
+  };
 
-    // Additional Code for improvement ==============================================
+  document.addEventListener("mousedown", onDocumentMouseDown);
+
+  app.stage.x = app.renderer.width / 2;
+  // app.stage.y = app.renderer.height / 2;
+
+  // Append canvas only once
+  const canvas = app.view as HTMLCanvasElement;
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.display = "block";
+  canvas.style.cursor = "grab";
+  container.appendChild(canvas);
+
+// ------------------ REMOVE HIGHLIGHT ON DOUBLE-CLICK ------------------
+const onCanvasDoubleClick = (e: MouseEvent) => {
+  const app = appRef.current;
+  if (!app) return;
+
+  // Only trigger if clicked on empty canvas
+  if (e.target === app.view) {
+    setHighlightBloodline(new Set());
+  }
+};
+
+canvas.addEventListener("dblclick", onCanvasDoubleClick);
+
+  appRef.current = app;
+
+  // ================= PANNING =================
+  let isPanning = false;
+  let panStart = { x: 0, y: 0 };
+  let stageStart = { x: 0, y: 0 };
+
+  const onPointerDown = (e: PointerEvent) => {
+    isPanning = true;
+    panStart = { x: e.clientX, y: e.clientY };
+    stageStart = { x: app.stage.x, y: app.stage.y };
+    canvas.style.cursor = "grabbing";
+  };
+
+  const onPointerMove = (e: PointerEvent) => {
+    if (!isPanning) return;
+    const dx = e.clientX - panStart.x;
+    const dy = e.clientY - panStart.y;
+    app.stage.x = stageStart.x + dx;
+    app.stage.y = stageStart.y + dy;
+  };
+
+  const onPointerUp = () => {
+    isPanning = false;
+    canvas.style.cursor = "grab";
+  };
+
+  const onWheel = (ev: WheelEvent) => {
+    ev.preventDefault();
+    const oldScale = app.stage.scale.x;
+    const scaleBy = 1.08;
+    const newScale = ev.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+    const clamped = Math.max(0.25, Math.min(3, newScale));
+
+    const rect = canvas.getBoundingClientRect();
+    const pointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+    const worldPos = { x: (pointer.x - app.stage.x) / oldScale, y: (pointer.y - app.stage.y) / oldScale };
+
+    app.stage.scale.set(clamped);
+    app.stage.x = pointer.x - worldPos.x * clamped;
+    app.stage.y = pointer.y - worldPos.y * clamped;
+  };
+
+  canvas.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  canvas.addEventListener("wheel", onWheel, { passive: false });
+  
+
+  // ================= RESIZE =================
+  const onResize = () => {
+    app.renderer.resize(container.clientWidth, container.clientHeight);
+  };
+  window.addEventListener("resize", onResize);
+
+  return () => {
+    canvas.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", onPointerUp);
+    canvas.removeEventListener("wheel", onWheel);
+    window.removeEventListener("resize", onResize);
+
+    canvas.removeEventListener("dblclick", onCanvasDoubleClick);
+    document.removeEventListener("mousedown", onDocumentMouseDown);
+
+    app.destroy(true, { children: true });
+    appRef.current = null;
+  };
+}, []);
+
+  // Additional Code for improvement ==============================================
     const memberMap = useMemo(() => {
     const map: Record<string, MemberRow> = {};
     members.forEach((m) => (map[m.id] = m));
     return map;
   }, [members]);
 
-  
-  
-    // ================= GENERATIONAL BFS LAYOUT =================
-      const getGenerationLevels = useCallback(() => {
-      const levels: Record<string, number> = {};
-      const roots = members.filter(m => !m.father_id && !m.mother_id);
+  const getParents = useCallback((id: string) => {
+    const m = memberMap[id];
+    if (!m) return [];
+    return [m.father_id, m.mother_id].filter(Boolean) as string[];
+  }, [memberMap]);
 
-      const queue: { id: string; level: number }[] = [];
+  const getAncestors = useCallback((id: string | null | undefined, visited = new Set<string>()): Set<string> => {
+    if (!id || visited.has(id)) return visited;
+    visited.add(id);
+    getParents(id).forEach((p) => getAncestors(p, visited));
+    return visited;
+  }, [getParents]);
 
-      roots.forEach(r => {
-        levels[r.id] = 0;
-        queue.push({ id: r.id, level: 0 });
-      });
+  const getChildren = useCallback((id: string) => {
+    return members.filter(m => m.father_id === id || m.mother_id === id).map(m => m.id);
+  }, [members]);
 
-      while (queue.length > 0) {
-        const { id, level } = queue.shift()!;
-        const children = members.filter(
-          m => m.father_id === id || m.mother_id === id
-        );
+  const getDescendants = useCallback((id: string, visited = new Set<string>()): Set<string> => {
+    if (!id || visited.has(id)) return visited;
+    visited.add(id);
+    const children = getChildren(id);
+    children.forEach(childId => getDescendants(childId, visited));
+    return visited;
+  }, [getChildren]);
 
-        children.forEach(child => {
-          if (levels[child.id] === undefined) {
-            levels[child.id] = level + 1;
-            queue.push({ id: child.id, level: level + 1 });
-          }
-        });
-      }
+  // ================= GENERATIONAL BFS LAYOUT =================
+  const getGenerationLevels = useCallback(() => {
+    const levels: Record<string, number> = {};
+    const roots = members.filter(m => !m.father_id && !m.mother_id);
 
-      return levels;
-    }, [members]);
+    const queue: { id: string; level: number }[] = [];
 
-    const centerTree = () => {
-      const nodes = Object.values(spritesRef.current);
-      if (nodes.length === 0) return;
+    roots.forEach(r => {
+      levels[r.id] = 0;
+      queue.push({ id: r.id, level: 0 });
+    });
 
-      const minX = Math.min(...nodes.map(n => n.x));
-      const maxX = Math.max(...nodes.map(n => n.x));
-      const minY = Math.min(...nodes.map(n => n.y));
-      const maxY = Math.max(...nodes.map(n => n.y));
+    while (queue.length > 0) {
+      const { id, level } = queue.shift()!;
+      const children = members.filter(
+        m => m.father_id === id || m.mother_id === id
+      );
 
-      const treeWidth = maxX - minX;
-      const treeHeight = maxY - minY;
-
-      const app = appRef.current;
-      if (!app) return;
-
-      const centerX = app.renderer.width / 2;
-      const centerY = app.renderer.height / 2;
-
-      const offsetX = centerX - (minX + treeWidth / 2);
-      const offsetY = centerY - (minY + treeHeight / 2);
-
-      nodes.forEach(n => {
-        n.x += offsetX;
-        n.y += offsetY;
-      });
-    };
-
-    const getSpousePairs = useCallback(() => {
-      const pairs = new Set<string>();
-      const result: [string, string][] = [];
-
-      members.forEach(m => {
-        if (m.spouse_id) {
-          const key = [m.id, m.spouse_id].sort().join("-");
-          if (!pairs.has(key)) {
-            pairs.add(key);
-            result.push([m.id, m.spouse_id]);
-          }
+      children.forEach(child => {
+        if (levels[child.id] === undefined) {
+          levels[child.id] = level + 1;
+          queue.push({ id: child.id, level: level + 1 });
         }
       });
+    }
 
-      return result;
-    }, [members]);
+    return levels;
+  }, [members]);
 
-    const getParents = useCallback((id: string) => {
-      const m = memberMap[id];
-      if (!m) return [];
-      return [m.father_id, m.mother_id].filter(Boolean) as string[];
-    }, [memberMap]);
+  useEffect(() => {
+  const app = appRef.current;
+  if (!app) return;
 
-    const getAncestors = useCallback((id: string | null | undefined, visited = new Set<string>()): Set<string> => {
-      if (!id || visited.has(id)) return visited;
-      visited.add(id);
-      getParents(id).forEach((p) => getAncestors(p, visited));
-      return visited;
-    }, [getParents]);
+  app.stage.scale.set(1);
+  app.stage.x = 0;
+  app.stage.y = 0;
+
+  app.stage.removeChildren();
+  spritesRef.current = {};
+
+  const makeNode = (m: MemberRow) => {
+  const c = new PIXI.Container();
+  c.eventMode = "static";
+  c.cursor = "grab";
+  c.sortableChildren = true;
+
+  // ---------------------- Node Graphics ----------------------
+  const roleColor = roleColors[m.role ?? "default"] ?? roleColors.default;
+
+  // Outer glow
+  const outer = new PIXI.Graphics();
+  outer.beginFill(roleColor);
+  outer.drawCircle(0, 0, NODE_RADIUS + 6);
+  outer.endFill();
+  outer.alpha = 0.08;
+  c.addChild(outer);
+
+  // Circle border
+  const lines = new PIXI.Graphics();
+  lines.beginFill(0xf7f7f7);
+  lines.lineStyle(2, roleColor);
+  lines.drawCircle(0, 0, NODE_RADIUS);
+  lines.endFill();
+  c.addChild(lines);
+
+  // Avatar or plus
+  if (m.avatar_url) {
+    try {
+      const sprite = PIXI.Sprite.from(m.avatar_url);
+      sprite.anchor.set(0.5);
+      sprite.width = NODE_RADIUS * 2;
+      sprite.height = NODE_RADIUS * 2;
+      const mask = new PIXI.Graphics();
+      mask.beginFill(0x333333);
+      mask.drawCircle(0, 0, NODE_RADIUS - 1);
+      mask.endFill();
+      c.addChild(sprite);
+      c.addChild(mask);
+      sprite.mask = mask;
+    } catch {}
+  } else {
+    const plus = new PIXI.Text("+", { fontSize: 20, fill: 0x333333 });
+    plus.anchor.set(0.5);
+    c.addChild(plus);
+  }
+
+  // Name label
+  const label = new PIXI.Text(m.name ?? "Unnamed", { fontSize: 16, fill: 0x333333, align: "center" });
+  label.y = NODE_RADIUS + 8;
+  label.anchor.set(0.5, 0);
+  c.addChild(label);
+
+  // Role label
+  const roleLabel = new PIXI.Text(m.role ?? "", { fontSize: 12, fill: 0x333333, align: "center" });
+  roleLabel.y = NODE_RADIUS + 22;
+  roleLabel.anchor.set(0.5, -0.35);
+  // c.addChild(roleLabel); // you can turn this on to see roles text
+
+  // ---------------------- Dragging ----------------------
+  let dragging = false;
+  let moved = false;
+  const dragOffset = { x: 0, y: 0 };
+
+  c.on("pointerdown", (ev) => {
+    ev.stopPropagation();
+    dragging = true;
+    moved = false;
+    c.cursor = "grabbing";
+    const p = ev.data.global;
+    dragOffset.x = p.x - c.x;
+    dragOffset.y = p.y - c.y;
+  });
+
+  c.on("pointerup", async () => {
+    if (!dragging) return;
+    dragging = false;
+    c.cursor = "grab";
+
+    if (!moved) return; // IMPORTANT: ignore click-only
+
+    // Clamp node inside stage
+    const app = appRef.current;
+    if (app) {
+      const stageBounds = { width: app.renderer.width, height: app.renderer.height };
+      c.x = Math.max(NODE_RADIUS, Math.min(stageBounds.width - NODE_RADIUS, c.x));
+      c.y = Math.max(NODE_RADIUS, Math.min(stageBounds.height - NODE_RADIUS, c.y));
+    }
+  });
+
+  c.on("pointerupoutside", () => {
+    dragging = false;
+    c.cursor = "grab";
+  });
+
+  c.on("pointermove", (ev) => {
+    if (!dragging) return;
+    moved = true;
+    const p = ev.data.global;
+    c.x = p.x - dragOffset.x;
+    c.y = p.y - dragOffset.y;
+  });
+
+  // ---------------------- Click / Double-Click ----------------------
+  c.on("pointertap", (ev) => {
+  ev.stopPropagation();
+
+  const now = Date.now();
+  const last = (c as unknown as { _lastTap?: number })._lastTap || 0;
+
+  if (now - last < 300) {
+    // Double click → EDIT
+    isEditingRef.current = true;
+    setEditing({ id: m.id });
+    setEditName(m.name ?? "");
+    setEditRole(m.role ?? "");
+    setEditFile(null);
+  } else {
+    // Single click → highlight
+    const lineage = new Set<string>();
+    getAncestors(m.id, lineage);
+    getDescendants(m.id, lineage);
+    lineage.add(m.id);
+    setHighlightBloodline(lineage);
+  }
+
+  (c as unknown as { _lastTap?: number })._lastTap = now;
+});
+
+  return c;
+};
+
+  // 1️⃣ Compute generations
+  const levels = getGenerationLevels();
+
+  // 2️⃣ Convert members → Persons
+  const persons: Person[] = members.map((m) => ({
+    id: m.id,
+    name: m.name,
+    generation: levels[m.id] ?? 0,
+  }));
+
+
+// 3️⃣ Build unions (supports single or two-parent, with single-parent offset)
+const unionMap = new Map<string, Union>();
+
+members.forEach((child) => {
+  // Collect parent IDs (filter out nulls)
+  const partners = [child.father_id, child.mother_id].filter(Boolean) as string[];
+  if (partners.length === 0) return; // skip if no parents
+
+  // Generate a key for the union (sorted to avoid duplicates)
+  const key = partners.sort().join("-");
+
+  // Create union if it doesn't exist
+  if (!unionMap.has(key)) {
+    unionMap.set(key, {
+      id: key,
+      partnerIds: partners,
+      childrenIds: [],
+      order: 0,
+    });
+  }
+
+  // Add child to union
+  unionMap.get(key)!.childrenIds.push(child.id);
+});
+
+const unions = Array.from(unionMap.values());
+
+// ---------------------- Cosmetic tweak ----------------------
+// Give single-parent unions a small horizontal offset
+unions.forEach((u, index) => {
+  if (u.partnerIds.length === 1) {
+    u.order = index * 0.3; // small fractional offset for visual separation
+  }
+});
+
+if (
+  members.length &&
+  spouseLinks.some(link =>
+    !members.find(m => m.id === link.partnerA) ||
+    !members.find(m => m.id === link.partnerB)
+  )
+) {
+  return;
+}
+
+  // 4️⃣ Run layout engine
+  const { persons: positioned, lines } = computeLayout(
+    persons,
+    unions
+  );
+
+  // ---------------- NORMALIZE LAYOUT AROUND ORIGIN ---------------
+  // if (positioned.length > 0) {
+  //   const bounds = app.stage.getLocalBounds();
+
+  //   const centerX = bounds.x + bounds.width / 2;
+  //   const centerY = bounds.y + bounds.height / 2;
+
+  //   app.stage.x = app.renderer.width / 2 - centerX;
+  //   app.stage.y = app.renderer.height / 2 - centerY;
+  // }
+
+  // ---------------- NORMALIZE LAYOUT AROUND ORIGIN ---------------
+  if (positioned.length > 0) {
+  const bounds = app.stage.getLocalBounds();
+
+  // Horizontal centering
+  const centerX = bounds.x + bounds.width / 2;
+  app.stage.x = app.renderer.width / 2 - centerX * app.stage.scale.x;
+
+  // Vertical positioning
+  const topNodeY = Math.min(...positioned.map(p => p.y));
+  app.stage.y = STAGE_TOP_PADDING - topNodeY + NODE_RADIUS + 6; // 6 = glow extra radius
+}
+
+  // 5️⃣ Render nodes
+  members.forEach((m) => {
+    const node = makeNode(m);
+    
+    
+    if (!node) return;
+    
+    const layoutNode = positioned.find((p) => p.id === m.id);
+    
+    if (layoutNode) {
+      node.x = layoutNode.x;
+      node.y = layoutNode.y;
+    }
+
+    // ---------------- SPOUSE EASTWARD OVERRIDE ----------------
+    const spouseLink = spouseLinks.find(
+      l => l.partnerB === m.id // newly added spouse
+    );
+
+    if (spouseLink) {
+      const partnerNode = spritesRef.current[spouseLink.partnerA];
+
+      if (partnerNode) {
+        const horizontalSpacing = 140; // SAME spacing used by layout engine
+
+        node.x = partnerNode.x + horizontalSpacing;
+        node.y = partnerNode.y;
+      }
+    }
+
+    if (layoutNode) {
+      originalLayoutRef.current[m.id] = {
+        x: layoutNode.x,
+        y: layoutNode.y,
+      };
+    }
+    
+    node.alpha = 0;
+    spritesRef.current[m.id] = node;
+    app.stage.addChild(node);
+    // Animate fade-in
+    const ticker = new PIXI.Ticker();
+    ticker.add(() => {
+      if (node.alpha < 1) node.alpha += 0.05;
+      else ticker.stop();
+    });
+    ticker.start();
+  });
+
+  // 6️⃣ Render lines
+const lineGraphics = new PIXI.Graphics();
+lineGraphics.zIndex = 0;
+
+app.stage.addChild(lineGraphics);
+
+// ------------------ CHILD / UNION LINES (existing layout lines) ------------------
+lineGraphics.lineStyle(2, 0x94a3b8);
+
+lines.forEach((l) => {
+  lineGraphics.moveTo(l.x1, l.y1);
+  lineGraphics.lineTo(l.x2, l.y2);
+});
+
+// ------------------ SPOUSE HORIZONTAL LINES ------------------
+lineGraphics.lineStyle(2, 0x94a3b8);
+
+spouseLinks.forEach(link => {
+  const a = spritesRef.current[link.partnerA];
+  const b = spritesRef.current[link.partnerB];
+
+  if (!a || !b) return;
+
+  // Draw straight horizontal line using SAME layout positions
+  lineGraphics.moveTo(a.x, a.y);
+  lineGraphics.lineTo(b.x, b.y);
+});
+
+  app.stage.sortableChildren = true;
+  lineGraphics.zIndex = 0; // behind nodes
+  Object.values(spritesRef.current).forEach((node) => node.zIndex = 1); // nodes above lines
+
+  // ================= TOP-BOUND ENFORCEMENT =================
+const bounds = app.stage.getLocalBounds();
+
+// Horizontal centering (safe)
+const centerX = bounds.x + bounds.width / 2;
+app.stage.x = app.renderer.width / 2 - centerX * app.stage.scale.x;
+
+// Enforce top boundary
+const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
+const minAllowedTop = STAGE_TOP_PADDING;
+
+if (topWorldY < minAllowedTop) {
+  app.stage.y += minAllowedTop - topWorldY;
+}
+  // if (positioned.length > 0) {
+  //   const bounds = app.stage.getLocalBounds();
+
+  //   const centerX = bounds.x + bounds.width / 2;
+  //   const centerY = bounds.y + bounds.height / 2;
+
+  //   app.stage.x = app.renderer.width / 2 - centerX * app.stage.scale.x;
+  //   app.stage.y = app.renderer.height / 2 - centerY * app.stage.scale.y;
+  // }
+
+  // ================= CAPTURE ORIGINAL VIEW (ONCE) =================
+  if (!originalViewRef.current) {
+    originalViewRef.current = {
+      x: app.stage.x,
+      y: app.stage.y,
+      scale: app.stage.scale.x,
+    };
+  }
+}, [members, spouseLinks]);
+
+useEffect(() => {
+  const sprites = spritesRef.current;
+
+  Object.entries(sprites).forEach(([id, container]) => {
+    let badge = container.getChildByName("highlightBadge") as PIXI.Graphics | null;
+
+    if (highlightBloodline.has(id)) {
+      if (!badge) {
+        badge = new PIXI.Graphics();
+        badge.name = "highlightBadge";
+        badge.beginFill(0xffd700, 0.6);
+        badge.drawCircle(0, 0, NODE_RADIUS + 10);
+        badge.endFill();
+        container.addChildAt(badge, 0);
+      }
+      badge.visible = true;
+    } else {
+      if (badge) badge.visible = false;
+    }
+  });
+}, [highlightBloodline]);
 
     const wouldCreateCycle = (
       potentialParentId: string,
@@ -318,294 +713,37 @@ export default function FamilyCanvas() {
       return ancestors.has(childId);
     };
 
+  const applyForceLayout = () => {
+  const spacing = 80;
 
-    const applyForceLayout = () => {
-      const spacing = 140;
+  Object.entries(spritesRef.current).forEach(([id, node]) => {
+    const dx = (Math.random() - 0.5) * spacing;
+    const dy = (Math.random() - 0.5) * spacing;
 
-      members.forEach((m) => {
-        const node = spritesRef.current[m.id];
-        if (!node) return;
+    const startX = node.x;
+    const startY = node.y;
 
-        node.x += (Math.random() - 0.5) * spacing;
-        node.y += (Math.random() - 0.5) * spacing;
-      });
-    };
+    const targetX = startX + dx;
+    const targetY = startY + dy;
 
-    // Tween Function
-      const animateTo = (
-        node: PIXI.Container,
-        targetX: number,
-        targetY: number
-      ) => {
-        const duration = 20;
-        let frame = 0;
+    const duration = 20;
+    let frame = 0;
 
-        const startX = node.x;
-        const startY = node.y;
+    const ticker = new PIXI.Ticker();
+    ticker.add(() => {
+      frame++;
+      const t = frame / duration;
+      const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
 
-        const ticker = new PIXI.Ticker();
+      node.x = startX + (targetX - startX) * ease;
+      node.y = startY + (targetY - startY) * ease;
 
-        ticker.add(() => {
-          frame++;
-          const t = frame / duration;
-
-          node.x = startX + (targetX - startX) * t;
-          node.y = startY + (targetY - startY) * t;
-
-          if (frame >= duration) {
-            node.x = targetX;
-            node.y = targetY;
-            ticker.destroy();
-          }
-        });
-
-        ticker.start();
-      };
-
-
-  // DRAW NODES
-  useEffect(() => {
-    const app = appRef.current;
-    if (!app) return;
-
-    app.stage.removeChildren();
-    spritesRef.current = {};
-
-    const makeNode = (m: MemberRow) => {
-      const c = new PIXI.Container();
-      c.interactive = true;
-      c.cursor = "grab";
-      const levels = getGenerationLevels();
-      const level = levels[m.id] ?? 0;
-
-      const siblingsAtLevel = members.filter(
-        mem => (levels[mem.id] ?? 0) === level
-      );
-      
-      const index = siblingsAtLevel.findIndex(mem => mem.id === m.id);
-      
-      const targetX = 200 + index * 180;
-      const targetY = 120 + level * 160;
-
-      animateTo(c, targetX, targetY);
-      c.sortableChildren = true;
-      
-      const spousePairs = getSpousePairs();
-      spousePairs.forEach(([a, b]) => {
-        const nodeA = spritesRef.current[a];
-        const nodeB = spritesRef.current[b];
-        
-        if (!nodeA || !nodeB) return;
-        
-        const midY = Math.min(nodeA.y, nodeB.y);
-        
-        nodeA.y = midY;
-        nodeB.y = midY;
-        
-        nodeB.x = nodeA.x + 140; // fixed spouse spacing
-      }); 
-      
-        // Auto-Detect Siblings ==========================================**************
-      const siblings = members.filter(
-        (other) =>
-          other.id !== m.id &&
-          (other.father_id === m.father_id ||
-          other.mother_id === m.mother_id)
-      );
-
-      if (siblings.length > 0) {
-        const s = new PIXI.Text(`S:${siblings.length}`, {
-          fontSize: 10,
-          fill: 0x22d3ee,
-        });
-        s.y = -NODE_RADIUS - 14;
-        s.anchor.set(0.5);
-        c.addChild(s);
-      }
-
-      // ===== Cousin Detection =====
-      const parents = getParents(m.id);
-
-      const cousins = members.filter(other => {
-        if (other.id === m.id) return false;
-
-        const otherParents = getParents(other.id);
-
-        return parents.some(p =>
-          getParents(p).some(grand =>
-            otherParents.includes(grand)
-          )
-        );
-      });
-
-      if (cousins.length > 0) {
-        const cText = new PIXI.Text(`C:${cousins.length}`, {
-          fontSize: 10,
-          fill: 0xf97316
-        });
-        cText.y = -NODE_RADIUS - 28;
-        cText.anchor.set(0.5);
-        c.addChild(cText);
-      }
-
-      c.on("rightclick", () => {
-        setHighlightBloodline(m.id);
-      });
-
-      // ==============================================================***************
-       
-      const roleColor = roleColors[m.role ?? "default"] ?? roleColors.default;
-      const outer = new PIXI.Graphics();
-      outer.beginFill(roleColor);
-      outer.drawCircle(0, 0, NODE_RADIUS + 6);
-      outer.endFill();
-      outer.alpha = 0.08;
-      c.addChild(outer);
-
-      const lines = new PIXI.Graphics();
-      lines.beginFill(0x071028);
-      lines.lineStyle(2, roleColor);
-      lines.drawCircle(0, 0, NODE_RADIUS);
-      lines.endFill();
-      c.addChild(lines);
-
-      if (m.avatar_url) {
-        try {
-          const sprite = PIXI.Sprite.from(m.avatar_url);
-          sprite.anchor.set(0.5);
-          sprite.width = NODE_RADIUS * 2;
-          sprite.height = NODE_RADIUS * 2;
-          const mask = new PIXI.Graphics();
-          mask.beginFill(0xffffff);
-          mask.drawCircle(0, 0, NODE_RADIUS - 1);
-          mask.endFill();
-          c.addChild(sprite);
-          c.addChild(mask);
-          sprite.mask = mask;
-        } catch {}
-      } else {
-        const plus = new PIXI.Text("+", { fontSize: 20, fill: 0xffffff });
-        plus.anchor.set(0.5);
-        c.addChild(plus);
-      }
-
-      const label = new PIXI.Text(m.name ?? "Unnamed", { fontSize: 12, fill: 0xffffff, align: "center" });
-      label.y = NODE_RADIUS + 8;
-      label.anchor.set(0.5, 0);
-      c.addChild(label);
-
-      const roleLabel = new PIXI.Text(m.role ?? "", { fontSize: 10, fill: 0x94a3b8, align: "center" });
-      roleLabel.y = NODE_RADIUS + 22;
-      roleLabel.anchor.set(0.5, 0);
-      c.addChild(roleLabel);
-
-      let dragging = false;
-      let dragOffset = { x: 0, y: 0 };
-      c.on("pointerdown", (ev) => {
-        ev.stopPropagation();
-        dragging = true;
-        c.cursor = "grabbing";
-        const p = ev.data.global;
-        dragOffset = { x: p.x - c.x, y: p.y - c.y };
-      });
-
-      c.on("pointerup", async () => {
-        dragging = false;
-        c.cursor = "grab";
-        await supabase
-          .from("family_members")
-          .update({ pos_x: Math.round(c.x), pos_y: Math.round(c.y) })
-          .eq("id", m.id);
-      });
-
-      c.on("pointerupoutside", () => {
-        dragging = false;
-        c.cursor = "grab";
-      });
-
-      c.on("pointermove", (ev) => {
-        if (!dragging) return;
-        const p = ev.data.global;
-        c.x = p.x - dragOffset.x;
-        c.y = p.y - dragOffset.y;
-      });
-
-     c.on("pointertap", () => {
-      const now = Date.now();
-      type ClickableContainer = PIXI.Container & { __lastClick?: number };
-      const clickableC = c as ClickableContainer;
-      const last = clickableC.__lastClick ?? 0;
-      clickableC.__lastClick = now;
-
-      if (now - last < 300) {
-        isEditingRef.current = true;
-        setEditing({ id: m.id });
-        setEditName(m.name ?? "");
-        setEditRole(m.role ?? "");
-        setEditFile(null);
-      }
+      if (frame >= duration) ticker.stop();
     });
-
-      return c;
-    };
-
-    members.forEach((m) => {
-    const node = makeNode(m);
-    if (node) {
-      spritesRef.current[m.id] = node;
-      app.stage.addChild(node);
-    }
+    ticker.start();
   });
+};
 
-
-    // DRAW LINES
-    const lineGraphics = new PIXI.Graphics();
-    app.stage.addChild(lineGraphics);
-
-    members.forEach((child) => {
-      const childNode = spritesRef.current[child.id];
-      if (!childNode) return;
-
-      const { father_id, mother_id } = child;
-
-      if (father_id && spritesRef.current[father_id]) {
-        const parent = spritesRef.current[father_id];
-
-        const isBlood =
-          highlightBloodline &&
-          getAncestors(child.id).has(highlightBloodline);
-
-        lineGraphics.lineStyle(2, isBlood ? 0xff0000 : 0x94a3b8);
-        lineGraphics.moveTo(parent.x, parent.y);
-        lineGraphics.lineTo(childNode.x, childNode.y);
-      }
-
-      if (mother_id && spritesRef.current[mother_id]) {
-        const parent = spritesRef.current[mother_id];
-
-        lineGraphics.lineStyle(2, 0x94a3b8);
-        lineGraphics.moveTo(parent.x, parent.y);
-        lineGraphics.lineTo(childNode.x, childNode.y);
-      }
-
-      if (child.spouse_id && spritesRef.current[child.spouse_id]) {
-        const spouse = spritesRef.current[child.spouse_id];
-
-        lineGraphics.lineStyle(3, 0xffd700);
-        lineGraphics.moveTo(childNode.x, childNode.y);
-        lineGraphics.lineTo(spouse.x, spouse.y);
-      }
-    });
-    centerTree();
-  }, [
-    members, 
-    supabase, 
-    getGenerationLevels, 
-    highlightBloodline, 
-    getParents, 
-    getAncestors, 
-    getSpousePairs
-  ]);
 
   // HANDLE SAVE EDIT
 const handleSaveEdit = async () => {
@@ -667,82 +805,273 @@ const handleSaveEdit = async () => {
     setAddFile(null);
     setAddFather(null);
     setAddMother(null);
+    setAddSpouse(null);
+    setAddBirthDate(null);
+    setAddDeathDate(null);
   };
 
-  // HANDLE CREATE MEMBER WITH PARENT PICKER
-  const handleCreateMember = async () => {
-    if (!user) return alert("please login");
-    try {
-      const id = uuidv4();
-      let avatar_url: string | undefined;
-      let avatar_path: string | undefined;
-      if (addFile) {
-        const ext = addFile.name.split(".").pop() || "png";
-        const fileName = `${user.id}-${Date.now()}.${ext}`;
-        const filePath = `${user.id}/${fileName}`;
-        const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, addFile, { upsert: true });
-        if (uploadError) throw uploadError;
-        const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-        avatar_url = data?.publicUrl;
-        avatar_path = filePath;
-      }
+  const showToast = (message: string, type: "success" | "error" = "error") => {
+    setToastType(type);
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(""), 2500);
+  };
+// ---------------------- HANDLE CREATE MEMBER WITH SPOUSE & UNION ----------------------
+const handleCreateMember = async () => {
+  if (!user) {
+    showToast("Please login.");
+    return;
+  }
 
-      const row: Partial<MemberRow> = {
-        id,
-        user_id: user.id,
-        name: addName || "New member",
-        role: addRole || "",
-        father_id: addFather,
-        mother_id: addMother,
-        pos_x: Math.round(Math.random() * 800 + 100),
-        pos_y: Math.round(Math.random() * 200 + 100),
-        avatar_url: avatar_url ?? null,
-        avatar_path: avatar_path ?? null,
-      };
+  try {
+    setTouchedName(true);
+    setTouchedRole(true);
+    setSubmitted(true);
 
-      // =============================================================
-      if (addFather && addFather === id) {
-        alert("A member cannot be their own father.");
+    // ---------------- Basic Validation ----------------
+    if (!addName.trim()) {
+      showToast("Name is required.");
+      return;
+    }
+
+    if (!addRole) {
+      showToast("Role is required.");
+      return;
+    }
+
+    const id = uuidv4();
+
+    if (addFather === id || addMother === id) {
+      showToast("Member cannot be their own parent.");
+      return;
+    }
+
+    if (addFather && wouldCreateCycle(addFather, id)) {
+      showToast("Circular ancestry detected (father).");
+      return;
+    }
+
+    if (addMother && wouldCreateCycle(addMother, id)) {
+      showToast("Circular ancestry detected (mother).");
+      return;
+    }
+
+    if (
+      (addFather && !memberMap[addFather]) ||
+      (addMother && !memberMap[addMother])
+    ) {
+      showToast("Selected parent does not exist.");
+      return;
+    }
+
+    // ---------------- Upload Avatar (if exists) ----------------
+    let avatar_url: string | null = null;
+    let avatar_path: string | null = null;
+
+    if (addFile) {
+      const ext = addFile.name.split(".").pop() || "png";
+      const fileName = `${user.id}-${Date.now()}.${ext}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, addFile, { upsert: true });
+
+      if (uploadError) {
+        showToast("Avatar upload failed.");
         return;
       }
 
-      if (addMother && addMother === id) {
-        alert("A member cannot be their own mother.");
-        return;
-      }
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
 
-      // Prevent circular ancestry
-      if (addFather && wouldCreateCycle(addFather, id)) {
-        alert("Circular ancestry detected (father).");
-        return;
-      }
+      avatar_url = data?.publicUrl ?? null;
+      avatar_path = filePath;
+    }
 
-      if (addMother && wouldCreateCycle(addMother, id)) {
-        alert("Circular ancestry detected (mother).");
-        return;
-      }
-// ====================================================================
-      const { error } = await supabase.from("family_members").insert([row]);
-        if (error) throw error;
-
-        setAddOpen(false);
-        setAddFile(null);
-        await loadMembers();
-        setToastMessage("Member created successfully!");
-        setTimeout(() => setToastMessage(""), 2500);
-      } catch (err: unknown) {
-        console.error("addMember error", err);
-        if (err instanceof Error) alert(err.message);
-      }
+    // ---------------- Insert Member (ONLY ONCE) ----------------
+    const memberInsert = {
+      id,
+      user_id: user.id,
+      name: addName.trim(),
+      role: addRole,
+      father_id: addFather,
+      mother_id: addMother,
+      // pos_x: Math.round(Math.random() * 800 + 100),
+      // pos_y: Math.round(Math.random() * 200 + 100),
+      avatar_url,
+      avatar_path,
+      birth_date: addBirthDate ?? null,
+      death_date: addDeathDate ?? null,
     };
 
-  const resetView = () => {
-    const app = appRef.current;
-    if (!app) return;
-    app.stage.x = 0;
-    app.stage.y = 0;
-    app.stage.scale.set(1);
-  };
+    const { error: insertError } = await supabase
+      .from("family_members")
+      .insert([memberInsert]);
+
+    if (insertError) {
+      showToast("Failed to create member: " + insertError.message);
+      return;
+    }
+
+
+// ---------------- Handle Spouse Linking (Visual Only) ----------------
+if (addSpouse) {
+  const spouseLinkId = uuidv4();
+
+  setSpouseLinks(prev => {
+    const exists = prev.some(
+      l =>
+        (l.partnerA === addSpouse && l.partnerB === id) ||
+        (l.partnerA === id && l.partnerB === addSpouse)
+    );
+
+    if (exists) return prev;
+
+    return [
+      ...prev,
+      {
+        id: spouseLinkId,
+        partnerA: addSpouse,
+        partnerB: id,
+      },
+    ];
+  });
+}
+
+    // ---------------- Success ----------------
+    setAddOpen(false);
+    setAddFile(null);
+    await loadMembers();
+
+    showToast("Member created successfully!", "success");
+
+  } catch (err) {
+    console.error(err);
+    showToast("Unexpected error creating member.");
+  }
+};
+
+// =========================================================================
+
+//  const resetView = () => {
+//   const app = appRef.current;
+//   if (!app) return;
+
+//   const duration = 25;
+
+//   // 1️⃣ Animate nodes back to original layout
+//   Object.entries(spritesRef.current).forEach(([id, node]) => {
+//     const original = originalLayoutRef.current[id];
+//     if (!original) return;
+
+//     const startX = node.x;
+//     const startY = node.y;
+
+//     let frame = 0;
+
+//     const ticker = new PIXI.Ticker();
+//     ticker.add(() => {
+//       frame++;
+//       const t = frame / duration;
+//       const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
+
+//       node.x = startX + (original.x - startX) * ease;
+//       node.y = startY + (original.y - startY) * ease;
+
+//       if (frame >= duration) ticker.stop();
+//     });
+//     ticker.start();
+//   });
+
+//   // 2️⃣ Reset zoom smoothly
+//   const startScale = app.stage.scale.x;
+//   const targetScale = 1;
+
+//   let frame = 0;
+
+//   const zoomTicker = new PIXI.Ticker();
+//   zoomTicker.add(() => {
+//     frame++;
+//     const t = frame / duration;
+//     const ease = 1 - Math.pow(1 - t, 3);
+
+//     const newScale = startScale + (targetScale - startScale) * ease;
+//     app.stage.scale.set(newScale);
+
+//     if (frame >= duration) zoomTicker.stop();
+//   });
+//   zoomTicker.start();
+// };
+
+const resetView = () => {
+  const app = appRef.current;
+  const original = originalViewRef.current;
+  if (!app || !original) return;
+
+  const duration = 25;
+
+  // 1️⃣ Animate nodes back to original layout
+  Object.entries(spritesRef.current).forEach(([id, node]) => {
+    const originalNode = originalLayoutRef.current[id];
+    if (!originalNode) return;
+
+    const startX = node.x;
+    const startY = node.y;
+
+    let frame = 0;
+    const ticker = new PIXI.Ticker();
+
+    ticker.add(() => {
+      frame++;
+      const t = frame / duration;
+      const ease = 1 - Math.pow(1 - t, 3);
+
+      node.x = startX + (originalNode.x - startX) * ease;
+      node.y = startY + (originalNode.y - startY) * ease;
+
+      if (frame >= duration) ticker.stop();
+    });
+
+    ticker.start();
+  });
+
+  // 2️⃣ Animate camera (stage transform)
+  const startX = app.stage.x;
+  const startY = app.stage.y;
+  const startScale = app.stage.scale.x;
+
+  // Temporarily jump to original scale to compute constraint-correct targets
+  app.stage.scale.set(original.scale);
+
+  // 🔹 Compute constraint-based targets
+  const targetX = computeCenteredStageX(app);      // horizontal center
+  const targetY = computeTopClampedStageY(app);    // top padding ONLY
+
+  // Restore current state before animation
+  app.stage.x = startX;
+  app.stage.y = startY;
+  app.stage.scale.set(startScale);
+
+  let frame = 0;
+  const cameraTicker = new PIXI.Ticker();
+
+  cameraTicker.add(() => {
+    frame++;
+    const t = frame / duration;
+    const ease = 1 - Math.pow(1 - t, 3);
+
+    app.stage.x = startX + (targetX - startX) * ease;
+    app.stage.y = startY + (targetY - startY) * ease;
+
+    const s = startScale + (original.scale - startScale) * ease;
+    app.stage.scale.set(s);
+
+    if (frame >= duration) cameraTicker.stop();
+  });
+
+  cameraTicker.start();
+};
 
   return (
     <div className={styles.familyCanvasWrapper}>
@@ -752,11 +1081,22 @@ const handleSaveEdit = async () => {
           onClick={async () => {
             const app = appRef.current;
             if (!app) return;
-            const dataUrl = await app.renderer.extract.base64(app.stage);
+
+            const resolution = 2; // increase resolution
+            const renderer = new PIXI.Renderer({
+              width: app.renderer.width * resolution,
+              height: app.renderer.height * resolution,
+              resolution,
+            });
+            renderer.render(app.stage);
+
+            const dataUrl = renderer.plugins.extract.base64(app.stage);
             const a = document.createElement("a");
             a.href = dataUrl;
             a.download = `family-tree-${Date.now()}.png`;
             a.click();
+
+            renderer.destroy();
           }}
         >
           Export PNG
@@ -769,15 +1109,24 @@ const handleSaveEdit = async () => {
       <div className={`${styles.canvasContainer} ${(editing || addOpen) ? styles.dimmed : ""}`} ref={containerRef} />
 
       {/* TOAST */}
-      {toastMessage && <div className={styles.toast}>{toastMessage}</div>}
+      {toastMessage && (
+        <div
+          className={`${styles.toast} ${
+            toastType === "success" ? styles.success : styles.error
+          }`}
+          role="alert"
+        >
+          {toastMessage}
+        </div>
+      )}
 
       {/* EDIT OVERLAY */}
       {editing && (
         <div className={styles.editOverlay}>
-          <h3>Edit member</h3>
+          <h3>Edit Member</h3>
           <label>
             Name
-            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} />
+            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required/>
           </label>
           <label>
             Role
@@ -790,7 +1139,7 @@ const handleSaveEdit = async () => {
           </label>
           <label>
             Avatar
-            <input type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files?.[0] ?? null)} />
+            <input type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files?.[0] ?? null)} required/>
           </label>
           <div className={styles.editButtons}>
             <button
@@ -808,51 +1157,159 @@ const handleSaveEdit = async () => {
       )}
 
       {/* ADD OVERLAY */}
-      {addOpen && (
-        <div className={styles.addOverlay}>
-          <h3>Add member</h3>
-          <label>
-            Name
-            <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} />
-          </label>
-          <label>
-            Role
-            <select value={addRole} onChange={(e) => setAddRole(e.target.value)}>
-              <option value="">Select role</option>
-              {Object.keys(roleColors).map((r) => (
-                <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Father
-            <select value={addFather ?? ""} onChange={(e) => setAddFather(e.target.value || null)}>
-              <option value="">None</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Mother
-            <select value={addMother ?? ""} onChange={(e) => setAddMother(e.target.value || null)}>
-              <option value="">None</option>
-              {members.map((f) => (
-                <option key={f.id} value={f.id}>{f.name}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Avatar
-            <input type="file" accept="image/*" onChange={(e) => setAddFile(e.target.files?.[0] ?? null)} />
-          </label>
-          <div className={styles.editButtons}>
-            <button onClick={() => setAddOpen(false)}>Cancel</button>
-            <button onClick={handleCreateMember}>Create</button>
-          </div>
-        </div>
-      )}
+    {addOpen && (
+      <div className={styles.addOverlay}>
+        <h3>Add Member</h3>
+
+      {/* Name */}
+    <label>
+      Name
+      <input
+        type="text"
+        value={addName}
+        onChange={(e) => setAddName(e.target.value)}
+        onBlur={() => setTouchedName(true)}
+        required
+        autoFocus
+      />
+    </label>
+
+    {/* Role */}
+    <label>
+      Role
+      <select
+        value={addRole}
+        onChange={(e) => setAddRole(e.target.value)}
+        onBlur={() => setTouchedRole(true)}
+        required
+      >
+        <option value="">None</option>
+        {Object.keys(roleColors).map((r) => (
+          <option key={r} value={r}>
+            {r.charAt(0).toUpperCase() + r.slice(1)}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    {/* Father */}
+    <label>
+      Father
+      <select
+        value={addFather ?? ""}
+        onChange={(e) => setAddFather(e.target.value || null)}
+      >
+        <option value="">None</option>
+        {members.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.name}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    {/* Mother */}
+    <label>
+      Mother
+      <select
+        value={addMother ?? ""}
+        onChange={(e) => setAddMother(e.target.value || null)}
+      >
+        <option value="">None</option>
+        {members.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.name}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    {/* Spouse */}
+    <label>
+      Spouse
+      <select
+        value={addSpouse ?? ""}
+        onChange={(e) => setAddSpouse(e.target.value || null)}
+      >
+        <option value="">None</option>
+        {members
+          .filter((m) => {
+            const hasUnionWithSomeoneElse = members.some(
+              (c) => (c.father_id === m.id || c.mother_id === m.id) && c.id !== addSpouse
+            );
+            return !hasUnionWithSomeoneElse;
+          })
+          .map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+      </select>
+      {/* {addSpouse && memberMap[addSpouse] && members.some(
+        (m) => m.father_id === addSpouse || m.mother_id === addSpouse
+      ) && (
+        <span className={styles.validation}>
+          {memberMap[addSpouse].name} already has children.
+        </span>
+      )} */}
+    </label>
+
+    {/* Birthdate */}
+    <label>
+      Birthdate
+      <input
+        type="date"
+        value={addBirthDate ?? ""}
+        onChange={(e) => setAddBirthDate(e.target.value || null)}
+      />
+    </label>
+
+    {/* Deathdate */}
+    <label>
+      Deathdate
+      <input
+        type="date"
+        value={addDeathDate ?? ""}
+        onChange={(e) => setAddDeathDate(e.target.value || null)}
+      />
+    </label>
+
+    {/* Avatar */}
+    <label>
+      Avatar
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setAddFile(e.target.files?.[0] ?? null)}
+      />
+    </label>
+
+    {/* Buttons */}
+    <div className={styles.editButtons}>
+      <button onClick={() => setAddOpen(false)}>Cancel</button>
+      <button onClick={handleCreateMember}>
+        Create
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
+function computeTopClampedStageY(app: PIXI.Application<PIXI.ICanvas>): number {
+  const bounds = app.stage.getLocalBounds();
+  const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
+  const minAllowedTop = STAGE_TOP_PADDING;
 
+  if (topWorldY < minAllowedTop) {
+    return app.stage.y + (minAllowedTop - topWorldY);
+  }
+
+  return app.stage.y;
+}
+
+function computeCenteredStageX(app: PIXI.Application): number {
+  const bounds = app.stage.getLocalBounds();
+  const centerX = bounds.x + bounds.width / 2;
+  return app.renderer.width / 2 - centerX * app.stage.scale.x;
+}

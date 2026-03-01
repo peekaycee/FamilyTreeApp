@@ -1032,7 +1032,7 @@ const resetView = () => {
             });
             renderer.render(app.stage);
 
-            const dataUrl = renderer.extract.base64(app.stage);
+            const dataUrl = await renderer.extract.base64(app.stage);
             const a = document.createElement("a");
             a.href = dataUrl;
             a.download = `family-tree-${Date.now()}.png`;

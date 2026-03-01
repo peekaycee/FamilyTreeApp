@@ -23,19 +23,15 @@ export function middleware(req: NextRequest) {
     return response
   }
 
-  // SESSION EXPIRED
   if ((!token || token === "expired") && isDashboard) {
-    const loginUrl = req.nextUrl.clone()
-    loginUrl.pathname = "/auth/login"
-    return NextResponse.redirect(loginUrl)
-  }
-
-  // Prevent logged-in users from seeing auth routes (except logout)
-  if (token && isAuthPath && !pathname.startsWith("/auth/logout")) {
-    const dashboardUrl = req.nextUrl.clone()
-    dashboardUrl.pathname = "/dashboard"
-    return NextResponse.redirect(dashboardUrl)
-  }
+  const loginUrl = req.nextUrl.clone()
+  loginUrl.pathname = "/auth/login"
+  loginUrl.searchParams.set(
+    "next",
+    req.nextUrl.pathname + req.nextUrl.search
+  )
+  return NextResponse.redirect(loginUrl)
+}
 
   return response
 }

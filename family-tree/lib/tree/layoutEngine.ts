@@ -1,7 +1,7 @@
 export interface Person {
   id: string;
   name?: string;
-  generation: number;
+  generation?: number;
   x?: number;
   y?: number;
 }
@@ -10,7 +10,13 @@ export interface Union {
   id: string;
   partnerIds: string[]; // 1 or 2 members
   childrenIds: string[];
-  order: number; // 0,1,2...
+
+  // NEW (preferred)
+  side?: number; // -1 | 1
+  gap?: number;
+
+  // LEGACY (still supported)
+  order?: number;
 }
 
 export interface LayoutConfig {
@@ -48,100 +54,159 @@ export function computeLayout(
   const personMap = new Map<string, PositionedPerson>();
   const lines: ConnectorLine[] = [];
 
-  // Step 1 — Position by generation (baseline grid)
-  persons.forEach((p, index) => {
-    const x = index * 250; // temporary baseline horizontal grid
-    const y = p.generation * config.verticalSpacing;
+  /* -------------------------------------------------------
+     STEP 1 — Initialize people (baseline positions)
+  ------------------------------------------------------- */
 
-    personMap.set(p.id, { ...p, x, y });
+  persons.forEach((p, index) => {
+    personMap.set(p.id, {
+      ...p,
+      x: index * config.siblingSpacing,
+      y: (p.generation ?? 0) * config.verticalSpacing,
+    });
   });
 
-  // Step 2 — Process Unions
+  /* -------------------------------------------------------
+     STEP 2 — Track horizontal union slots per person
+     (prevents spouse overlap across multiple unions)
+  ------------------------------------------------------- */
+
+  const unionSlotIndex = new Map<string, number>();
+
+  function nextUnionSlot(personId: string) {
+    const current = unionSlotIndex.get(personId) ?? 0;
+    unionSlotIndex.set(personId, current + 1);
+    return current;
+  }
+
+  /* -------------------------------------------------------
+     STEP 3 — Process unions (core layout logic)
+  ------------------------------------------------------- */
+
   unions.forEach((union) => {
-    const partners = union.partnerIds.filter(Boolean) as string[];
-    if (partners.length === 0) return; // safety check
+    const partners = union.partnerIds.filter(Boolean);
+    if (partners.length === 0) return;
 
-    const p1 = personMap.get(partners[0]);
-    const p2 = partners[1] ? personMap.get(partners[1]) : null;
+    const pA = personMap.get(partners[0]);
+    const pB = partners[1]
+      ? personMap.get(partners[1])
+      : null;
 
-    if (!p1) return; // must have at least one parent
+    if (!pA) return;
 
-    const anchor = p1;
-    const unionX = anchor.x + union.order * config.marriageSpacing;
+    /* -----------------------------
+       Union center computation
+    ----------------------------- */
 
-    // Position second partner if exists
-    if (p2) {
-      p2.x = unionX + config.partnerOffset;
-      p2.y = anchor.y;
+    const baseX = pA.x;
+    const baseY = pA.y;
 
-      // Marriage horizontal line
+    const slot =
+      nextUnionSlot(pA.id) +
+      (pB ? nextUnionSlot(pB.id) : 0);
+
+    const unionCenterX =
+      baseX + slot * config.marriageSpacing;
+
+    /* -----------------------------
+       Spouse offset logic
+       THIS IS WHERE offsetX BELONGS
+    ----------------------------- */
+
+    let offsetX = config.partnerOffset;
+
+    if (union.side !== undefined && union.gap !== undefined) {
+      offsetX = union.side * union.gap;
+    } else if (union.order !== undefined) {
+      offsetX = union.order * config.partnerOffset;
+    }
+
+    /* -----------------------------
+       Position partners
+    ----------------------------- */
+
+    pA.x = unionCenterX - offsetX;
+    pA.y = baseY;
+
+    if (pB) {
+      pB.x = unionCenterX + offsetX;
+      pB.y = baseY;
+
+      // marriage line
       lines.push({
         type: "horizontal",
-        x1: anchor.x,
-        y1: anchor.y,
-        x2: p2.x,
-        y2: p2.y,
+        x1: pA.x,
+        y1: pA.y,
+        x2: pB.x,
+        y2: pB.y,
       });
     }
 
-    // Children positioning
-    if (union.childrenIds.length > 0) {
-      // Center above anchor(s)
-      const centerX = p2 ? (anchor.x + p2.x) / 2 : anchor.x;
-      const dropY = anchor.y + 120;
+    /* -----------------------------
+       Children layout
+    ----------------------------- */
 
-      // Vertical line from parent(s) to children
+    if (union.childrenIds.length === 0) return;
+
+    const centerX = pB
+      ? (pA.x + pB.x) / 2
+      : pA.x;
+
+    const dropY = baseY + config.verticalSpacing / 2;
+
+    // vertical drop from parents
+    lines.push({
+      type: "vertical",
+      x1: centerX,
+      y1: baseY,
+      x2: centerX,
+      y2: dropY,
+    });
+
+    const children = union.childrenIds
+      .map((id) => personMap.get(id))
+      .filter(Boolean) as PositionedPerson[];
+
+    const totalWidth =
+      (children.length - 1) * config.siblingSpacing;
+
+    children.forEach((child, index) => {
+      const childX =
+        centerX -
+        totalWidth / 2 +
+        index * config.siblingSpacing;
+
+      child.x = childX;
+      child.y = baseY + config.verticalSpacing;
+
+      // vertical to child
       lines.push({
         type: "vertical",
-        x1: centerX,
-        y1: anchor.y,
-        x2: centerX,
+        x1: childX,
+        y1: dropY,
+        x2: childX,
+        y2: child.y,
+      });
+    });
+
+    // sibling bar
+    if (children.length > 1) {
+      lines.push({
+        type: "horizontal",
+        x1: children[0].x,
+        y1: dropY,
+        x2: children[children.length - 1].x,
         y2: dropY,
       });
-
-      const children = union.childrenIds
-        .map((id) => personMap.get(id))
-        .filter(Boolean) as PositionedPerson[];
-
-      const totalWidth =
-        (children.length - 1) * config.siblingSpacing;
-
-      children.forEach((child, index) => {
-        const childX =
-          centerX - totalWidth / 2 + index * config.siblingSpacing;
-
-        child.x = childX;
-        child.y = (anchor.generation + 1) * config.verticalSpacing;
-
-        // Vertical line to each child
-        lines.push({
-          type: "vertical",
-          x1: childX,
-          y1: dropY,
-          x2: childX,
-          y2: child.y,
-        });
-      });
-
-      // Horizontal sibling bar if more than one child
-      if (children.length > 1) {
-        const first = children[0];
-        const last = children[children.length - 1];
-
-        lines.push({
-          type: "horizontal",
-          x1: first.x,
-          y1: dropY,
-          x2: last.x,
-          y2: dropY,
-        });
-      }
     }
   });
+
+  /* -------------------------------------------------------
+     DONE
+  ------------------------------------------------------- */
 
   return {
     persons: Array.from(personMap.values()),
     lines,
   };
 }
-

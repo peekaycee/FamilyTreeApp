@@ -16,12 +16,20 @@ export type MemberRow = {
   role?: string | null;
   father_id?: string | null;
   mother_id?: string | null;
-  spouse_id?: string | null;
+  // spouse_id?: string | null;
   pos_x?: number | null;
   pos_y?: number | null;
   avatar_url?: string | null;
   avatar_path?: string | null;
   created_at?: string | null;
+};
+
+export type UnionRow = {
+  id: string;
+  user_id: string;
+  partner_a: string;
+  partner_b: string;
+  left_partner: string;
 };
 
 type EditingState = { id: string };
@@ -60,6 +68,7 @@ export default function FamilyCanvas() {
   const [TouchedRole, setTouchedRole] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
+  const [unionsDB, setUnionsDB] = useState<UnionRow[]>([]);
 
   // Editing modal state
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -78,7 +87,6 @@ export default function FamilyCanvas() {
   const [addBirthDate, setAddBirthDate] = useState<string | null>(null);
   const [addDeathDate, setAddDeathDate] = useState<string | null>(null);
   const [highlightBloodline, setHighlightBloodline] = useState<Set<string>>(new Set());
-  const [spouseLinks, setSpouseLinks] = useState<{ id: string; partnerA: string; partnerB: string }[]>([]);
 
   const supabase = createSupabaseBrowserClient();
 
@@ -112,6 +120,14 @@ export default function FamilyCanvas() {
   } finally {
     setLoading(false);
   }
+
+    const { data: unions } = await supabase
+    .from("family_unions")
+    .select("*")
+    .eq("user_id", user.id);
+
+  setUnionsDB(unions ?? []);
+
 }, [supabase, user]);
 
   // AUTH SESSION
@@ -286,6 +302,15 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
     return map;
   }, [members]);
 
+    const unionMemberSet = useMemo(() => {
+    const set = new Set<string>();
+    unionsDB.forEach(u => {
+      set.add(u.partner_a);
+      set.add(u.partner_b);
+      });
+      return set;
+    }, [unionsDB]);
+
   const getParents = useCallback((id: string) => {
     const m = memberMap[id];
     if (!m) return [];
@@ -311,45 +336,17 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
     return visited;
   }, [getChildren]);
 
-  // ================= GENERATIONAL BFS LAYOUT =================
-  const getGenerationLevels = useCallback(() => {
-    const levels: Record<string, number> = {};
-    const roots = members.filter(m => !m.father_id && !m.mother_id);
-
-    const queue: { id: string; level: number }[] = [];
-
-    roots.forEach(r => {
-      levels[r.id] = 0;
-      queue.push({ id: r.id, level: 0 });
-    });
-
-    while (queue.length > 0) {
-      const { id, level } = queue.shift()!;
-      const children = members.filter(
-        m => m.father_id === id || m.mother_id === id
-      );
-
-      children.forEach(child => {
-        if (levels[child.id] === undefined) {
-          levels[child.id] = level + 1;
-          queue.push({ id: child.id, level: level + 1 });
-        }
-      });
-    }
-
-    return levels;
-  }, [members]);
-
   useEffect(() => {
-  const app = appRef.current;
-  if (!app) return;
+    const app = appRef.current;
+    if (!app) return;
+  
+    app.stage.scale.set(1);
+    app.stage.x = 0;
+    app.stage.y = 0;
+  
+    app.stage.removeChildren();
+    spritesRef.current = {};
 
-  app.stage.scale.set(1);
-  app.stage.x = 0;
-  app.stage.y = 0;
-
-  app.stage.removeChildren();
-  spritesRef.current = {};
 
   const makeNode = (m: MemberRow) => {
   const c = new PIXI.Container();
@@ -415,6 +412,7 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   const dragOffset = { x: 0, y: 0 };
 
   c.on("pointerdown", (ev) => {
+    if (unionMemberSet.has(m.id)) return; // 🚫 hard block
     ev.stopPropagation();
     dragging = true;
     moved = false;
@@ -440,17 +438,19 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
     }
   });
 
+  c.on("pointermove", (ev) => {
+    if (!dragging) return;
+
+    const p = ev.data.global;
+
+    moved = true;
+    c.x = p.x - dragOffset.x;
+    c.y = p.y - dragOffset.y;
+  });
+
   c.on("pointerupoutside", () => {
     dragging = false;
     c.cursor = "grab";
-  });
-
-  c.on("pointermove", (ev) => {
-    if (!dragging) return;
-    moved = true;
-    const p = ev.data.global;
-    c.x = p.x - dragOffset.x;
-    c.y = p.y - dragOffset.y;
   });
 
   // ---------------------- Click / Double-Click ----------------------
@@ -482,66 +482,35 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   return c;
 };
 
-  // 1️⃣ Compute generations
-  const levels = getGenerationLevels();
+const SPOUSE_GAP = 90;
+const unionMap = new Map<string, Union>();
 
-  // 2️⃣ Convert members → Persons
+unionsDB.forEach(u => {
+  unionMap.set(u.id, {
+    id: u.id,
+    partnerIds: [u.partner_a, u.partner_b],
+    childrenIds: members
+    .filter(m =>
+      (m.father_id === u.partner_a && m.mother_id === u.partner_b) ||
+      (m.father_id === u.partner_b && m.mother_id === u.partner_a)
+    )
+    .map(c => c.id),
+    side: u.left_partner === u.partner_a ? -1 : 1,
+    gap: SPOUSE_GAP,
+  });
+});
+
+  const unions = Array.from(unionMap.values());
+
   const persons: Person[] = members.map((m) => ({
     id: m.id,
     name: m.name,
-    generation: levels[m.id] ?? 0,
   }));
-
-
-// 3️⃣ Build unions (supports single or two-parent, with single-parent offset)
-const unionMap = new Map<string, Union>();
-
-members.forEach((child) => {
-  // Collect parent IDs (filter out nulls)
-  const partners = [child.father_id, child.mother_id].filter(Boolean) as string[];
-  if (partners.length === 0) return; // skip if no parents
-
-  // Generate a key for the union (sorted to avoid duplicates)
-  const key = partners.sort().join("-");
-
-  // Create union if it doesn't exist
-  if (!unionMap.has(key)) {
-    unionMap.set(key, {
-      id: key,
-      partnerIds: partners,
-      childrenIds: [],
-      order: 0,
-    });
-  }
-
-  // Add child to union
-  unionMap.get(key)!.childrenIds.push(child.id);
-});
-
-const unions = Array.from(unionMap.values());
-
-// ---------------------- Cosmetic tweak ----------------------
-// Give single-parent unions a small horizontal offset
-unions.forEach((u, index) => {
-  if (u.partnerIds.length === 1) {
-    u.order = index * 0.3; // small fractional offset for visual separation
-  }
-});
-
-if (
-  members.length &&
-  spouseLinks.some(link =>
-    !members.find(m => m.id === link.partnerA) ||
-    !members.find(m => m.id === link.partnerB)
-  )
-) {
-  return;
-}
 
   // 4️⃣ Run layout engine
   const { persons: positioned, lines } = computeLayout(
     persons,
-    unions
+    unions,
   );
 
   // ---------------- NORMALIZE LAYOUT AROUND ORIGIN ---------------
@@ -569,22 +538,6 @@ if (
     if (layoutNode) {
       node.x = layoutNode.x;
       node.y = layoutNode.y;
-    }
-
-    // ---------------- SPOUSE EASTWARD OVERRIDE ----------------
-    const spouseLink = spouseLinks.find(
-      l => l.partnerB === m.id // newly added spouse
-    );
-
-    if (spouseLink) {
-      const partnerNode = spritesRef.current[spouseLink.partnerA];
-
-      if (partnerNode) {
-        const horizontalSpacing = 140; // SAME spacing used by layout engine
-
-        node.x = partnerNode.x + horizontalSpacing;
-        node.y = partnerNode.y;
-      }
     }
 
     if (layoutNode) {
@@ -623,15 +576,26 @@ lines.forEach((l) => {
 // ------------------ SPOUSE HORIZONTAL LINES ------------------
 lineGraphics.lineStyle(2, 0x94a3b8);
 
-spouseLinks.forEach(link => {
-  const a = spritesRef.current[link.partnerA];
-  const b = spritesRef.current[link.partnerB];
+
+// 5️⃣ Render UNION (marriage) nodes — AFTER members exist
+unions.forEach(u => {
+  const [aId, bId] = u.partnerIds;
+  const a = spritesRef.current[aId];
+  const b = spritesRef.current[bId];
 
   if (!a || !b) return;
 
-  // Draw straight horizontal line using SAME layout positions
-  lineGraphics.moveTo(a.x, a.y);
-  lineGraphics.lineTo(b.x, b.y);
+  const midX = (a.x + b.x) / 2;
+  const midY = (a.y + b.y) / 2;
+
+  const unionNode = new PIXI.Graphics();
+  unionNode.beginFill(0x94a3b8);
+  unionNode.drawCircle(0, 0, 6);
+  unionNode.endFill();
+  unionNode.x = midX;
+  unionNode.y = midY;
+
+  app.stage.addChild(unionNode);
 });
 
   app.stage.sortableChildren = true;
@@ -661,7 +625,8 @@ if (topWorldY < minAllowedTop) {
       scale: app.stage.scale.x,
     };
   }
-}, [members, spouseLinks]);
+}, [members, unionsDB]);
+
 
 useEffect(() => {
   const sprites = spritesRef.current;
@@ -869,6 +834,16 @@ const handleCreateMember = async () => {
       avatar_path = filePath;
     }
 
+    const unionExists = unionsDB.some(
+      u =>
+        (u.partner_a === addSpouse && u.partner_b === id) ||
+        (u.partner_a === id && u.partner_b === addSpouse)
+    );
+
+    if (unionExists) {
+      showToast("These two members are already spouses.");
+      return;
+    }
     // ---------------- Insert Member (ONLY ONCE) ----------------
     const memberInsert = {
       id,
@@ -894,31 +869,69 @@ const handleCreateMember = async () => {
       return;
     }
 
+    // ---------------- CREATE UNION (PERSISTED) ----------------
+    if (addSpouse) {
+      const spouse = memberMap[addSpouse];
 
-// ---------------- Handle Spouse Linking (Visual Only) ----------------
-if (addSpouse) {
-  const spouseLinkId = uuidv4();
+      const maleRoles = new Set([
+      "father",
+      "son",
+      "brother",
+      "uncle",
+      "grandfather",
+      "nephew",
+    ]);
 
-  setSpouseLinks(prev => {
-    const exists = prev.some(
-      l =>
-        (l.partnerA === addSpouse && l.partnerB === id) ||
-        (l.partnerA === id && l.partnerB === addSpouse)
-    );
+    const femaleRoles = new Set([
+      "mother",
+      "daughter",
+      "sister",
+      "aunt",
+      "grandmother",
+      "niece",
+    ]);
 
-    if (exists) return prev;
+    const newIsMale = maleRoles.has(addRole);
+    const newIsFemale = femaleRoles.has(addRole);
 
-    return [
-      ...prev,
-      {
-        id: spouseLinkId,
-        partnerA: addSpouse,
-        partnerB: id,
-      },
-    ];
-  });
-}
+    const spouseIsMale = spouse && maleRoles.has(spouse.role ?? "");
+    const spouseIsFemale = spouse && femaleRoles.has(spouse.role ?? "");
 
+    // 🔒 HARD RULE:
+    // female ALWAYS left, male ALWAYS right
+    let leftPartner: string;
+
+    if (newIsFemale && spouseIsMale) {
+      leftPartner = id;
+    } else if (spouseIsFemale && newIsMale) {
+      leftPartner = addSpouse;
+    } else if (newIsFemale) {
+      leftPartner = id;
+    } else if (spouseIsFemale) {
+      leftPartner = addSpouse;
+    } else {
+      // deterministic fallback for unknown / neutral roles
+      leftPartner = addSpouse;
+    }
+
+      const unionInsert = {
+        id: uuidv4(),
+        user_id: user.id,
+        partner_a: addSpouse,
+        partner_b: id,
+        left_partner: leftPartner, // ✅ male always left
+      };
+
+      const { error: unionError } = await supabase
+        .from("family_unions")
+        .insert([unionInsert]);
+
+      if (unionError) {
+        showToast("Failed to create spouse union.");
+        return;
+      }
+    }
+    
     // ---------------- Success ----------------
     setAddOpen(false);
     setAddFile(null);
@@ -1019,7 +1032,7 @@ const resetView = () => {
             });
             renderer.render(app.stage);
 
-            const dataUrl = renderer.plugins.extract.base64(app.stage);
+            const dataUrl = renderer.extract.base64(app.stage);
             const a = document.createElement("a");
             a.href = dataUrl;
             a.download = `family-tree-${Date.now()}.png`;
@@ -1157,30 +1170,16 @@ const resetView = () => {
     <label>
       Spouse
       <select
-        value={addSpouse ?? ""}
-        onChange={(e) => setAddSpouse(e.target.value || null)}
-      >
-        <option value="">None</option>
-        {members
-          .filter((m) => {
-            const hasUnionWithSomeoneElse = members.some(
-              (c) => (c.father_id === m.id || c.mother_id === m.id) && c.id !== addSpouse
-            );
-            return !hasUnionWithSomeoneElse;
-          })
-          .map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-      </select>
-      {/* {addSpouse && memberMap[addSpouse] && members.some(
-        (m) => m.father_id === addSpouse || m.mother_id === addSpouse
-      ) && (
-        <span className={styles.validation}>
-          {memberMap[addSpouse].name} already has children.
-        </span>
-      )} */}
+      value={addSpouse ?? ""}
+      onChange={(e) => setAddSpouse(e.target.value || null)}
+    >
+    <option value="">None</option>
+      {members.map(m => (
+        <option key={m.id} value={m.id}>
+          {m.name}
+        </option>
+      ))}
+    </select>
     </label>
 
     {/* Birthdate */}

@@ -41,4 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Folders
-/auth/fam3_reg-permit
+app/auth/fam3_reg-permit/register/

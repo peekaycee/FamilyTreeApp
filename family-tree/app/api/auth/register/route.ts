@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, password } = body ?? {};
 
-    // Basic validation
+    // 1️⃣ Basic validation
     if (!name || !email || !password) {
       return NextResponse.json(
         { message: "All fields are required" },
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     const supabase = await createSupabaseServerClient();
 
-    // Create auth user
+    // 2️⃣ Create auth user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -40,18 +40,30 @@ export async function POST(req: Request) {
       );
     }
 
-    // Safe slug creation
+    // 3️⃣ Create slug safely
     const slug = email.includes("@")
       ? email.split("@")[0]
       : email;
 
-    // Insert into subscribers table
+    // 4️⃣ IMPORTANT: If email confirmation is enabled,
+    // data.session may be null. We must ensure session exists.
+    if (!data.session) {
+      return NextResponse.json(
+        {
+          message:
+            "Registration successful. Please confirm your email before proceeding.",
+        },
+        { status: 201 }
+      );
+    }
+
+    // 5️⃣ Insert into subscribers table
     const { error: subError } = await supabase
       .from("subscribers")
       .insert({
         email,
         full_name: name,
-        owner_user_id: data.user.id,
+        owner_user_id: data.user.id, // ✅ correct
         slug,
       });
 

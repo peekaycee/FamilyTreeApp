@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const token = req.cookies.get('familytree_session')?.value
   const { pathname } = req.nextUrl
 
-  const isAuthPath = pathname.startsWith('/auth')
+  // const isAuthPath = pathname.startsWith('/auth')
   const isApi = pathname.startsWith('/api')
   const isDashboard = pathname.startsWith('/dashboard')
 

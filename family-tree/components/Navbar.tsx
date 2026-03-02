@@ -114,13 +114,13 @@ export default function Navbar() {
         <Link href={loggedIn ? '/basic/homePage' : '/'}>
           <Image src={Logo} alt="Logo" width={80} height={80} />
         </Link>
+        {loggedIn && (
+          <div className={styles.navSearch}>
+            <NavSearch />
+          </div>
+        )}
       </div>
       
-      {loggedIn && (
-        <div className={styles.navSearch}>
-          <NavSearch />
-        </div>
-      )}
 
       {/* Desktop Links */}
       <div className={styles.links}>

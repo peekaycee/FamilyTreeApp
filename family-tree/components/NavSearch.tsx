@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient"
+import styles from './components.module.css'
 
 const supabase = createSupabaseBrowserClient()
 
@@ -56,29 +57,24 @@ export default function NavSearch() {
   }
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className={styles.searchEngine}>
       <form onSubmit={handleSubmit}>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search family member..."
+          autoFocus
         />
       </form>
 
       {query && (
-        <div style={{
-          position: "absolute",
-          background: "white",
-          width: "100%",
-          border: "1px solid #ddd",
-          zIndex: 1000
-        }}>
+        <div className={styles.searchDropdown}>
           {loading && <div>Searching...</div>}
 
           {results.map((member) => (
             <div
+              className={styles.results}
               key={member.id}
-              style={{ padding: "8px", cursor: "pointer" }}
               onClick={() => {
                 router.push(`/basic/members/${member.id}`)
                 setQuery("")
@@ -90,7 +86,7 @@ export default function NavSearch() {
           ))}
 
           {!loading && results.length === 0 && (
-            <div style={{ padding: "8px" }}>No results</div>
+            <div className={styles.noResult}>No results</div>
           )}
         </div>
       )}

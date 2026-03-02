@@ -35,6 +35,14 @@
   background: rgba(255, 255, 255, 0.1);
   z-index: 100;
 }
+.brand {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+  .brand a{
+    margin-right: 10em;
+  }
 .mobileLogout,
 .logout {
   padding: 1rem; 
@@ -505,6 +513,9 @@
     margin-left: 1rem;
     font-size: 0.95rem;
   }
+  .brand a{
+    margin-right: 5em;
+  }
   .footerContent {
     padding: 2em 3em;
     gap: 2.5em;
@@ -548,9 +559,9 @@
   .links {
     display: none;
   }
-   
   .brand a {
     font-size: 1.3rem;
+    margin-right: 0.85em;
   }
   .footerContent {
     flex-direction: column;
@@ -748,6 +759,7 @@
     position: absolute;
     right: 1.5em;
     display: block;
+    margin-top: 1.5em;
   }
 }
 
@@ -833,8 +845,7 @@
 
 .canvasContainer {
   width: 100%;
-  height: calc(100vh - 180px);
-  /* border-radius: 8px; */
+  height: calc(100vh - 70px);
   overflow: hidden;
   background: transparent;
   position: relative;
@@ -962,4 +973,37 @@
   color: var(--color-white-text);
 }
 
-
+.searchEngine{
+   position: relative;
+}
+.searchEngine input{
+  width: 100%;
+  padding: 0.5em 0;
+  border: none;
+  border-bottom: 1px solid var(--color-accent);
+  background: none;
+  outline: none;
+  color: var(--color-accent)
+}
+.searchEngine input::placeholder{
+  color: var(--color-white-text);
+  opacity: 0.35;
+}
+.searchEngine input:focus{
+  color: var(--color-accent);
+}
+.searchDropdown{
+  position: absolute;
+  background: transparent;
+  width: 100%;
+  z-index: 10;
+  cursor: pointer;
+  color: var(--color-accent);
+}
+.results{
+  padding: 8px;
+  cursor: pointer;
+}
+.noResult{
+  padding: 8px;
+}

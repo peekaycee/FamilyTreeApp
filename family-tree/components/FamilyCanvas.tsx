@@ -190,8 +190,6 @@ useEffect(() => {
     autoDensity: true,
   });
 
-  
-
   const onDocumentMouseDown = (e: MouseEvent) => {
   if (!containerRef.current) return;
 

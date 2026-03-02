@@ -35,7 +35,7 @@ export type UnionRow = {
 type EditingState = { id: string };
 
 const NODE_RADIUS = 36;
-const STAGE_TOP_PADDING = 10;
+const STAGE_TOP_PADDING = 5;
 
 
 // Map roles to colors/icons
@@ -982,18 +982,6 @@ const resetView = () => {
   const startY = app.stage.y;
   const startScale = app.stage.scale.x;
 
-  // Temporarily jump to original scale to compute constraint-correct targets
-  app.stage.scale.set(original.scale);
-
-  // 🔹 Compute constraint-based targets
-  const targetX = computeCenteredStageX(app);      // horizontal center
-  const targetY = computeTopClampedStageY(app);    // top padding ONLY
-
-  // Restore current state before animation
-  app.stage.x = startX;
-  app.stage.y = startY;
-  app.stage.scale.set(startScale);
-
   let frame = 0;
   const cameraTicker = new PIXI.Ticker();
 
@@ -1002,8 +990,21 @@ const resetView = () => {
     const t = frame / duration;
     const ease = 1 - Math.pow(1 - t, 3);
 
-    app.stage.x = startX + (targetX - startX) * ease;
-    app.stage.y = startY + (targetY - startY) * ease;
+    const targetY = original.y;
+
+    const nextY = startY + (targetY - startY) * ease;
+
+    // 🔒 Enforce top boundary
+    const bounds = app.stage.getLocalBounds();
+    const topWorldY = bounds.y * app.stage.scale.y + nextY;
+
+    if (topWorldY < STAGE_TOP_PADDING) {
+      app.stage.y = nextY + (STAGE_TOP_PADDING - topWorldY);
+    } else {
+      app.stage.y = nextY;
+    }
+
+    app.stage.x = startX + (original.x - startX) * ease;
 
     const s = startScale + (original.scale - startScale) * ease;
     app.stage.scale.set(s);

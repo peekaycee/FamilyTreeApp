@@ -54,6 +54,7 @@ const roleColors: Record<string, number> = {
   nephew: 0x60a5fa,
   niece: 0xfaa2c1,
   spouse: 0xe2e8f0,
+  default: 0xd1d5db,
 };
 
 export default function FamilyCanvas() {

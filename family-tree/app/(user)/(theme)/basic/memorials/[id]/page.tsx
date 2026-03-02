@@ -1,78 +1,56 @@
-"use client";
+// app/memorials/[id]/page.tsx
 
-import { useEffect, useState } from "react";
+export const dynamic = "force-dynamic"; // keep dynamic to avoid caching
+
+import MemorialDetailClient from "./MemorialDetailClient";
+import { getTenantClient } from "@/lib/supabase/getTenantClient";
 import { notFound } from "next/navigation";
 
-
-// please include the functionality to add a tribute here and light up candle too
-
-type Memorial = {
-  id: string;
-  name: string;
-  born: number;
-  died: number;
-  tribute: string;
-  bio: string;
-  picture?: string | null;
+type Params = {
+  params: Promise<{ id: string }>;
 };
 
-export default function MemorialDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const [memorial, setMemorial] = useState<Memorial | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+// Safe helper to extract candle_count whether object or array
+function getCandleCount(memorial: any) {
+  if (!memorial.memorial_candles) return 0;
+  return Array.isArray(memorial.memorial_candles)
+    ? memorial.memorial_candles[0]?.count ?? 0
+    : memorial.memorial_candles.count ?? 0;
+}
 
-  useEffect(() => {
-    const raw = localStorage.getItem("ft_memorials");
-    let found: Memorial | null = null;
+export default async function MemorialDetailPage({ params }: Params) {
+  const { id } = await params;
 
-    if (raw) {
-      const list: Memorial[] = JSON.parse(raw);
-      found = list.find((m) => m.id === params.id) || null;
-    }
+  const supabase = getTenantClient();
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMemorial(found);
-    setHydrated(true);
-  }, [params.id]);
+  const { data: memorial, error } = await supabase
+    .from("memorials")
+    .select(
+      `
+        *,
+        memorial_messages (
+          id,
+          message,
+          created_at,
+          author,
+          user_id
+        ),
+        memorial_candles (count)
+      `
+    )
+    .eq("id", id)
+    .order("created_at", {
+      foreignTable: "memorial_messages",
+      ascending: true,
+    })
+    .single();
 
-  // 🚫 DO NOT 404 until hydration finishes
-  if (!hydrated) return null;
+  if (error || !memorial) return notFound();
 
-  // ✅ Now it is safe
-  if (!memorial) return notFound();
+  const normalizedMemorial = {
+    ...memorial,
+    candle_count: getCandleCount(memorial),
+  };
 
-  return (
-    <main style={{ padding: "6rem 1.5rem", maxWidth: 900, margin: "0 auto" }}>
-      {memorial.picture && (
-        <img
-          src={memorial.picture}
-          alt={memorial.name}
-          style={{
-            width: "100%",
-            maxHeight: 420,
-            objectFit: "cover",
-            borderRadius: 20,
-            marginBottom: 24,
-          }}
-        />
-      )}
-
-      <h1>{memorial.name}</h1>
-
-      <p style={{ opacity: 0.7, marginBottom: 16 }}>
-        {memorial.born} — {memorial.died}
-      </p>
-
-      <p style={{ fontStyle: "italic", marginBottom: 24 }}>
-        {memorial.tribute}
-      </p>
-
-      <article style={{ lineHeight: 1.8 }}>
-        {memorial.bio}
-      </article>
-    </main>
-  );
+  return <MemorialDetailClient initialMemorial={normalizedMemorial} />;
 }

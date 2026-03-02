@@ -118,11 +118,13 @@ export default function Footer() {
                 <Link href="/basic/homePage">Home</Link>
                 <Link href="/basic/stories">Our Story</Link>
                 <Link href="/basic/legacy">Legacy</Link>
+                <Link href="/basic/familyStories">Family Stories</Link>
+                <Link href="/basic/family-builder">Family Tree</Link>
                 <Link href="/basic/members">Family Album</Link>
                 <Link href="/basic/achievements">Achievements</Link>
                 <Link href="/basic/events">Ceremonies</Link>
                 <Link href="/basic/memorials">Memorials</Link>
-                <Link href="/basic/dashboard">Dashboard</Link>
+                {/* <Link href="/basic/dashboard">Dashboard</Link> */}
                 <Link href="/basic/settings">Settings</Link>
                 <Button
                   onClick={handleLogout}

@@ -12,7 +12,8 @@ import styles from './components.module.css'
 import Button from './Button'
 import useGlobalAuth from "@/app/hooks/useGlobalAuth";
 import { Settings } from "lucide-react";
-import { useToast } from '../app/ToastContext';
+import NavSearch from "./NavSearch"
+// import { useToast } from '../app/ToastContext';
 
 export default function Navbar() {
   // const [loggedIn, setLoggedIn] = useState(false)
@@ -22,7 +23,7 @@ export default function Navbar() {
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-  const { showToast } = useToast();
+  // const { showToast } = useToast();
 
   // Close drawer when clicking outside
   useEffect(() => {
@@ -40,50 +41,25 @@ export default function Navbar() {
     return () => document.removeEventListener('click', handleClickOutside, true)
   }, [menuOpen])
 
-  // const handleLogout = async () => {
-  //   try { await fetch('/api/auth/logout', { method: 'POST' }) } catch {}
-  //   try {
-  //     localStorage.removeItem('ft_logged_in')
-  //     localStorage.setItem('ft_last_changed', String(Date.now()))
-  //   } catch {}
-  //   localStorage.setItem("ft_last_changed", String(Date.now()));
-  //   localStorage.setItem(
-  //     'pending_toast',
-  //     JSON.stringify({
-  //       message: 'Logged out successfully.',
-  //       type: 'success',
-  //     })
-  //   );
-  //   showToast({ message: 'Logged out successfully.', type: 'success' });
-  //   window.dispatchEvent(new Event("authChange"));
-  //   router.push('/auth/login');
-  // }
+  const handleLogout = async () => {
+    try { 
+      await fetch('/api/auth/logout', { method: 'POST' }) 
+    } catch {}
 
+    try {
+      localStorage.removeItem('ft_logged_in')
+      localStorage.setItem('ft_last_changed', String(Date.now()))
+    } catch {}
 
-const handleLogout = async () => {
-  try { 
-    await fetch('/api/auth/logout', { method: 'POST' }) 
-  } catch {}
+    // Remove any pending toast so we don’t duplicate
+    localStorage.removeItem("pending_toast")
 
-  try {
-    localStorage.removeItem('ft_logged_in')
-    localStorage.setItem('ft_last_changed', String(Date.now()))
-  } catch {}
+    // Dispatch auth change
+    window.dispatchEvent(new Event("authChange"))
 
-  // Remove any pending toast so we don’t duplicate
-  localStorage.removeItem("pending_toast")
-
-  // Dispatch auth change
-  window.dispatchEvent(new Event("authChange"))
-
-  // Redirect using replace to prevent back button
-  router.replace('/auth/login')
-}
-
-
-
-
-
+    // Redirect using replace to prevent back button
+    router.replace('/auth/login')
+  }
 
   const toggleMenu = () => setMenuOpen(!menuOpen)
   const toggleDropdown = (name: string) =>
@@ -104,7 +80,7 @@ const handleLogout = async () => {
         {
           name: 'Gallery',
           children: [
-            // { name: 'Album', href: '/basic/gallery' },
+            { name: 'Family Tree', href: '/basic/family-builder' },
             { name: 'Family Album', href: '/basic/members' },
             { name: 'Achievements', href: '/basic/achievements' },
           ],
@@ -138,7 +114,13 @@ const handleLogout = async () => {
         <Link href={loggedIn ? '/basic/homePage' : '/'}>
           <Image src={Logo} alt="Logo" width={80} height={80} />
         </Link>
+        {loggedIn && (
+          <div className={styles.navSearch}>
+            <NavSearch />
+          </div>
+        )}
       </div>
+      
 
       {/* Desktop Links */}
       <div className={styles.links}>
@@ -183,7 +165,6 @@ const handleLogout = async () => {
             </Link>
           )
         )}
-
         {loggedIn && (
           <>
             <Button onClick={handleLogout} tag="Logout" className={styles.logout} />
@@ -193,7 +174,7 @@ const handleLogout = async () => {
             >
               <Settings size={18}/>
             </Link>
-            <Link href="/basic/settings" className={styles.profileImageLink}>
+            <Link href="/basic/settings/profile-image" className={styles.profileImageLink}>
               <div className={styles.profileImage}>
                 <Image src="/images/pee2.png" alt="Profile Image" width={100} height={100}/>
               </div>

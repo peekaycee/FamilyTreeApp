@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import styles from "./achievements.module.css";
 import Image from "next/image";
@@ -62,14 +62,14 @@ export default function AchievementsPage() {
   };
 
   /* ================= AUTH FETCH ================= */
-  const authFetch = async (input: RequestInfo, init?: RequestInit) => {
+  const authFetch = useCallback(async (input: RequestInfo, init?: RequestInit) => {
     const res = await fetch(input, { ...init, credentials: "include" });
     if (res.status === 401) {
       router.replace("/auth/login");
       throw new Error("Session expired");
     }
     return res;
-  };
+  }, [router]);
 
   /* ================= LOAD ================= */
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function AchievementsPage() {
         setAchievements([]);
       }
     })();
-  }, []);
+  }, [authFetch]);
 
   /* ================= FILTER ================= */
   const filtered = useMemo(

@@ -91,7 +91,8 @@ export default function Login() {
         </button>
       </form>
       <p>
-        Don&apos;t have an account? <a href="/plans"><em>Choose a plan</em></a>
+        Don&apos;t have an account? <a href="/plans">Choose a plan | </a>
+        <a href="/password">Forgot password</a>
       </p>
     </section>
   )

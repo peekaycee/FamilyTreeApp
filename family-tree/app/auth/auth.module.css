@@ -27,7 +27,7 @@
   line-height: 1.5;
 }
 .form { 
-  width: 40%;
+  width: 35%;
   height: auto;
   display:flex; 
   flex-direction:column; 

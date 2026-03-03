@@ -816,8 +816,14 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
   padding: 1.5em 2em 0;
+}
+.buttons{
+  width: fit-content;
+  display: flex;
+  gap: 12px;
 }
 .controls button {
   background: var(--color-secondary);
@@ -851,10 +857,98 @@
   position: relative;
 }
 
+
 /* Dimmed & blurred canvas when overlay is open */
 .dimmed {
   pointer-events: none;
   filter: brightness(0.35) blur(2px);
+}
+
+/* CANVAS RESPONSIVENESS */
+/* ============================= */
+/* TABLET */
+/* ============================= */
+@media (max-width: 1024px) {
+
+  .familyCanvasWrapper {
+    min-height: 100vh;
+  }
+
+  .controls {
+    gap: 10px;
+    padding: 1.2em 1.5em 0;
+  }
+
+  .controls button {
+    padding: 7px 10px;
+    font-size: 14px;
+  }
+
+  .nodeCount {
+    order: 99; /* moves it to end */
+  }
+
+  .canvasContainer {
+    height: calc(100vh - 110px);
+  }
+
+  .editOverlay {
+    min-width: 280px;
+    width: 80%;
+    top: 8%;
+  }
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+@media (max-width: 768px) {
+
+  .familyCanvasWrapper {
+    height: 100dvh; /* fixes mobile browser bar jump */
+    min-height: 100dvh;
+  }
+
+  .controls {
+    justify-content: space-evenly;
+    padding: 1em 0.5em 0;
+  }
+  .buttons{
+    width: fit-content;
+    padding: 0.5em 1em;
+  }
+  .controls button {
+    width: 25%;
+    margin: 0;
+  }
+
+  .nodeCount {
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .canvasContainer {
+    width: 100%;
+    position: relative;
+    overflow: hidden;   /* VERY IMPORTANT */
+    height: calc(100dvh - 200px);
+  }
+
+  .editOverlay {
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 5%;
+    padding: 14px;
+  }
+
+  .editButtons {
+    flex-direction: column;
+  }
+
+  .editButtons button {
+    width: 100%;
+  }
 }
 
 /* ----------------------------------------- */

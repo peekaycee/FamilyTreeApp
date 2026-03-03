@@ -8,6 +8,7 @@ import { User } from "@supabase/supabase-js";
 import styles from "./components.module.css";
 import { computeLayout } from "@/lib/tree/layoutEngine";
 import type { Person, Union } from "@/lib/tree/layoutEngine";
+import gsap from "gsap";
 
 export type MemberRow = {
   id: string;
@@ -35,7 +36,7 @@ export type UnionRow = {
 type EditingState = { id: string };
 
 const NODE_RADIUS = 36;
-const STAGE_TOP_PADDING = 5;
+const STAGE_TOP_PADDING = 10;
 
 
 // Map roles to colors/icons
@@ -276,7 +277,19 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   // ================= RESIZE =================
   const onResize = () => {
     app.renderer.resize(container.clientWidth, container.clientHeight);
+
+    const bounds = app.stage.getLocalBounds();
+    const centerX = bounds.x + bounds.width / 2;
+    app.stage.x = container.clientWidth / 2 - centerX * app.stage.scale.x;
+
+    // Optional: enforce top padding
+    const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
+    if (topWorldY < STAGE_TOP_PADDING) {
+      app.stage.y += STAGE_TOP_PADDING - topWorldY;
+    }
+    centerStage(app);
   };
+
   window.addEventListener("resize", onResize);
 
   return () => {
@@ -525,6 +538,9 @@ unionsDB.forEach(u => {
   app.stage.y = STAGE_TOP_PADDING - topNodeY + NODE_RADIUS + 6; // 6 = glow extra radius
 }
 
+centerStage(app);
+
+
   // 5️⃣ Render nodes
   members.forEach((m) => {
     const node = makeNode(m);
@@ -602,19 +618,21 @@ unions.forEach(u => {
   Object.values(spritesRef.current).forEach((node) => node.zIndex = 1); // nodes above lines
 
   // ================= TOP-BOUND ENFORCEMENT =================
-const bounds = app.stage.getLocalBounds();
+  function centerStage(app: PIXI.Application) {const container = containerRef.current;
+    if (!container) return;
 
-// Horizontal centering (safe)
-const centerX = bounds.x + bounds.width / 2;
-app.stage.x = app.renderer.width / 2 - centerX * app.stage.scale.x;
+    const bounds = app.stage.getLocalBounds();
+    const centerX = bounds.x + bounds.width / 2;
+    app.stage.x = container.clientWidth / 2 - centerX * app.stage.scale.x;
 
-// Enforce top boundary
-const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
-const minAllowedTop = STAGE_TOP_PADDING;
+    // Enforce top boundary
+    const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
+    const minAllowedTop = STAGE_TOP_PADDING;
 
-if (topWorldY < minAllowedTop) {
-  app.stage.y += minAllowedTop - topWorldY;
-}
+    if (topWorldY < minAllowedTop) {
+      app.stage.y += minAllowedTop - topWorldY;
+    }
+  }
   
   // ================= CAPTURE ORIGINAL VIEW (ONCE) =================
   if (!originalViewRef.current) {
@@ -944,107 +962,79 @@ const handleCreateMember = async () => {
   }
 };
 
-// =============== Reset View ==================
+  // =============== Reset View ==================
 const resetView = () => {
   const app = appRef.current;
   const original = originalViewRef.current;
-  if (!app || !original) return;
+  const container = containerRef.current;
+  if (!app || !original || !container) return;
 
-  const duration = 25;
-
-  // 1️⃣ Animate nodes back to original layout
+  // 1️⃣ Capture target positions for nodes
+  const targets: Record<string, { x: number; y: number }> = {};
   Object.entries(spritesRef.current).forEach(([id, node]) => {
     const originalNode = originalLayoutRef.current[id];
     if (!originalNode) return;
-
-    const startX = node.x;
-    const startY = node.y;
-
-    let frame = 0;
-    const ticker = new PIXI.Ticker();
-
-    ticker.add(() => {
-      frame++;
-      const t = frame / duration;
-      const ease = 1 - Math.pow(1 - t, 3);
-
-      node.x = startX + (originalNode.x - startX) * ease;
-      node.y = startY + (originalNode.y - startY) * ease;
-
-      if (frame >= duration) ticker.stop();
-    });
-
-    ticker.start();
+    targets[id] = { x: originalNode.x, y: originalNode.y };
   });
 
-  // 2️⃣ Animate camera (stage transform)
-  const startX = app.stage.x;
-  const startY = app.stage.y;
-  const startScale = app.stage.scale.x;
+  // 2️⃣ Capture target stage position & scale
+  const bounds = app.stage.getLocalBounds();
 
-  let frame = 0;
-  const cameraTicker = new PIXI.Ticker();
+  const targetScale = original.scale;
 
-  cameraTicker.add(() => {
-    frame++;
-    const t = frame / duration;
-    const ease = 1 - Math.pow(1 - t, 3);
+  const centerX = bounds.x + bounds.width / 2;
+  const targetStageX = container.clientWidth / 2 - centerX * targetScale;
 
-    const targetY = original.y;
+  const topWorldY = bounds.y * targetScale + original.y;
+  let targetStageY = original.y;
+  if (topWorldY < STAGE_TOP_PADDING) {
+    targetStageY += STAGE_TOP_PADDING - topWorldY;
+  }
 
-    const nextY = startY + (targetY - startY) * ease;
-
-    // 🔒 Enforce top boundary
-    const bounds = app.stage.getLocalBounds();
-    const topWorldY = bounds.y * app.stage.scale.y + nextY;
-
-    if (topWorldY < STAGE_TOP_PADDING) {
-      app.stage.y = nextY + (STAGE_TOP_PADDING - topWorldY);
-    } else {
-      app.stage.y = nextY;
-    }
-
-    app.stage.x = startX + (original.x - startX) * ease;
-
-    const s = startScale + (original.scale - startScale) * ease;
-    app.stage.scale.set(s);
-
-    if (frame >= duration) cameraTicker.stop();
+  // 3️⃣ Tween nodes
+  Object.entries(targets).forEach(([id, pos]) => {
+    const node = spritesRef.current[id];
+    if (!node) return;
+    gsap.to(node, { x: pos.x, y: pos.y, duration: 0.7, ease: "power2.out" });
   });
 
-  cameraTicker.start();
+  // 4️⃣ Tween stage
+  gsap.to(app.stage.scale, { x: targetScale, y: targetScale, duration: 0.7, ease: "power2.out" });
+  gsap.to(app.stage, { x: targetStageX, y: targetStageY, duration: 0.7, ease: "power2.out", onUpdate: () => centerStage(app) });
 };
 
   return (
     <div className={styles.familyCanvasWrapper}>
       <div className={styles.controls}>
-        <button onClick={resetView}>Reset view</button>
-        <button
-          onClick={async () => {
-            const app = appRef.current;
-            if (!app) return;
+        <div className={styles.buttons}>
+          <button onClick={resetView}>Reset view</button>
+          <button
+            onClick={async () => {
+              const app = appRef.current;
+              if (!app) return;
 
-            const resolution = 2; // increase resolution
-            const renderer = new PIXI.Renderer({
-              width: app.renderer.width * resolution,
-              height: app.renderer.height * resolution,
-              resolution,
-            });
-            renderer.render(app.stage);
+              const resolution = 2; // increase resolution
+              const renderer = new PIXI.Renderer({
+                width: app.renderer.width * resolution,
+                height: app.renderer.height * resolution,
+                resolution,
+              });
+              renderer.render(app.stage);
 
-            const dataUrl = await renderer.extract.base64(app.stage);
-            const a = document.createElement("a");
-            a.href = dataUrl;
-            a.download = `family-tree-${Date.now()}.png`;
-            a.click();
+              const dataUrl = await renderer.extract.base64(app.stage);
+              const a = document.createElement("a");
+              a.href = dataUrl;
+              a.download = `family-tree-${Date.now()}.png`;
+              a.click();
 
-            renderer.destroy();
-          }}
-        >
-          Export PNG
-        </button>
-        <button onClick={openAddModal}>Add Member</button>
-        <button onClick={applyForceLayout}>Force Layout</button>
+              renderer.destroy();
+            }}
+          >
+            Export PNG
+          </button>
+          <button onClick={openAddModal}>Add Member</button>
+          {/* <button onClick={applyForceLayout}>Force Layout</button> */}
+        </div>
         <div className={styles.nodeCount}>{loading ? "Loading…" : `Nodes: ${members.length}`}</div>
       </div>
 
@@ -1240,4 +1230,8 @@ function computeCenteredStageX(app: PIXI.Application): number {
   const bounds = app.stage.getLocalBounds();
   const centerX = bounds.x + bounds.width / 2;
   return app.renderer.width / 2 - centerX * app.stage.scale.x;
+}
+
+function centerStage(app: PIXI.Application<PIXI.ICanvas>) {
+  throw new Error("Function not implemented.");
 }

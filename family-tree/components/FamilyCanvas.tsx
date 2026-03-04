@@ -71,7 +71,6 @@ export default function FamilyCanvas() {
   const [submitted, setSubmitted] = useState(false);
   const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
   const [unionsDB, setUnionsDB] = useState<UnionRow[]>([]);
-  const hasCenteredRef = useRef(false);
 
   // Editing modal state
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -236,7 +235,7 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   let stageStart = { x: 0, y: 0 };
 
   // ================= PINCH ZOOM (MOBILE) =================
-  let activePointers = new Map<number, PointerEvent>();
+  const activePointers = new Map<number, PointerEvent>();
   let isPinching = false;
   let startDistance = 0;
   let startScale = 1;

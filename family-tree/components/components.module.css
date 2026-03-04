@@ -920,6 +920,7 @@
   .controls {
     justify-content: space-evenly;
     padding: 1em 0.5em 0;
+    padding-right: 1.2em;
   }
   .buttons{
     width: fit-content;
@@ -936,10 +937,10 @@
   }
 
   .canvasContainer {
-    width: 100%;
     position: relative;
-    overflow: hidden;   /* VERY IMPORTANT */
-    height: calc(100dvh - 200px);
+    width: 100%;
+    height: calc(100dvh - 80px); /* Adjust mobile screen view here if needed */
+    overflow: hidden; 
   }
 
   .editOverlay {

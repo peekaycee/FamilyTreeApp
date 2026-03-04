@@ -77,6 +77,7 @@ export default function FamilyCanvas() {
   const [editName, setEditName] = useState("");
   const [editRole, setEditRole] = useState("");
   const [editFile, setEditFile] = useState<File | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // Add member modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -758,6 +759,134 @@ const handleSaveEdit = async () => {
   }
 };
 
+// HANDLE DELETE MEMBER
+// const handleDeleteMember = async () => {
+//   if (!editing || !user) return;
+
+//   const confirmDelete = window.confirm(
+//     "Are you sure you want to delete this member? This cannot be undone."
+//   );
+
+//   if (!confirmDelete) return;
+
+//   try {
+//     const member = members.find((m) => m.id === editing.id);
+//     if (!member) {
+//       showToast("Member not found.");
+//       return;
+//     }
+
+//     // 🔴 1️⃣ Delete avatar from storage (if exists)
+//     if (member.avatar_path) {
+//       const { error: storageError } = await supabase.storage
+//         .from("avatars")
+//         .remove([member.avatar_path]);
+
+//       if (storageError) {
+//         console.warn("Avatar delete warning:", storageError.message);
+//       }
+//     }
+
+//     // 🔴 2️⃣ Delete unions involving this member
+//     const { error: unionError } = await supabase
+//       .from("family_unions")
+//       .delete()
+//       .or(`partner_a.eq.${editing.id},partner_b.eq.${editing.id}`);
+
+//     if (unionError) throw unionError;
+
+//     // 🔴 3️⃣ Delete member row
+//     const { error: deleteError } = await supabase
+//       .from("family_members")
+//       .delete()
+//       .eq("id", editing.id);
+
+//     if (deleteError) throw deleteError;
+
+//     setEditing(null);
+//     isEditingRef.current = false;
+
+//     await loadMembers();
+
+//     showToast("Member deleted successfully.", "success");
+//   } catch (err: unknown) {
+//     if (err instanceof Error) showToast(err.message);
+//     else showToast("Failed to delete member.");
+//   }
+// };
+
+
+// HANDLE DELETE MEMBER (SAFE VERSION)
+const handleDeleteMember = async () => {
+  if (!editing || !user) return;
+
+  const member = members.find((m) => m.id === editing.id);
+  if (!member) {
+    showToast("Member not found.");
+    return;
+  }
+
+  // 🚫 1️⃣ BLOCK DELETE IF MEMBER HAS CHILDREN
+  const children = getChildren(member.id);
+  if (children.length > 0) {
+    showToast("Cannot delete a member who has children.");
+    return;
+  }
+
+  // 🚫 2️⃣ Instead of window.confirm → open modal
+  setDeleteConfirmOpen(true);
+};
+
+// ACTUAL DELETE EXECUTION (called from modal)
+const executeDeleteMember = async () => {
+  if (!editing || !user) return;
+
+  try {
+    const member = members.find((m) => m.id === editing.id);
+    if (!member) {
+      showToast("Member not found.");
+      return;
+    }
+
+    // 🔴 Delete avatar
+    if (member.avatar_path) {
+      const { error: storageError } = await supabase.storage
+        .from("avatars")
+        .remove([member.avatar_path]);
+
+      if (storageError) {
+        console.warn("Avatar delete warning:", storageError.message);
+      }
+    }
+
+    // 🔴 Delete unions
+    const { error: unionError } = await supabase
+      .from("family_unions")
+      .delete()
+      .or(`partner_a.eq.${editing.id},partner_b.eq.${editing.id}`);
+
+    if (unionError) throw unionError;
+
+    // 🔴 Delete member
+    const { error: deleteError } = await supabase
+      .from("family_members")
+      .delete()
+      .eq("id", editing.id);
+
+    if (deleteError) throw deleteError;
+
+    setDeleteConfirmOpen(false);
+    setEditing(null);
+    isEditingRef.current = false;
+
+    await loadMembers();
+
+    showToast("Member deleted successfully.", "success");
+  } catch (err: unknown) {
+    if (err instanceof Error) showToast(err.message);
+    else showToast("Failed to delete member.");
+  }
+};
 
   // OPEN ADD MODAL
   const openAddModal = () => {
@@ -1084,6 +1213,9 @@ const resetView = () => {
               Cancel
             </button>
             <button onClick={handleSaveEdit}>Save</button>
+            <button onClick={handleDeleteMember} style={{ backgroundColor: "#dc2626", color: "white" }}>
+              Delete
+            </button>
           </div>
         </div>
       )}
@@ -1207,6 +1339,27 @@ const resetView = () => {
       <button onClick={() => setAddOpen(false)}>Cancel</button>
       <button onClick={handleCreateMember}>
         Create
+      </button>
+    </div>
+  </div>
+)}
+{/* DELETE CONFIRMATION OVERLAY */}
+{deleteConfirmOpen && (
+  <div className={styles.editOverlay}>
+    <h3>Confirm Deletion</h3>
+    <p style={{ marginBottom: "16px" }}>
+      Are you sure you want to delete this member? This action cannot be undone.
+    </p>
+
+    <div className={styles.editButtons}>
+      <button onClick={() => setDeleteConfirmOpen(false)}>
+        Cancel
+      </button>
+      <button
+        onClick={executeDeleteMember}
+        style={{ backgroundColor: "#dc2626", color: "white" }}
+      >
+        Delete
       </button>
     </div>
   </div>

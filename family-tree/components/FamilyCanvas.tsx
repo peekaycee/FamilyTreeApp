@@ -71,6 +71,7 @@ export default function FamilyCanvas() {
   const [submitted, setSubmitted] = useState(false);
   const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
   const [unionsDB, setUnionsDB] = useState<UnionRow[]>([]);
+  const hasCenteredRef = useRef(false);
 
   // Editing modal state
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -211,6 +212,7 @@ useEffect(() => {
   canvas.style.height = "100%";
   canvas.style.display = "block";
   canvas.style.cursor = "grab";
+  canvas.style.touchAction = "none";
   container.appendChild(canvas);
 
 // ------------------ REMOVE HIGHLIGHT ON DOUBLE-CLICK ------------------
@@ -233,22 +235,88 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   let panStart = { x: 0, y: 0 };
   let stageStart = { x: 0, y: 0 };
 
+  // ================= PINCH ZOOM (MOBILE) =================
+  let activePointers = new Map<number, PointerEvent>();
+  let isPinching = false;
+  let startDistance = 0;
+  let startScale = 1;
+
+  const getDistance = (p1: PointerEvent, p2: PointerEvent) => {
+    const dx = p1.clientX - p2.clientX;
+    const dy = p1.clientY - p2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
   const onPointerDown = (e: PointerEvent) => {
-    isPanning = true;
-    panStart = { x: e.clientX, y: e.clientY };
-    stageStart = { x: app.stage.x, y: app.stage.y };
-    canvas.style.cursor = "grabbing";
+    activePointers.set(e.pointerId, e);
+
+    // Two fingers = pinch mode
+    if (activePointers.size === 2) {
+      const [p1, p2] = Array.from(activePointers.values());
+      startDistance = getDistance(p1, p2);
+      startScale = app.stage.scale.x;
+      isPinching = true;
+      isPanning = false;
+      return;
+    }
+
+    // One finger = pan
+    if (!isPinching) {
+      isPanning = true;
+      panStart = { x: e.clientX, y: e.clientY };
+      stageStart = { x: app.stage.x, y: app.stage.y };
+      canvas.style.cursor = "grabbing";
+    }
   };
 
   const onPointerMove = (e: PointerEvent) => {
+    if (activePointers.has(e.pointerId)) {
+      activePointers.set(e.pointerId, e);
+    }
+
+    // 🔵 PINCH ZOOM
+    if (isPinching && activePointers.size === 2) {
+      const [p1, p2] = Array.from(activePointers.values());
+      const newDistance = getDistance(p1, p2);
+
+      const scaleFactor = newDistance / startDistance;
+      let newScale = startScale * scaleFactor;
+
+      newScale = Math.max(0.25, Math.min(3, newScale));
+
+      const rect = canvas.getBoundingClientRect();
+      const midX = (p1.clientX + p2.clientX) / 2 - rect.left;
+      const midY = (p1.clientY + p2.clientY) / 2 - rect.top;
+
+      const worldPos = {
+        x: (midX - app.stage.x) / app.stage.scale.x,
+        y: (midY - app.stage.y) / app.stage.scale.y,
+      };
+
+      app.stage.scale.set(newScale);
+
+      app.stage.x = midX - worldPos.x * newScale;
+      app.stage.y = midY - worldPos.y * newScale;
+
+      return;
+    }
+
+    // 🟢 PANNING
     if (!isPanning) return;
+
     const dx = e.clientX - panStart.x;
     const dy = e.clientY - panStart.y;
     app.stage.x = stageStart.x + dx;
     app.stage.y = stageStart.y + dy;
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (e: PointerEvent) => {
+    activePointers.delete(e.pointerId);
+
+    if (activePointers.size < 2) {
+      isPinching = false;
+    }
+
     isPanning = false;
     canvas.style.cursor = "grab";
   };
@@ -288,7 +356,7 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
     if (topWorldY < STAGE_TOP_PADDING) {
       app.stage.y += STAGE_TOP_PADDING - topWorldY;
     }
-    centerStage(app);
+    centerStage(app, containerRef.current);
   };
 
   window.addEventListener("resize", onResize);
@@ -424,32 +492,47 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   let moved = false;
   const dragOffset = { x: 0, y: 0 };
 
+  // ⚠️ Add this: fixed nodes set
+  const fixedNodeIds = new Set<string>(Object.keys(originalLayoutRef.current)); // all nodes initially fixed
+
   c.on("pointerdown", (ev) => {
-    if (unionMemberSet.has(m.id)) return; // 🚫 hard block
-    ev.stopPropagation();
-    dragging = true;
-    moved = false;
-    c.cursor = "grabbing";
-    const p = ev.data.global;
-    dragOffset.x = p.x - c.x;
-    dragOffset.y = p.y - c.y;
-  });
+  if (unionMemberSet.has(m.id)) return; // 🚫 hard block
+  if (fixedNodeIds.has(m.id)) return; // 🚫 skip dragging fixed nodes
+  ev.stopPropagation();
+  dragging = true;
+  moved = false;
+  c.cursor = "grabbing";
+  const p = ev.data.global;
+  dragOffset.x = p.x - c.x;
+  dragOffset.y = p.y - c.y;
+});
 
-  c.on("pointerup", async () => {
-    if (!dragging) return;
-    dragging = false;
-    c.cursor = "grab";
+c.on("pointermove", (ev) => {
+  if (!dragging) return;
 
-    if (!moved) return; // IMPORTANT: ignore click-only
+  const p = ev.data.global;
+  moved = true;
 
-    // Clamp node inside stage
-    const app = appRef.current;
-    if (app) {
-      const stageBounds = { width: app.renderer.width, height: app.renderer.height };
-      c.x = Math.max(NODE_RADIUS, Math.min(stageBounds.width - NODE_RADIUS, c.x));
-      c.y = Math.max(NODE_RADIUS, Math.min(stageBounds.height - NODE_RADIUS, c.y));
-    }
-  });
+  // Only allow drag if not fixed
+  if (!fixedNodeIds.has(m.id)) {
+    c.x = p.x - dragOffset.x;
+    c.y = p.y - dragOffset.y;
+  }
+});
+
+c.on("pointerup", async () => {
+  if (!dragging) return;
+  dragging = false;
+  c.cursor = "grab";
+
+  // Reset node to original position if fixed
+  if (fixedNodeIds.has(m.id) && originalLayoutRef.current[m.id]) {
+    const { x, y } = originalLayoutRef.current[m.id];
+    gsap.to(c, { x, y, duration: 0.3, ease: "power2.out" });
+  }
+
+  if (!moved) return; // IMPORTANT: ignore click-only
+});
 
   c.on("pointermove", (ev) => {
     if (!dragging) return;
@@ -525,22 +608,6 @@ unionsDB.forEach(u => {
     persons,
     unions,
   );
-
-  // ---------------- NORMALIZE LAYOUT AROUND ORIGIN ---------------
-  if (positioned.length > 0) {
-  const bounds = app.stage.getLocalBounds();
-
-  // Horizontal centering
-  const centerX = bounds.x + bounds.width / 2;
-  app.stage.x = app.renderer.width / 2 - centerX * app.stage.scale.x;
-
-  // Vertical positioning
-  const topNodeY = Math.min(...positioned.map(p => p.y));
-  app.stage.y = STAGE_TOP_PADDING - topNodeY + NODE_RADIUS + 6; // 6 = glow extra radius
-}
-
-centerStage(app);
-
 
   // 5️⃣ Render nodes
   members.forEach((m) => {
@@ -618,23 +685,23 @@ unions.forEach(u => {
   lineGraphics.zIndex = 0; // behind nodes
   Object.values(spritesRef.current).forEach((node) => node.zIndex = 1); // nodes above lines
 
-  // ================= TOP-BOUND ENFORCEMENT =================
-  function centerStage(app: PIXI.Application) {const container = containerRef.current;
-    if (!container) return;
-
+  // ✅ Center AFTER content exists
+  if (positioned.length > 0) {
     const bounds = app.stage.getLocalBounds();
+
     const centerX = bounds.x + bounds.width / 2;
-    app.stage.x = container.clientWidth / 2 - centerX * app.stage.scale.x;
+    app.stage.x =
+      containerRef.current!.clientWidth / 2 -
+      centerX * app.stage.scale.x;
 
-    // Enforce top boundary
     const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
-    const minAllowedTop = STAGE_TOP_PADDING;
-
-    if (topWorldY < minAllowedTop) {
-      app.stage.y += minAllowedTop - topWorldY;
+    if (topWorldY < STAGE_TOP_PADDING) {
+      app.stage.y += STAGE_TOP_PADDING - topWorldY;
     }
   }
-  
+
+  centerStage(app, containerRef.current);
+
   // ================= CAPTURE ORIGINAL VIEW (ONCE) =================
   if (!originalViewRef.current) {
     originalViewRef.current = {
@@ -758,63 +825,6 @@ const handleSaveEdit = async () => {
     else console.error(err);
   }
 };
-
-// HANDLE DELETE MEMBER
-// const handleDeleteMember = async () => {
-//   if (!editing || !user) return;
-
-//   const confirmDelete = window.confirm(
-//     "Are you sure you want to delete this member? This cannot be undone."
-//   );
-
-//   if (!confirmDelete) return;
-
-//   try {
-//     const member = members.find((m) => m.id === editing.id);
-//     if (!member) {
-//       showToast("Member not found.");
-//       return;
-//     }
-
-//     // 🔴 1️⃣ Delete avatar from storage (if exists)
-//     if (member.avatar_path) {
-//       const { error: storageError } = await supabase.storage
-//         .from("avatars")
-//         .remove([member.avatar_path]);
-
-//       if (storageError) {
-//         console.warn("Avatar delete warning:", storageError.message);
-//       }
-//     }
-
-//     // 🔴 2️⃣ Delete unions involving this member
-//     const { error: unionError } = await supabase
-//       .from("family_unions")
-//       .delete()
-//       .or(`partner_a.eq.${editing.id},partner_b.eq.${editing.id}`);
-
-//     if (unionError) throw unionError;
-
-//     // 🔴 3️⃣ Delete member row
-//     const { error: deleteError } = await supabase
-//       .from("family_members")
-//       .delete()
-//       .eq("id", editing.id);
-
-//     if (deleteError) throw deleteError;
-
-//     setEditing(null);
-//     isEditingRef.current = false;
-
-//     await loadMembers();
-
-//     showToast("Member deleted successfully.", "success");
-//   } catch (err: unknown) {
-//     if (err instanceof Error) showToast(err.message);
-//     else showToast("Failed to delete member.");
-//   }
-// };
-
 
 // HANDLE DELETE MEMBER (SAFE VERSION)
 const handleDeleteMember = async () => {
@@ -1129,7 +1139,7 @@ const resetView = () => {
 
   // 4️⃣ Tween stage
   gsap.to(app.stage.scale, { x: targetScale, y: targetScale, duration: 0.7, ease: "power2.out" });
-  gsap.to(app.stage, { x: targetStageX, y: targetStageY, duration: 0.7, ease: "power2.out", onUpdate: () => centerStage(app) });
+  gsap.to(app.stage, { x: targetStageX, y: targetStageY, duration: 0.7, ease: "power2.out", onUpdate: () => centerStage(app, containerRef.current) });
 };
 
   return (
@@ -1356,8 +1366,8 @@ const resetView = () => {
         Cancel
       </button>
       <button
+        className={styles.deleteButton}
         onClick={executeDeleteMember}
-        style={{ backgroundColor: "#dc2626", color: "white" }}
       >
         Delete
       </button>
@@ -1385,6 +1395,25 @@ function computeCenteredStageX(app: PIXI.Application): number {
   return app.renderer.width / 2 - centerX * app.stage.scale.x;
 }
 
-function centerStage(app: PIXI.Application<PIXI.ICanvas>) {
-  throw new Error("Function not implemented.");
+// function centerStage(app: PIXI.Application<PIXI.ICanvas>) {
+//   throw new Error("Function not implemented.");
+// }
+
+function centerStage(
+  app: PIXI.Application,
+  container: HTMLDivElement | null
+) {
+  if (!container) return;
+
+  const bounds = app.stage.getLocalBounds();
+
+  // Horizontal center
+  const centerX = bounds.x + bounds.width / 2;
+  app.stage.x = container.clientWidth / 2 - centerX * app.stage.scale.x;
+
+  // Top padding enforcement
+  const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
+  if (topWorldY < STAGE_TOP_PADDING) {
+    app.stage.y += STAGE_TOP_PADDING - topWorldY;
+  }
 }

@@ -836,6 +836,14 @@
 .controls button:hover{
   background: var(--color-accent);
 }
+.deleteButton{
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.95),
+    rgba(239, 68, 68, 0.95)
+  );
+  color: var(--color-white-text);
+}
 .nodeCount {
   background: var(--color-primary);
   color: var(--color-white-text);

@@ -920,7 +920,7 @@
   .controls {
     justify-content: space-evenly;
     padding: 1em 0.5em 0;
-    padding-right: 1.2em;
+    padding-right: 1.5em;
   }
   .buttons{
     width: fit-content;

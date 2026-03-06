@@ -39,6 +39,13 @@ export default function NavSearch() {
     e.preventDefault()
     if (!query.trim()) return
 
+    // SESSION CHECK ONLY WHEN SEARCH IS TRIGGERED
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      router.push("/auth/login")
+      return
+    }
+
     // Run the same FTS search first
     const { data } = await supabase
       .rpc("search_family_members", { search_query: query })
@@ -81,7 +88,7 @@ export default function NavSearch() {
                 setResults([])
               }}
             >
-               {member.name} {/* ({member.role}) */}
+               {member.name}
             </div>
           ))}
 

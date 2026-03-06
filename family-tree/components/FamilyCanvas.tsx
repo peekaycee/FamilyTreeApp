@@ -9,6 +9,7 @@ import styles from "./components.module.css";
 import { computeLayout } from "@/lib/tree/layoutEngine";
 import type { Person, Union } from "@/lib/tree/layoutEngine";
 import gsap from "gsap";
+import { useRouter } from "next/navigation";
 
 export type MemberRow = {
   id: string;
@@ -59,6 +60,7 @@ const roleColors: Record<string, number> = {
 };
 
 export default function FamilyCanvas() {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const spritesRef = useRef<Record<string, PIXI.Container>>({});
@@ -133,31 +135,68 @@ export default function FamilyCanvas() {
 
 }, [supabase, user]);
 
-  // AUTH SESSION
+// // Session Check
+//   useEffect(() => {
+//     const checkSession = async () => {
+//       const { data } = await supabase.auth.getSession()
+
+//       if (!data.session) {
+//         router.replace("/auth/login")
+//         return
+//       }
+
+//       setUser(data.session.user)
+//     }
+
+//     checkSession()
+//   }, [supabase.auth, router])
+
+// Session Check
+useEffect(() => {
+  const checkSession = async () => {
+    const { data } = await supabase.auth.getUser()
+
+    if (!data.user) {
+      setToastMessage("Session expired. Please login again.")
+      setToastType("error")
+
+      setTimeout(() => {
+        router.replace("/auth/login")
+      }, 3000)
+
+      return
+    }
+
+    setUser(data.user)
+  }
+
+  checkSession()
+}, [router, supabase.auth])
+
   useEffect(() => {
     const init = async () => {
-      try {
-        const saved = localStorage.getItem("supabase_session");
-        if (saved) {
-          const session = JSON.parse(saved);
-          await supabase.auth.setSession(session);
-          setUser(session?.user ?? null);
-        } else {
-          const { data } = await supabase.auth.getUser();
-          setUser(data.user ?? null);
-        }
-      } catch (err) {
-        console.warn("session restore", err);
+      const { data } = await supabase.auth.getUser()
+
+      if (!data.user) {
+        router.replace("/auth/login")
+        return
       }
-    };
-    init();
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-      if (session) localStorage.setItem("supabase_session", JSON.stringify(session));
-      else localStorage.removeItem("supabase_session");
-    });
-    return () => listener?.subscription?.unsubscribe?.();
-  }, [supabase.auth]);
+      setUser(data.user)
+    }
+
+    init()
+
+    const { data: listener } =
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+
+        if (!session) {
+          router.replace("/auth/login")
+        }
+      })
+
+    return () => listener?.subscription.unsubscribe()
+  }, [router, supabase])
 
   // Fetch members & subscribe to realtime
   useEffect(() => {
@@ -1221,8 +1260,8 @@ const resetView = () => {
             >
               Cancel
             </button>
-            <button onClick={handleSaveEdit}>Save</button>
-            <button onClick={handleDeleteMember} style={{ backgroundColor: "#dc2626", color: "white" }}>
+            <button type="button" onClick={handleSaveEdit}>Save</button>
+            <button type="button" onClick={handleDeleteMember} className={styles.deleteButton}>
               Delete
             </button>
           </div>

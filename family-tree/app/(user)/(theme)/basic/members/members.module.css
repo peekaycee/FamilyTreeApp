@@ -163,7 +163,7 @@
   border-radius: 16px;
   font-size: 14px;
   width: 220px;
-  background: #ffffff;
+  background: var(--color-bg);
   color: var(--color-black-text);
   transition: 0.25s;
 }
@@ -215,7 +215,7 @@
 }
 
 .cardFront {
-  background: #ffffff;
+  background: var(--color-bg);
   border: 1px solid #e7e7e7;
   display: flex;
   justify-content: center;
@@ -282,7 +282,7 @@
 
 .slideOver {
   width: 380px;
-  background: white;
+  background: var(--color-bg);
   height: 100%;
   padding: 28px;
   display: flex;
@@ -386,6 +386,10 @@
   /* Optional: slightly reduce grid gap on mobile */
   .grid {
     gap: 20px;
+  }
+
+  .addBtn{
+    width: fit-content;
   }
 }
 

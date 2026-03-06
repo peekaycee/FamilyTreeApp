@@ -6,6 +6,7 @@ import styles from "./memorials.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 
 /* ================= TYPES ================= */
 type Memorial = {
@@ -25,6 +26,9 @@ type ToastType = "success" | "error" | "info";
 /* ================= COMPONENT ================= */
 export default function MemorialsPage() {
   const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+
+  const [user, setUser] = useState<any>(null);
 
   const [memorials, setMemorials] = useState<Memorial[]>([]);
   const [candles, setCandles] = useState<CandleMap>({});
@@ -52,6 +56,28 @@ export default function MemorialsPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  // Session Check
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getUser()
+
+      if (!data.user) {
+        setToastMessage("Session expired. Please login again.")
+        setToastType("error")
+
+        setTimeout(() => {
+          router.replace("/auth/login")
+        }, 1500)
+
+        return
+      }
+
+      setUser(data.user)
+    }
+
+    checkSession()
+  }, [router, supabase.auth]);
 
   /* ================= AUTH FETCH ================= */
   const authFetch = React.useCallback(
@@ -353,3 +379,5 @@ const deleteMemorial = async (id: string) => {
     </main>
   );
 }
+
+

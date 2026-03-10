@@ -221,14 +221,18 @@
   color: var(--color-white-text);
 }
 .storiesGrid { 
-  display:grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 2rem; 
+  flex-wrap: wrap;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem; 
   margin-top: 3em;
-  margin-bottom: 3em;
 }
 .storyCard { 
-  background: var(--color-bg);
+  width: 48%;
+  height: 100%;
   border-radius: 16px; 
   overflow: hidden; 
   border: 1px solid rgba(0,0,0,0.05);
@@ -237,24 +241,31 @@
   flex-direction: column;
   align-items: center;
   justify-content: center; 
+  margin-bottom: 3em;
+  transition: all 0.3s ease;
+}
+.storyCard:hover{
+  background-origin: padding-box;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
 }
 .storyHero {
-  width: 300px;  
-  height: 300px;  
+  width: 100%;  
+  height: 100%;  
   flex-shrink: 0;
 }
 .storyImage {
-  object-fit: cover;
-  object-position: center;
   width: 100%;
   height: 100%;
-  margin: 0 auto;
+  object-fit: cover;
+  object-position: center;
 }
 .storyBody { 
   width: 100%;
   height: 100%;
   padding: 1em 1.5em;
   background: var(--color-primary);
+  margin-top: -5px;
  }
  .storyBody p{
   margin-top: 1em;
@@ -276,7 +287,6 @@
 .viewAll{
   margin: 0 auto;
   text-align: center;
-  margin-top: -25px;
 }
 /* modal */
 .modalBackdrop { 
@@ -314,7 +324,9 @@
 .closeBtn:hover {
   color: var(--color-white-text);
 }
-
+.nextFamilySpotlight{
+  margin-top: 0.75em;
+}
 /* small utilities */
 .muted { 
   color:var(--color-black-text);
@@ -348,6 +360,11 @@
   .storiesSection {
     padding: 0 2.5em;
   }
+       
+  .storiesGrid{
+    gap: 1rem;
+    margin-bottom: -1em;
+  }
   .treeRow {
     flex-direction: column;
     align-items: flex-start;
@@ -362,14 +379,11 @@
   .timelineHoriz {
     padding-bottom: 0.5em;
   }
-  .storiesGrid {
-    grid-template-columns: 1fr;
-  }
-  .storyHero {
-    height: 320px;
-  }
   .storyActions button{
-    width: 50%;
+    width: fit-content;
+  }
+  .viewAll{
+    margin-bottom: 4em;
   }
 }
 
@@ -439,17 +453,14 @@
   .timelineCard {
     min-width: 220px;
   }
-  .storiesGrid {
-    grid-template-columns: 1fr;
-  }
-  .storyHero {
-    height: 240px;
+  .storyCard {
+    width: 100%;
   }
   .storyActions {
-    gap: 8px;
+    gap: 12px;
   }
   .storyActions button {
-    width: 50%;
+    width: 30%;
   }
   .detailModal {
     padding: 1.25em;
@@ -462,6 +473,6 @@
     font-size: 1.2rem;
   }
   .ctaSmall{
-    width: 100%;
+    width: fit-content;
   }
 }

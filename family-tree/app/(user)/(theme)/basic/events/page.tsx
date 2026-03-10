@@ -19,13 +19,7 @@ interface EventItem {
   user_id?: string;
 }
 
-type ToastType = "success" | "error";
-
-type Toast = {
-  id: string;
-  message: string;
-  type: ToastType;
-};
+type ToastType = "success" | "error" | "info";
 
 /* ================= CONSTANTS ================= */
 
@@ -81,49 +75,61 @@ export default function EventsPage() {
   const [editing, setEditing] = useState<EventItem | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [importPreview, setImportPreview] = useState<EventItem[] | null>(null);
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<ToastType>("info");
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const toastTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const pushToast = (message: string, type: ToastType = "success") => {
-    const id = crypto.randomUUID();
-    setToasts((t) => [...t, { id, message, type }]);
-    setTimeout(() => setToasts((t) => t.filter((toast) => toast.id !== id)), 3500);
+
+ /* ================= TOAST ================= */
+  const showToast = (msg: string, type: ToastType = "info") => {
+    setToastMessage(msg);
+    setToastType(type);
+
+    if (toastTimer.current) {
+      clearTimeout(toastTimer.current);
+    }
+
+    toastTimer.current = setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
   };
-
 
   /* ================= AUTH FETCH ================= */
   const authFetch = async (input: RequestInfo, init?: RequestInit) => {
     const res = await fetch(input, { ...init, credentials: "include" });
     if (res.status === 401) {
-      router.replace("/auth/login"); // redirect if auth fails
+      if(!toastMessage){
+        showToast("Session expired. Please login again.", "error");
+      }
+      setTimeout(() => router.replace("/auth/login"), 1500);
       throw new Error("Session expired");
     }
     return res;
   };
-  /* ================= LOAD EVENTS ================= */
 
-  const fetchEvents = async () => {
+/* ================= LOAD EVENTS ================= */
+const fetchEvents = async () => {
   try {
-    const res = await authFetch("/api/events", {
-      method: "GET",
-      credentials: "include", 
-    });
+    const res = await authFetch("/api/events", { method: "GET" });
     if (!res.ok) throw new Error("Failed to fetch events");
     const data: EventItem[] = await res.json();
     setEvents(data);
-  } catch (err) {
+  } catch (err: any) {
+    // Only push a toast if it's NOT a session expired error
+    if (err.message !== "Session expired") {
+      showToast("Failed to load events", "error");
+    }
     console.error(err);
-    pushToast("Failed to load events", "error");
   }
 };
 
-
-  useEffect(() => {
+useEffect(() => {
     fetchEvents();
   }, []);
 
   /* ================= IMPORT / EXPORT ================= */
-
   const handleImportCalendar = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -161,12 +167,12 @@ export default function EventsPage() {
         );
 
         if (!deduped.length) {
-          pushToast("No new events to import", "error");
+          showToast("No new events to import", "error");
           return;
         }
         setImportPreview(deduped);
       } catch {
-        pushToast("Failed to import calendar", "error");
+        showToast("Failed to import calendar", "error");
       }
     };
     reader.readAsText(file);
@@ -185,9 +191,9 @@ export default function EventsPage() {
       const data: EventItem[] = await res.json();
       await fetchEvents();
       setImportPreview(null);
-      pushToast(`Imported ${data.length} event(s)`);
+      showToast(`Imported ${data.length} event(s)`, "success");
     } catch {
-      pushToast("Failed to import events", "error");
+      showToast("Failed to import events", "error");
     }
   };
 
@@ -281,10 +287,10 @@ export default function EventsPage() {
     await fetchEvents();
     setShowForm(false);
     setEditing(null);
-    pushToast(ev.id ? "Event updated successfully" : "Event created successfully");
+    showToast(ev.id ? "Event updated successfully" : "Event created successfully", "success");
   } catch (err: any) {
     console.error("SAVE EVENT ERROR:", err);
-    pushToast(err.message || "Failed to save event", "error");
+    showToast(err.message || "Failed to save event", "error");
   }
 };
 
@@ -294,9 +300,9 @@ export default function EventsPage() {
       const res = await authFetch(`/api/events?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete event");
       await fetchEvents();
-        pushToast("Event deleted successfully");
+        showToast("Event deleted successfully", "success");
     } catch {
-      pushToast("Failed to delete event", "error");
+      showToast("Failed to delete event", "error");
     }
   };
 
@@ -323,9 +329,9 @@ export default function EventsPage() {
             onClick={() => {
               try {
                 downloadICS(events, "family-events.ics");
-                pushToast("Events exported successfully");
+                showToast("Events exported successfully", "success");
               } catch {
-                pushToast("Export failed", "error");
+                showToast("Export failed", "error");
               }
             }}
           >
@@ -500,27 +506,17 @@ export default function EventsPage() {
               setShowForm(false);
               setEditing(null);
             }}
-            pushToast={pushToast}
+            pushToast={showToast}
           />
         )}
       </AnimatePresence>
 
       {/* TOASTS */}
-      <div className={styles.toastWrap}>
-        <AnimatePresence>
-          {toasts.map((t) => (
-            <motion.div
-              key={t.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
-              className={`${styles.toast} ${styles[t.type]}`}
-            >
-              <p>{t.message}</p>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+      {toastMessage && (
+        <div className={`${styles.toastWrap} ${styles.toast} ${styles[toastType]}`}>
+          <p>{toastMessage}</p>
+        </div>
+      )}
     </main>
   );
 }
@@ -575,7 +571,7 @@ function EventForm({
           {images.map((img, i) => <Image key={i} src={img} alt="" width={80} height={80} unoptimized/>)}
         </div>
         <div className={styles.modalActions}>
-          <button type="button" className={styles.ghost} onClick={onClose}>Cancel</button>
+          <button className={styles.ghost} onClick={onClose}>Cancel</button>
           <button className={styles.cta} type="submit">Save Event</button>
         </div>
       </motion.form>

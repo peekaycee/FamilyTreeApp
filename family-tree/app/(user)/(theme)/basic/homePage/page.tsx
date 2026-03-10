@@ -16,7 +16,7 @@ export default function HomePage() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const goToStory = () => router.push("/basic/stories");
-  const goToTree = () => router.push('/basic/dashboard/family-builder');
+  const goToTree = () => router.push('/basic/family-builder');
   const goToMembers = () => router.push('/basic/members');
   
 
@@ -110,7 +110,7 @@ export default function HomePage() {
              <div className={styles.featureIcon}>🌿</div>
             <h3>Preserve Our Heritage</h3>
             <p>
-             Safely store photographs, documents, and stories that define who we are as a family.
+             We safely store our photographs, documents, and stories that define who we are as a family.
             </p>
           </motion.div>
           <motion.div 
@@ -122,7 +122,7 @@ export default function HomePage() {
           >
             <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
             <h3>Connect Generations</h3>
-            <p>Visualize relationships, understand lineage, and keep everyone connected.</p>
+            <p>We can visualize relationships, understand our lineage, and keep everyone connected.</p>
           </motion.div>
           <motion.div 
                       className={styles.card}

@@ -1,4 +1,3 @@
-
 .hero{
   width: 100%;
   height: 75vh;
@@ -20,26 +19,58 @@
   border-radius: 8px;
   padding: 10px 14px;
   margin-top: 1.5em;
-  /* cursor: pointer; */
+}
+.shareButton{
+  background: var(--color-bg);
+  color: var(--color-black-text);
+  font-weight: 500;
+}
+.shareButton:hover {
+  background: var(--color-accent);
+  color: var(--color-white-text);
 }
 .sendCaret{
   transform: rotate(180deg);
 }
+ .clearButton {
+    display: flex;
+    gap: 12px;
+  }
+  .clearButton button{
+    padding: 0.65em 0;
+  }
+  .clearButton button:first-child {
+    width: 20%;
+  }
+  .clearButton button:nth-child(2) {
+    flex: 1;
+    background: var(--color-primary);
+  }
+  .clearButton button:nth-child(2):hover {
+    background: var(--color-accent);
+  }
+
 /* Stories */
 .storiesSection { 
+  width: 100%;
+  height: auto;
   margin-top: 28px;
   padding: 0 5em 7em;
   color: var(--color-white-text);
 }
 .storiesGrid { 
-  display:grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 2rem; 
+  flex-wrap: wrap;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem; 
   margin-top: 3em;
-  margin-bottom: 1em;
 }
 .storyCard { 
-  background: var(--color-bg);
+  width: 32%;
+  height: 100%;
   border-radius: 16px; 
   overflow: hidden; 
   border: 1px solid rgba(0,0,0,0.05);
@@ -57,22 +88,22 @@
   transform: translateY(-4px);
 }
 .storyHero {
-  width: 300px;  
-  height: 300px;  
+  width: 100%;  
+  height: 100%;  
   flex-shrink: 0;
 }
 .storyImage{
-  object-fit: cover;
-  object-position: center;
   width: 100%;
   height: 100%;
-  margin: 0 auto;
+  object-fit: cover;
+  object-position: center;
 }
 .storyBody { 
   width: 100%;
   height: 100%;
   padding: 1em 1.5em;
   background: var(--color-primary);
+  margin-top: -5px;
  }
  .storyBody p{
   margin-top: 1em;
@@ -85,54 +116,9 @@
   align-items: center;
   justify-content: space-between;
  }
-.storyBody button:first-child{
-   background: var(--color-secondary);
+ .storyActions button:first-child {
+    margin-right: 8px;
  }
-.storyBody button:first-child:hover{
-   background: var(--color-accent);
- }
-.viewAll{
-  margin: 0 auto;
-  text-align: center;
-  margin-top: -25px;
-}
-/* modal */
-.modalBackdrop { 
-  position:fixed; 
-  inset:0; 
-  color: var(--color-black-text);
-  background: rgba(2,6,23,0.45); 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  z-index:50; 
-}
-.detailModal { 
-  background: var(--color-bg); 
-  border-radius: 16px; 
-  padding: 1.5em; 
-  width: min(780px,92%); 
-  position: relative; 
-}
-.detailModal p{
-  margin-top: 1em;
-}
-.detailModal .muted{
-  margin-top: 2px;
-}
-.closeBtn { 
-  position:absolute; 
-  right: 12px; 
-  top: 12px; 
-  border: none; 
-  background: transparent; 
-  cursor:pointer; 
-  color:var(--color-black-text); 
-}
-.closeBtn:hover {
-  color: var(--color-white-text);
-}
-
 /* small utilities */
 .muted { 
   color:var(--color-black-text);
@@ -155,16 +141,20 @@
 /* ============================= */
 @media (max-width: 1024px) {
   .storiesSection {
-    padding: 0 2.5em;
+    padding: 0 2.5em;   
   }
-  .storiesGrid {
-    grid-template-columns: 1fr;
+  .storyCard{
+    width: 45%;
   }
   .storyHero {
-    height: 320px;
+    width: 100%;
+    height: 100%;
   }
   .storyActions button{
     width: 50%;
+  }
+  .shareButton{
+    margin-left: 8px;
   }
 }
 
@@ -173,7 +163,7 @@
 /* ============================= */
 @media (max-width: 640px) {
   .hero{
-    height: 80vh;
+    height: 78vh;
     padding: 0 1em;
   }
   .ctaGhost {
@@ -181,14 +171,13 @@
     justify-content: center;
   }
   .storiesSection {
-    padding: 2em;
+    padding: 1.5em;
   }
-  .storiesGrid {
-    grid-template-columns: 1fr;
-    margin-top: -2rem;
+  .storyCard{
+    width: 100%;
   }
-  .storyHero {
-    height: 240px;
+  .storyHero{
+    height: 100%;
   }
   .storyActions {
     gap: 8px;
@@ -199,11 +188,255 @@
   .detailModal {
     padding: 1.25em;
   }
-  .detailModal button {
-    padding: 0 0.3em;
-  }
+  
   .closeBtn{
     right: 15px;
     font-size: 1.2rem;
   }
+}
+
+/* ===== Modal Backdrop ===== */
+.modalBackdrop1,
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  z-index: 1000;
+}
+
+/* ===== Modal Container ===== */
+.detailModal1,
+.detailModal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+
+  background: var(--color-bg);
+  border-radius: 16px;
+
+  padding: 28px 26px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  max-height: 90vh;
+  overflow-y: auto;
+
+  animation: modalPop 0.25s ease;
+}
+
+/* ===== Modal Header ===== */
+.detailModal1 h3,
+.detailModal h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--color-black-text);
+}
+.detailModal h3{
+  text-align: center;
+}
+.detailModal1 p,
+.detailModal p{
+  margin-top: 1em; 
+}
+.detailModal1 .muted {
+  margin-top: -1em;
+}
+.detailModal .muted{
+  margin-top: 2px;
+  display: none;
+}
+
+/* ===== Close Button ===== */
+.detailModal1 > button:first-of-type,
+.detailModal > button:first-of-type {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  padding: 0.2em 0.5em;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  color: #666;
+}
+
+.detailModal1 > button:first-of-type:hover,
+.detailModal > button:first-of-type:hover {
+  background: var(--color-accent);
+  color: var(--color-white-text);
+}
+
+.readDeleteBtns{
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== Inputs ===== */
+
+.detailModal input,
+.detailModal textarea {
+  width: 100%;
+
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+
+  font-size: 0.95rem;
+  outline: none;
+
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.detailModal textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Focus */
+
+.detailModal input:focus,
+.detailModal textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.01);
+}
+
+/* ===== File input spacing ===== */
+
+.detailModal input[type="file"] {
+  padding: 6px 0;
+}
+
+/* ===== Save Button ===== */
+
+.detailModal > button:last-of-type {
+  margin-top: 10px;
+
+  background: var(--color-secondary);
+  color: var(--color-white-text);
+
+  border: none;
+  border-radius: 8px;
+
+  padding: 11px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.detailModal > button:last-of-type:hover {
+  background: var(--color-accent);
+}
+
+.detailModal > button:last-of-type:active {
+  transform: scale(0.97);
+}
+
+.detailModal > button:last-of-type:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+/* ===== Animations ===== */
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ===== Tablet ===== */
+
+@media (max-width: 900px) {
+  .detailModal {
+    max-width: 460px;
+    padding: 24px 22px;
+  }
+
+  .detailModal h3 {
+    font-size: 1.3rem;
+  }
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width: 600px) {
+  .modalBackdrop {
+    margin-top: -200px;
+    padding: 14px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detailModal {
+    width: 100%;
+    max-width: none;
+
+    border-radius: 16px 16px 0 0;
+
+    padding: 22px 18px;
+    max-height: 92vh;
+  }
+
+  .detailModal textarea {
+    min-height: 100px;
+  }
+
+  .detailModal > button:last-of-type {
+    padding: 13px;
+    font-size: 1rem;
+  }
+}
+
+/* Toast Notification */
+.toastWrap {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+.toast {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  background: #111;
+  color: var(--color-bg);
+}
+
+.toast.success {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.95),
+    rgba(16, 185, 129, 0.95)
+  );
+}
+
+.toast.error {
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.95),
+    rgba(239, 68, 68, 0.95)
+  );
 }

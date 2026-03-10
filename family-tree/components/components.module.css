@@ -832,6 +832,10 @@
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
 }
 .controls button:hover{
   background: var(--color-accent);

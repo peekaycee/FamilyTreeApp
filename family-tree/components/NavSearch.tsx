@@ -14,22 +14,34 @@ export default function NavSearch() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!query.trim()) {
-      return
+  if (!query.trim()) return
+
+  const delayDebounce = setTimeout(async () => {
+    setLoading(true)
+
+    let data = null
+
+    const rpc = await supabase.rpc("search_family_members", {
+      search_query: query,
+    })
+
+    data = rpc.data
+
+    if (!data || data.length === 0) {
+      const fallback = await supabase
+        .from("family_members")
+        .select("id, name")
+        .ilike("name", `${query}%`)
+
+      data = fallback.data
     }
 
-    const delayDebounce = setTimeout(async () => {
-      setLoading(true)
+    setResults(data || [])
+    setLoading(false)
+  }, 300)
 
-      const { data } = await supabase
-        .rpc("search_family_members", { search_query: query })
-
-      setResults(data || [])
-      setLoading(false)
-    }, 300)
-
-    return () => clearTimeout(delayDebounce)
-  }, [query])
+  return () => clearTimeout(delayDebounce)
+}, [query])
 
   if (!query.trim()) {
     if (results.length > 0) setResults([])
@@ -68,7 +80,14 @@ export default function NavSearch() {
       <form onSubmit={handleSubmit}>
         <input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value
+            setQuery(value)
+
+            if (!value.trim()) {
+              setResults([])
+            }
+          }}
           placeholder="Search family member..."
           autoFocus
         />

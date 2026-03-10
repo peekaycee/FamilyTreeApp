@@ -1,16 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback  } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./familyStories.module.css";
 import { CornerDownLeft } from "lucide-react";
 import Image from "next/image";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
-
-const supabase: SupabaseClient = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 
 type Story = {
   id: string;
@@ -22,7 +18,12 @@ type Story = {
   user_id: string;
 };
 
+type ToastType = "success" | "error" | "info";
+
 export default function FamilyStoriesPage() {
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedStory, setSelectedStory] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -35,6 +36,62 @@ export default function FamilyStoriesPage() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<ToastType>("info");
+  const toastTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const showToast = (msg: string, type: ToastType = "info") => {
+    setToastMessage(msg);
+    setToastType(type);
+
+    if (toastTimer.current) {
+      clearTimeout(toastTimer.current);
+    }
+
+    toastTimer.current = setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
+  };
+
+  // Session Check
+    useEffect(() => {
+  const checkSession = async () => {
+    const { data } = await supabase.auth.getUser();
+
+    if (!data.user) {
+      showToast("Session expired. Please login again.", "error");
+
+      setTimeout(() => {
+        router.replace("/auth/login");
+      }, 1500);
+    }
+  };
+
+  checkSession();
+}, [router, supabase]);
+  
+    /* ================= AUTH FETCH ================= */
+    const authFetch = useCallback(
+      async (input: RequestInfo, init?: RequestInit) => {
+        const res = await fetch(input, { ...init, credentials: "include" });
+
+        if (res.status === 401) {
+          if (!toastMessage) {
+            showToast("Session expired. Please login again.", "error");
+          }
+
+          setTimeout(() => {
+            router.replace("/auth/login");
+          }, 1500);
+
+          throw new Error("Session expired");
+        }
+
+        return res;
+      },
+      [router, toastMessage]
+    );
 
   /* ================= FETCH STORIES ================= */
   const fetchStories = async () => {
@@ -54,7 +111,7 @@ export default function FamilyStoriesPage() {
   /* ================= ADD / EDIT STORY ================= */
   const saveStory = async () => {
   if (!title.trim() || !author.trim() || !excerpt.trim() || !content.trim()) {
-    alert("All fields are required");
+    showToast("All fields are required", "error");
     return;
   }
 
@@ -90,7 +147,7 @@ export default function FamilyStoriesPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.error ?? "Failed to save story");
+      showToast(data.error ?? "Failed to save story", "error");
       setLoading(false);
       return;
     }
@@ -101,10 +158,10 @@ export default function FamilyStoriesPage() {
         ? prev.map((s) => (s.id === data.id ? data : s))
         : [data, ...prev]
     );
-
+    showToast(editingId ? "Story updated successfully" : "Story added successfully", "success");
     resetForm();
   } catch (err) {
-    alert("Unexpected error while saving story");
+    showToast("Unexpected error while saving story", "error");
     console.error(err);
     setLoading(false);
   }
@@ -135,11 +192,13 @@ export default function FamilyStoriesPage() {
       });
 
       if (!res.ok) {
-        alert("Delete failed");
+        showToast("Delete failed", "error");
         fetchStories();
+      } else {
+        showToast("Story deleted successfully", "success");
       }
     } catch (err) {
-      alert("Unexpected error while deleting story");
+      showToast("Unexpected error while deleting story", "error");
       console.error(err);
       fetchStories();
     }
@@ -168,8 +227,6 @@ export default function FamilyStoriesPage() {
 
       {/* STORIES GRID */}
       <section className={styles.storiesSection}>
-        <h2 className={styles.sectionTitle}>Legacy Stories</h2>
-
         <div className={styles.storiesGrid}>
           {stories.map((s) => (
             <motion.article 
@@ -198,13 +255,15 @@ export default function FamilyStoriesPage() {
                 <p>{s.excerpt}</p>
 
                 <div className={styles.storyActions}>
-                  <button onClick={() => setSelectedStory(s.id)}>Read</button>
-                  <button>
+                  <div className={styles.readDeleteBtns}>
+                    <button onClick={() => setSelectedStory(s.id)}>Read</button>
+                    {/* Admin only */}
+                    {/* <button onClick={() => editStory(s)}>Edit</button> */}
+                    <button onClick={() => deleteStory(s)}>Delete</button>
+                  </div>
+                  <button className={styles.shareButton}>
                     Share <CornerDownLeft size={14} className={styles.sendCaret}/>
                   </button>
-                  {/* Admin only */}
-                  {/* <button onClick={() => editStory(s)}>Edit</button> */}
-                  <button onClick={() => deleteStory(s)}>Delete</button>
                 </div>
               </div>
             </motion.article>
@@ -215,9 +274,19 @@ export default function FamilyStoriesPage() {
       {/* ADD / EDIT MODAL */}
       <AnimatePresence>
         {showAddModal && (
-          <motion.div className={styles.modalBackdrop}>
-            <motion.article className={styles.detailModal}>
-              <button onClick={resetForm}>x</button>
+          <motion.div 
+            className={styles.modalBackdrop}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.article 
+              className={styles.detailModal}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+             
 
               <h3>{editingId ? "Edit Story" : "Add Story"}</h3>
 
@@ -226,10 +295,12 @@ export default function FamilyStoriesPage() {
               <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Excerpt" />
               <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Content" />
               <input type="file" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
-
-              <button onClick={saveStory} disabled={loading}>
-                {loading ? "Saving..." : "Save"}
-              </button>
+              <div className={styles.clearButton}>
+                <button className={styles.closeBtn} onClick={resetForm}>Clear</button>
+                <button onClick={saveStory} disabled={loading}>
+                  {loading ? "Saving..." : "Save"}
+                </button>
+              </div>
             </motion.article>
           </motion.div>
         )}
@@ -240,14 +311,14 @@ export default function FamilyStoriesPage() {
         {selectedStory && (
           <motion.div
             key={selectedStory}
-            className={styles.modalBackdrop}
+            className={styles.modalBackdrop1}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedStory(null)}
           >
             <motion.article
-              className={styles.detailModal}
+              className={styles.detailModal1}
               initial={{ scale: 0.98, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.98, y: 20 }}
@@ -271,6 +342,11 @@ export default function FamilyStoriesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      {toastMessage && (
+        <div className={`${styles.toastWrap} ${styles.toast} ${styles[toastType]}`}>
+          <p>{toastMessage}</p>
+        </div>
+      )}
     </main>
   );
 }

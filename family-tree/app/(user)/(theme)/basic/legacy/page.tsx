@@ -4,13 +4,11 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./legacy.module.css";
 import Link from "next/link";
-import HeroPics from '../../../../../public/images/pee2.png';
-import Staff1 from '../../../../../public/images/staff1.png';
-import Staff2 from '../../../../../public/images/staff2.png';
-import Staff3 from '../../../../../public/images/staff3.png';
 import { CornerDownLeft, Play } from "lucide-react";
 import Image from "next/image";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
+import { timelineData } from "@/app/constants/Timeline";
+import { familyTreeSample } from "@/app/constants/familyTreeSample";
 
 interface FamilyStory {
   id: string;
@@ -22,58 +20,57 @@ interface FamilyStory {
   created_at: string;
 }
 
-const supabase: SupabaseClient = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const FEATURE_ROTATION_DAYS = 30;
+const FAMILY_FOUNDING_YEAR = 1920;
+const rotationMs = FEATURE_ROTATION_DAYS * 24 * 60 * 60 * 1000;
+const foundingDate = new Date(FAMILY_FOUNDING_YEAR, 0, 1).getTime();
 
-/**
- * Dummy sample data — keep timeline and familyTreeSample as-is
- */
-const timelineData = [
-  {
-    id: "t1",
-    year: 1920,
-    title: "Migration to new land",
-    excerpt: "The family moved to the city looking for new opportunities.",
-    images: [HeroPics],
-    details: "A long migration story with letters and photographs.",
-  },
-  {
-    id: "t2",
-    year: 1950,
-    title: "Founding business",
-    excerpt: "Grandfather founded a carpentry business.",
-    images: [Staff2],
-    details: "The carpentry business created a legacy for generations.",
-  },
-  {
-    id: "t3",
-    year: 1988,
-    title: "Community leader",
-    excerpt: "Became a local community figure and mentor.",
-    images: [Staff3],
-    details: "Organised local schools and community projects.",
-  },
-];
+function getFeaturedMember() {
+  if (typeof window === "undefined") {
+    return familyTreeSample[0];
+  }
 
-const familyTreeSample = [
-  { id: "p1", name: "Grandmother", birth: 1920, children: ["p2", "p3"], img: HeroPics, description: "A pioneer who started the craft business that supported the family for decades." },
-  { id: "p2", name: "Father", birth: 1950, children: ["p4"], img: Staff1, description: "Second description." },
-  { id: "p3", name: "Aunt", birth: 1953, children: [], img: Staff2, description: "Third description." },
-  { id: "p4", name: "You", birth: 1985, children: [], img: Staff3, description: "Fourth description." },
-];
+  const savedId = localStorage.getItem("featuredMemberId");
+  const savedTime = localStorage.getItem("featuredMemberTime");
+
+  if (savedId && savedTime) {
+    const elapsed = Date.now() - Number(savedTime);
+
+    if (elapsed < rotationMs) {
+      const found = familyTreeSample.find((p) => p.id === savedId);
+      if (found) return found;
+    }
+  }
+
+  const rotationIndex = Math.floor((Date.now() - foundingDate) / rotationMs);
+  const index = rotationIndex % familyTreeSample.length;
+
+  return familyTreeSample[index];
+}
 
 export default function LegacyPage() {
+  const supabase = createSupabaseBrowserClient();
   // UI states
   const [selectedTimeline, setSelectedTimeline] = useState<string | null>(null);
   const [selectedStory, setSelectedStory] = useState<string | null>(null);
   const [, setHighlightIndex] = useState(0);
-  const [featured, setFeatured] = useState(familyTreeSample[0]);
   const [showFeaturedModal, setShowFeaturedModal] = useState(false);
+  const [featured, setFeatured] = useState(familyTreeSample[0]);
+  const [daysUntilNext] = useState(() => {
+    const elapsed = Date.now() - foundingDate;
+    const timeIntoCycle = elapsed % rotationMs;
+    const msUntilNext = rotationMs - timeIntoCycle;
+    return Math.ceil(msUntilNext / (24 * 60 * 60 * 1000));
+  });
 
   // Dynamic stories from Supabase
   const [stories, setStories] = useState<FamilyStory[]>([]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFeatured(getFeaturedMember());
+  }, []);
+
 
   // rotate featured ancestor
   useEffect(() => {
@@ -128,7 +125,7 @@ const latestStories = stories.slice(0, 2);
         </motion.div>
       </section>
 
-      {/* INTERACTIVE FAMILY TREE */}
+      {/* FEATURED FAMILY MEMBERS */}
       <section className={styles.treeSection}>
         <h2 className={styles.sectionTitle}>Featured Family</h2>
         <div className={styles.treeRow}>
@@ -140,7 +137,11 @@ const latestStories = stories.slice(0, 2);
                   key={p.id}
                   className={styles.treeNode}
                   whileHover={{ scale: 1.03 }}
-                  onClick={() => setFeatured(p)}
+                  onClick={() => {
+                    setFeatured(p);
+                    localStorage.setItem("featuredMemberId", p.id);
+                    localStorage.setItem("featuredMemberTime", Date.now().toString());
+                  }}
                 >
                   <div className={styles.nodeAvatar}>
                     <Image
@@ -158,6 +159,9 @@ const latestStories = stories.slice(0, 2);
                 </motion.button>
               ))}
             </div>
+            <p className={styles.nextFamilySpotlight}>
+              Next family spotlight changes in {daysUntilNext} day{daysUntilNext !== 1 ? "s" : ""}            
+            </p>
           </div>
 
           <aside className={styles.treeAside}>

@@ -213,6 +213,8 @@
 }
 
 .leader {
+  width: 100%;
+  height: auto;
   background: var(--color-bg);
   padding: 1.25rem;
   border-radius: 16px;
@@ -232,6 +234,7 @@
 
 .cta {
   width: 100%;
+  margin: 0 auto;
   padding: 0.6rem;
   border-radius: 10px;
   background: var(--color-primary);

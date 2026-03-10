@@ -60,17 +60,6 @@
 /* =========================
    RESPONSIVE DESIGN
 ========================= */
-
-/* Large screens (901px and above) */
-@media screen and (min-width: 901px) {
-  
-}
-
-/* Tablets (601px - 900px) */
-@media screen and (min-width: 601px) and (max-width: 900px) {
-  
-}
-
 /* Mobile (max-width: 600px) */
 @media (max-width: 600px) {
   .container{
@@ -82,6 +71,9 @@
   .form {
     width: 100%;
     padding-top: 1em;
+  }
+  .authPage p{
+    max-width: 300px;
   }
 }
 
@@ -135,7 +127,9 @@
   display: none;
 }
 
-
+.authPage p{
+  text-align: center;
+}
 
 
 

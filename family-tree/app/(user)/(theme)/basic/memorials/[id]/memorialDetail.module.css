@@ -185,6 +185,9 @@
 .actions button:hover {
   background: var(--color-accent);
 }
+.messages button {
+  width: fit-content;
+}
 
 /* ================= Toast / Alerts ================= */
 .toast {
@@ -262,4 +265,7 @@
   .tribute {
     font-size: 0.95rem;
   }
+  .messages button {
+  width: 100%;
+}
 }

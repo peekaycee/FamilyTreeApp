@@ -1212,7 +1212,7 @@ const resetView = () => {
           <button onClick={openAddModal}>Add Member</button>
           {/* <button onClick={applyForceLayout}>Force Layout</button> */}
         </div>
-        <div className={styles.nodeCount}>{loading ? "Loading…" : `Nodes: ${members.length}`}</div>
+        <div className={styles.nodeCount}>{loading ? "Loading…" : `Members: ${members.length}`}</div>
       </div>
 
       <div className={`${styles.canvasContainer} ${(editing || addOpen) ? styles.dimmed : ""}`} ref={containerRef} />

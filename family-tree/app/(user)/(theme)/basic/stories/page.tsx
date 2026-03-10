@@ -11,7 +11,7 @@ export default function OurStoryPage() {
       {/* --------------------------- HERO --------------------------- */}
       <section className={styles.hero}>
         <h1 className={styles.title}>
-          Our Story
+          Our Family
           <span>
             {[0, 1, 2].map((i) => (
               <motion.span
@@ -39,7 +39,7 @@ export default function OurStoryPage() {
           transition={{ duration: 0.8 }}
         >
           <p className={styles.subtitle}>
-            The story of the Awolowo family, a journey shaped by heritage,
+            The legacy of the Awolowo family, a journey shaped by heritage,
             resilience, shared values, and the generations that continue to
             carry our name forward with dignity and pride.
           </p>

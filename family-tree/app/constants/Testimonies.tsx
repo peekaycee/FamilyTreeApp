@@ -1,7 +1,7 @@
 // import { HeroImage, Icon } from '../../public/images/index';
-import Face1 from '../../public/images/face1.jpg';
-import Face2 from '../../public/images/face2.jpg';
-import HeroImage from '../../public/images/pee2.png';
+import Face1 from '@/public/images/face1.jpg';
+import Face2 from '@/public/images/face2.jpg';
+import HeroImage from '@/public/images/pee2.png';
 
 export const testimonies = [
     {

@@ -316,15 +316,16 @@ useEffect(() => {
         <p>Plan, remember, and celebrate moments together.</p>
 
         <div className={styles.actions}>
-          <button className={styles.primary} onClick={() => setShowForm(true)}>
+          <button type="button" className={styles.primary} onClick={() => setShowForm(true)}>
             <Plus size={16} /> Create Event
           </button>
 
-          <button className={styles.ghost} onClick={() => fileInputRef.current?.click()}>
+          <button type="button" className={styles.ghost} onClick={() => fileInputRef.current?.click()}>
             <Calendar size={16} /> Import Calendar
           </button>
 
           <button
+            type="button"
             className={styles.ghost}
             onClick={() => {
               try {
@@ -367,12 +368,14 @@ useEffect(() => {
       <section className={styles.tabs}>
         <div className={styles.tabBtns}>
           <button
+            type="button"
             className={tab === "upcoming" ? styles.active : ""}
             onClick={() => setTab("upcoming")}
           >
             Upcoming
           </button>
           <button
+            type="button"
             className={tab === "past" ? styles.active : ""}
             onClick={() => setTab("past")}
           >
@@ -440,12 +443,13 @@ useEffect(() => {
               </ul>
               <div className={styles.modalActions}>
                 <button
+                  type="button"
                   className={styles.ghost}
                   onClick={() => setImportPreview(null)}
                 >
                   Cancel
                 </button>
-                <button className={styles.cta} onClick={confirmImport}>
+                <button type="button" className={styles.cta} onClick={confirmImport}>
                   Confirm Import
                 </button>
               </div>
@@ -477,12 +481,14 @@ useEffect(() => {
 
               <div className={styles.modalActions}>
                 <button
+                  type="button"
                   className={styles.ghost}
                   onClick={() => setSelected(null)}
                 >
                   Close
                 </button>
                 <button
+                  type="button"
                   className={styles.cta}
                   onClick={() =>
                     downloadICS([selected], `${selected.title}.ics`)
@@ -571,8 +577,8 @@ function EventForm({
           {images.map((img, i) => <Image key={i} src={img} alt="" width={80} height={80} unoptimized/>)}
         </div>
         <div className={styles.modalActions}>
-          <button className={styles.ghost} onClick={onClose}>Cancel</button>
-          <button className={styles.cta} type="submit">Save Event</button>
+          <button type="button" className={styles.ghost} onClick={onClose}>Cancel</button>
+          <button type="button" className={styles.cta} type="submit">Save Event</button>
         </div>
       </motion.form>
     </motion.div>

@@ -74,8 +74,8 @@ export default function Navbar() {
           name: 'About',
           children: [
             { name: 'Our Family', href: '/basic/stories' },
-            { name: 'Legacy', href: '/basic/legacy' },
-            { name: 'Stories', href: '/basic/familyStories' },
+            { name: 'Our Legacy', href: '/basic/legacy' },
+            { name: 'Our Stories', href: '/basic/familyStories' },
           ],
         },
         {

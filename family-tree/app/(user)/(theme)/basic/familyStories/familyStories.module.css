@@ -379,6 +379,9 @@
 /* ===== Mobile ===== */
 
 @media (max-width: 600px) {
+  .storiesSection { 
+    padding-bottom: 5em;
+  }
   .modalBackdrop {
     margin-top: -200px;
     padding: 14px;
@@ -390,7 +393,7 @@
     width: 100%;
     max-width: none;
 
-    border-radius: 16px 16px 0 0;
+    border-radius: 16px;
 
     padding: 22px 18px;
     max-height: 92vh;

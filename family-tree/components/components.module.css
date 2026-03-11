@@ -805,9 +805,11 @@
 }
 
 .editButtons {
+  width: 100%;
+  height: auto;
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 /* Controls */
@@ -818,6 +820,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  padding: 2em 3em 0em;
 }
 .buttons{
   flex: 1;
@@ -852,7 +855,6 @@
 /* ----------------------------------------- */
 /* CANVAS BASE                                */
 /* ----------------------------------------- */
-
 .canvasContainer {
   width: 100%;
   height: calc(100vh - 70px);
@@ -946,14 +948,6 @@
     top: 5%;
     padding: 14px;
   }
-
-  .editButtons {
-    flex-direction: column;
-  }
-
-  .editButtons button {
-    width: 100%;
-  }
 }
 
 /* ----------------------------------------- */
@@ -965,14 +959,14 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 360px;
+  width: fit-content;
   max-width: calc(100% - 40px);
   transform: translate(-50%, -50%);
   background: var(--color-bg);
   backdrop-filter: blur(8px);
-  border-radius: 14px;
-  padding: 20px;
-  z-index: 9000;
+  border-radius: 16px;
+  padding: 1.5em;
+  z-index: 10;
   opacity: 0;
   animation: fadeIn 0.25s ease forwards;
   box-shadow: 0 20px 60px rgba(2,8,23,0.7), 0 0 0 1px rgba(255,255,255,0.05);
@@ -1012,17 +1006,27 @@
 .addOverlay input[type="text"],
 .editOverlay select,
 .addOverlay select {
-  padding: 10px;
+  padding: 5px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.08);
   background: var(--color-bg);
   color: var(--color-black-text);
   font-size: 14px;
   font-weight: 500;
   outline: none;
-  border: 0;
   transition: 0.2s ease;
   border: 1px solid rgba(0,0,0,0.1);
+}
+
+.editOverlay input[type="text"]:hover,
+.addOverlay input[type="text"]:hover,
+.editOverlay select:hover,
+.addOverlay select:hover, 
+.editOverlay input[type="text"]:focus,
+.addOverlay input[type="text"]:focus,
+.editOverlay select:focus,
+.addOverlay select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 .editOverlay input[type="file"],
@@ -1105,4 +1109,51 @@
 }
 .noResult{
   padding: 8px;
+}
+
+/* Add Member Modal */
+.memberDetails{
+  display: flex;
+  gap: 0.75em;
+}
+.bio {
+  flex: 1; 
+}
+.dateInfo {
+  width: 40%;
+  padding-left: 5px;
+}
+.dateInfo label{
+  margin-bottom: 11px;
+}
+.dateInfo input{
+  padding: 4px 10px;
+  outline: none;
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-black-text);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.dateInfo input:hover{
+  border-color: var(--color-accent);
+}
+.editButtons button:first-child{
+  width: 25%;
+}
+.editButtons button:nth-child(2) {
+  flex: 1;
+  background: var(--color-primary);
+}
+.editButtons button:nth-child(2):hover {
+  background: var(--color-accent);
+}
+.avatarPreviewer{
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin: 8px auto;
+  border-radius: 12px;
 }

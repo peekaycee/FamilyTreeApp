@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { createSupabaseBrowserClient } from "../lib/supabase/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import styles from "./components.module.css";
+import Image from "next/image";
 import { computeLayout } from "@/lib/tree/layoutEngine";
 import type { Person, Union } from "@/lib/tree/layoutEngine";
 import gsap from "gsap";
@@ -73,6 +74,7 @@ export default function FamilyCanvas() {
   const [submitted, setSubmitted] = useState(false);
   const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
   const [unionsDB, setUnionsDB] = useState<UnionRow[]>([]);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   // Editing modal state
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -136,20 +138,11 @@ export default function FamilyCanvas() {
 }, [supabase, user]);
 
 // // Session Check
-//   useEffect(() => {
-//     const checkSession = async () => {
-//       const { data } = await supabase.auth.getSession()
-
-//       if (!data.session) {
-//         router.replace("/auth/login")
-//         return
-//       }
-
-//       setUser(data.session.user)
-//     }
-
-//     checkSession()
-//   }, [supabase.auth, router])
+useEffect(() => {
+  return () => {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+  };
+}, [avatarPreview]);
 
 // Session Check
 useEffect(() => {
@@ -1274,114 +1267,149 @@ const resetView = () => {
       <div className={styles.addOverlay}>
         <h3>Add Member</h3>
 
+  <div className={styles.memberDetails}>
+    <div className={styles.bio}>
       {/* Name */}
-    <label>
-      Name
-      <input
-        type="text"
-        value={addName}
-        onChange={(e) => setAddName(e.target.value)}
-        onBlur={() => setTouchedName(true)}
-        required
-        autoFocus
-      />
-    </label>
+      <label>
+        Name
+        <input
+          type="text"
+          value={addName}
+          onChange={(e) => setAddName(e.target.value)}
+          onBlur={() => setTouchedName(true)}
+          required
+          autoFocus
+        />
+      </label>
 
-    {/* Role */}
-    <label>
-      Role
-      <select
-        value={addRole}
-        onChange={(e) => setAddRole(e.target.value)}
-        onBlur={() => setTouchedRole(true)}
-        required
-      >
-        <option value="">None</option>
-        {Object.keys(roleColors).map((r) => (
-          <option key={r} value={r}>
-            {r.charAt(0).toUpperCase() + r.slice(1)}
-          </option>
-        ))}
-      </select>
-    </label>
+      {/* Role */}
+      <label>
+        Role
+        <select
+          value={addRole}
+          onChange={(e) => setAddRole(e.target.value)}
+          onBlur={() => setTouchedRole(true)}
+          required
+        >
+          <option value="">None</option>
+          {Object.keys(roleColors).map((r) => (
+            <option key={r} value={r}>
+              {r.charAt(0).toUpperCase() + r.slice(1)}
+            </option>
+          ))}
+        </select>
+      </label>
 
-    {/* Father */}
-    <label>
-      Father
-      <select
-        value={addFather ?? ""}
-        onChange={(e) => setAddFather(e.target.value || null)}
+      {/* Father */}
+      <label>
+        Father
+        <select
+          value={addFather ?? ""}
+          onChange={(e) => setAddFather(e.target.value || null)}
+        >
+          <option value="">None</option>
+          {members.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {/* Mother */}
+      <label>
+        Mother
+        <select
+          value={addMother ?? ""}
+          onChange={(e) => setAddMother(e.target.value || null)}
+        >
+          <option value="">None</option>
+          {members.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {/* Spouse */}
+      <label>
+        Spouse
+        <select
+        value={addSpouse ?? ""}
+        onChange={(e) => setAddSpouse(e.target.value || null)}
       >
-        <option value="">None</option>
-        {members.map((m) => (
+      <option value="">None</option>
+        {members.map(m => (
           <option key={m.id} value={m.id}>
             {m.name}
           </option>
         ))}
       </select>
-    </label>
+      </label>
+    </div>
+    <div className={styles.dateInfo}>
+      {/* Birthdate */}
+      <label>
+        Birthdate
+        <input
+          type="date"
+          value={addBirthDate ?? ""}
+          onChange={(e) => setAddBirthDate(e.target.value || null)}
+        />
+      </label>
 
-    {/* Mother */}
-    <label>
-      Mother
-      <select
-        value={addMother ?? ""}
-        onChange={(e) => setAddMother(e.target.value || null)}
-      >
-        <option value="">None</option>
-        {members.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
-    </label>
+      {/* Deathdate */}
+      <label>
+        Deathdate
+        <input
+          type="date"
+          value={addDeathDate ?? ""}
+          onChange={(e) => setAddDeathDate(e.target.value || null)}
+        />
+      </label>
 
-    {/* Spouse */}
-    <label>
-      Spouse
-      <select
-      value={addSpouse ?? ""}
-      onChange={(e) => setAddSpouse(e.target.value || null)}
-    >
-    <option value="">None</option>
-      {members.map(m => (
-        <option key={m.id} value={m.id}>
-          {m.name}
-        </option>
-      ))}
-    </select>
-    </label>
+      {/* Avatar */}
+      {/* <label>
+        Avatar
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setAddFile(e.target.files?.[0] ?? null)}
+        />
+      </label> */}
+      {/* Avatar */}
+      <label>
+        Avatar
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            setAddFile(file);
 
-    {/* Birthdate */}
-    <label>
-      Birthdate
-      <input
-        type="date"
-        value={addBirthDate ?? ""}
-        onChange={(e) => setAddBirthDate(e.target.value || null)}
-      />
-    </label>
+            if (file) {
+              setAvatarPreview(URL.createObjectURL(file));
+            } else {
+              setAvatarPreview(null);
+            }
+          }}
+        />
 
-    {/* Deathdate */}
-    <label>
-      Deathdate
-      <input
-        type="date"
-        value={addDeathDate ?? ""}
-        onChange={(e) => setAddDeathDate(e.target.value || null)}
-      />
-    </label>
+        {avatarPreview && (
+          <Image
+            className={styles.avatarPreviewer}
+            src={avatarPreview}
+            alt="Avatar preview"
+            width={80}
+            height={80}
+            unoptimized
+          />
+        )}
+      </label>
+    </div>
 
-    {/* Avatar */}
-    <label>
-      Avatar
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setAddFile(e.target.files?.[0] ?? null)}
-      />
-    </label>
+  </div>
 
     {/* Buttons */}
     <div className={styles.editButtons}>

@@ -1184,8 +1184,9 @@ const resetView = () => {
     <div className={styles.familyCanvasWrapper}>
       <div className={styles.controls}>
         <div className={styles.buttons}>
-          <button onClick={resetView}>Reset view</button>
+          <button type="button" onClick={resetView}>Reset view</button>
           <button
+            type="button"
             onClick={async () => {
               const app = appRef.current;
               if (!app) return;
@@ -1209,8 +1210,8 @@ const resetView = () => {
           >
             Export PNG
           </button>
-          <button onClick={openAddModal}>Add Member</button>
           {/* <button onClick={applyForceLayout}>Force Layout</button> */}
+          <button type="button" onClick={openAddModal}>Add Member</button>
         </div>
         <div className={styles.nodeCount}>{loading ? "Loading…" : `Members: ${members.length}`}</div>
       </div>

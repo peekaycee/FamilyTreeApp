@@ -818,11 +818,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  padding: 1.5em 2em 0;
 }
 .buttons{
-  width: fit-content;
+  flex: 1;
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 12px;
 }
 .controls button {
@@ -845,7 +846,6 @@
   color: var(--color-white-text);
   padding: 10px;
   border-radius: 8px;
-  /* margin-left: auto; */
   opacity: 0.9;
 }
 
@@ -923,7 +923,7 @@
     padding: 0.5em 1em;
   }
   .controls button {
-    width: 25%;
+    width: 30%;
     margin: 0;
   }
 

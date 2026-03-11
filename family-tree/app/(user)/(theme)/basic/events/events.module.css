@@ -44,7 +44,7 @@
   border-radius: 8px;
   padding: 12px 10px;
   display:flex; 
-  gap: 8px;
+  gap: 4px;
   align-items: center;
   justify-content: center;
   border: none; 
@@ -64,7 +64,7 @@
   border-radius: 8px;
   padding: 12px 10px;
   display: flex;
-  gap: 2px;
+  gap: 4px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -376,7 +376,6 @@
   .primary,
   .cta {
     flex: unset;
-    min-width: 220px;
   }
 
   /* GRID */
@@ -422,6 +421,7 @@
     flex-direction: column;
     width: 100%;
   }
+.primary,  
 .ghost{
   width: 60%;
 }
@@ -478,7 +478,10 @@
     gap: 0.6rem;
   }
   .modalActions .ghost {
-    width: 100%;
+    width: fit-content;
+  }
+  .modalActions .cta {
+    flex: 1;
   }
 
   /* FORM */

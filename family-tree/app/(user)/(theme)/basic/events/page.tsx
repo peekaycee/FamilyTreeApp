@@ -578,7 +578,7 @@ function EventForm({
         </div>
         <div className={styles.modalActions}>
           <button type="button" className={styles.ghost} onClick={onClose}>Cancel</button>
-          <button type="button" className={styles.cta} type="submit">Save Event</button>
+          <button type="submit" className={styles.cta}>Save Event</button>
         </div>
       </motion.form>
     </motion.div>

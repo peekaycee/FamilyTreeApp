@@ -332,15 +332,17 @@ const deleteMemorial = async (id: string) => {
               <p className={styles.tributeText}>{m.tribute}</p>
 
               <div className={styles.cardActions}>
-                <Link href={`/basic/memorials/${m.id}`} className={styles.cta}>
-                  View
-                </Link>
+                <div className={styles.cardActionsLinkButton}>
+                  <Link href={`/basic/memorials/${m.id}`} className={styles.cta}>
+                    View
+                  </Link>
 
-                {/* ============ Admin Control ================ */}
-                {/* <button onClick={() => { setEditingId(m.id); setForm({ ...m, born: String(m.born), died: String(m.died) }); setShowAdd(true); }}>
-                  Edit
-                </button> */}
-                <button onClick={() => deleteMemorial(m.id)}>Delete</button>
+                  {/* ============ Admin Control ================ */}
+                  {/* <button onClick={() => { setEditingId(m.id); setForm({ ...m, born: String(m.born), died: String(m.died) }); setShowAdd(true); }}>
+                    Edit
+                  </button> */}
+                  <button onClick={() => deleteMemorial(m.id)}>Delete</button>
+                </div>
 
                 <button className={styles.candleBtn} onClick={() => lightCandle(m.id)}>
                   🕯 {candles[m.id] ?? 0}

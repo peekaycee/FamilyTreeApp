@@ -128,6 +128,16 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 0.75em; 
+  gap: 12px;
+}
+.cardActionsLinkButton {
+    width: 50%;
+    display: flex;
+    gap: 12px;
+}
+.cardActionsLinkButton button,
+.cardActionsLinkButton a{
+ width: 50%;
 }
 .imagePlaceholder {
   width: 100%;
@@ -178,7 +188,7 @@
 }
 
 .candleBtn { 
-  width: 18%;
+  flex: 1;
   background: var(--color-bg);
   padding: 12px 10px; 
   color: var(--color-black-text);
@@ -298,8 +308,8 @@
 /* Toast Notification */
 .toast {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 20px;
+  right: 20px;
   width: fit-content;
   padding: 14px 18px;
   border-radius: 8px;
@@ -315,8 +325,8 @@
   justify-content: center;
   text-align: center;
   gap: 12px;
-  pointer-events: auto;
-  z-index: 9999;
+  z-index: 100;
+  pointer-events: none;
 }
 
 .toast.success {
@@ -445,10 +455,6 @@
   .preview {
     max-width: 100%;
     height: auto;
-  }
-  .toast {
-    top: 24px;
-    right: -90px;;
   }
 }
 

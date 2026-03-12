@@ -129,6 +129,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  place-self: flex-end;
+  margin-right: 2em;
 }
 
 .newMessage button:hover {
@@ -266,6 +268,6 @@
     font-size: 0.95rem;
   }
   .messages button {
-  width: 100%;
+  width: fit-content;
 }
 }

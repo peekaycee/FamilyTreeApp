@@ -75,6 +75,7 @@ export default function FamilyCanvas() {
   const originalViewRef = useRef<{x: number; y: number; scale: number; } | null>(null);
   const [unionsDB, setUnionsDB] = useState<UnionRow[]>([]);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null);
 
   // Editing modal state
   const [editing, setEditing] = useState<EditingState | null>(null);
@@ -1242,22 +1243,52 @@ const resetView = () => {
           </label>
           <label>
             Avatar
-            <input type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files?.[0] ?? null)} required/>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setEditFile(file);
+
+                if (file) {
+                  setEditAvatarPreview(URL.createObjectURL(file));
+                } else {
+                  setEditAvatarPreview(null);
+                }
+              }}
+              required
+            />
+
+            {editAvatarPreview && (
+              <div className={styles.preview}>
+                <Image
+                  className={styles.avatarPreviewer}
+                  src={editAvatarPreview}
+                  alt="Avatar preview"
+                  width={80}
+                  height={80}
+                  unoptimized
+                />
+              </div>
+            )}
           </label>
           <div className={styles.editButtons}>
-            <button
-              onClick={() => {
-                setEditing(null);
-                setEditFile(null);
-                isEditingRef.current = false;
-              }}
-            >
-              Cancel
-            </button>
-            <button type="button" onClick={handleSaveEdit}>Save</button>
-            <button type="button" onClick={handleDeleteMember} className={styles.deleteButton}>
-              Delete
-            </button>
+            <div className={styles.cancelDeleteButton}>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(null);
+                  setEditFile(null);
+                  isEditingRef.current = false;
+                }}
+              >
+                Cancel
+              </button>
+              <button type="button" onClick={handleDeleteMember}>
+                Delete
+              </button>
+            </div>
+            <button className={styles.longButton} type="button" onClick={handleSaveEdit}>Save</button>
           </div>
         </div>
       )}
@@ -1397,14 +1428,16 @@ const resetView = () => {
         />
 
         {avatarPreview && (
-          <Image
-            className={styles.avatarPreviewer}
-            src={avatarPreview}
-            alt="Avatar preview"
-            width={80}
-            height={80}
-            unoptimized
-          />
+          <div className={styles.preview}>
+            <Image
+              className={styles.avatarPreviewer}
+              src={avatarPreview}
+              alt="Avatar preview"
+              width={80}
+              height={80}
+              unoptimized
+            />
+          </div>
         )}
       </label>
     </div>
@@ -1414,7 +1447,7 @@ const resetView = () => {
     {/* Buttons */}
     <div className={styles.editButtons}>
       <button onClick={() => setAddOpen(false)}>Cancel</button>
-      <button onClick={handleCreateMember}>
+      <button className={styles.longButton} onClick={handleCreateMember}>
         Create
       </button>
     </div>
@@ -1424,16 +1457,16 @@ const resetView = () => {
 {deleteConfirmOpen && (
   <div className={styles.editOverlay}>
     <h3>Confirm Deletion</h3>
-    <p style={{ marginBottom: "16px" }}>
+    <p>
       Are you sure you want to delete this member? This action cannot be undone.
     </p>
 
     <div className={styles.editButtons}>
-      <button onClick={() => setDeleteConfirmOpen(false)}>
+      <button type="button" onClick={() => setDeleteConfirmOpen(false)}>
         Cancel
       </button>
       <button
-        className={styles.deleteButton}
+        type="button"
         onClick={executeDeleteMember}
       >
         Delete
@@ -1444,23 +1477,23 @@ const resetView = () => {
     </div>
   );
 }
-function computeTopClampedStageY(app: PIXI.Application<PIXI.ICanvas>): number {
-  const bounds = app.stage.getLocalBounds();
-  const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
-  const minAllowedTop = STAGE_TOP_PADDING;
+// function computeTopClampedStageY(app: PIXI.Application<PIXI.ICanvas>): number {
+//   const bounds = app.stage.getLocalBounds();
+//   const topWorldY = bounds.y * app.stage.scale.y + app.stage.y;
+//   const minAllowedTop = STAGE_TOP_PADDING;
 
-  if (topWorldY < minAllowedTop) {
-    return app.stage.y + (minAllowedTop - topWorldY);
-  }
+//   if (topWorldY < minAllowedTop) {
+//     return app.stage.y + (minAllowedTop - topWorldY);
+//   }
 
-  return app.stage.y;
-}
+//   return app.stage.y;
+// }
 
-function computeCenteredStageX(app: PIXI.Application): number {
-  const bounds = app.stage.getLocalBounds();
-  const centerX = bounds.x + bounds.width / 2;
-  return app.renderer.width / 2 - centerX * app.stage.scale.x;
-}
+// function computeCenteredStageX(app: PIXI.Application): number {
+//   const bounds = app.stage.getLocalBounds();
+//   const centerX = bounds.x + bounds.width / 2;
+//   return app.renderer.width / 2 - centerX * app.stage.scale.x;
+// }
 
 // function centerStage(app: PIXI.Application<PIXI.ICanvas>) {
 //   throw new Error("Function not implemented.");

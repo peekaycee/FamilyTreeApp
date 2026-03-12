@@ -785,9 +785,9 @@
   background: var(--color-primary);
   padding: 16px;
   border-radius: 8px;
-  z-index: 9999;
+  z-index: 100;
   color: var(--color-white-text);
-  min-width: 320px;
+  min-width: 400px;
 }
 
 .editOverlay h3 {
@@ -802,14 +802,6 @@
 .editOverlay input[type="text"] {
   width: 100%;
   margin-top: 6px;
-}
-
-.editButtons {
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: flex-start;
-  gap: 12px;
 }
 
 /* Controls */
@@ -899,8 +891,8 @@
   }
 
   .editOverlay {
-    min-width: 280px;
-    width: 80%;
+    min-width: 380px;
+    width: 100%;
     top: 8%;
   }
 }
@@ -1037,13 +1029,15 @@
 
 /* Modal buttons */
 .editButtons {
+  width: 100%;
+  height: auto;
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 12px;
+  justify-content: flex-start;
+  gap: 8px;
 }
 
 .editButtons button {
+  width: 25%;
   background: var(--color-secondary);
   padding: 8px 14px;
   border-radius: 8px;
@@ -1053,9 +1047,25 @@
   transition: 0.2s;
 }
 
+.editButtons button.longButton {
+  flex: 1;
+  background: var(--color-primary);
+}
+
 .editButtons button:hover {
   background: var(--color-accent);
 }
+
+.cancelDeleteButton {
+  display: flex;
+  width: 50%;
+  gap: 8px;
+}
+.cancelDeleteButton button{
+  width: 50%;
+}
+
+
 
 /* ----------------------------------------- */
 /* ROLE BADGES / ICONS                         */
@@ -1140,20 +1150,17 @@
 .dateInfo input:hover{
   border-color: var(--color-accent);
 }
-.editButtons button:first-child{
-  width: 25%;
-}
-.editButtons button:nth-child(2) {
-  flex: 1;
-  background: var(--color-primary);
-}
-.editButtons button:nth-child(2):hover {
-  background: var(--color-accent);
+.preview{
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .avatarPreviewer{
   width: 80px;
   height: 80px;
   object-fit: cover;
   margin: 8px auto;
-  border-radius: 12px;
+  border-radius: 50%;
 }

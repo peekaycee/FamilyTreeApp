@@ -160,5 +160,5 @@
 .avatarWrapper .deleteBtn {
   opacity: 1;
   background-color: red;
-  color: white;
+  color: var(--color-white-text);
 }

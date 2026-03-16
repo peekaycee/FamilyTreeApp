@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./members.module.css";
 import { useRouter } from "next/navigation";
+import Placeholder from "@/public/images/image-placeholder-removebg-preview.png";
+
 
 /* ================= TYPES ================= */
 
@@ -16,10 +19,6 @@ interface MemberRow {
   avatar_path: string | null;
   created_at: string | null;
 }
-
-/* ================= CONSTANTS ================= */
-
-const PLACEHOLDER_AVATAR = "/images/avatar-placeholder.png";
 
 /* ================= MAIN PAGE ================= */
 
@@ -81,6 +80,10 @@ export default function FamilyMembersPage() {
     router.replace("/basic/family-builder")
   };
 
+  const goToMember = (id: string) => {
+    router.push(`/basic/members/${id}`);
+  };
+
   /* ================= RENDER ================= */
 
   return (
@@ -128,27 +131,30 @@ export default function FamilyMembersPage() {
               viewport={{ once: false }}
               transition={{ delay: i * 0.05 }}
             >
-              <div className={styles.cardInner}>
-                <div className={styles.cardFront}>
-                  {m.avatar_url ? (
-                    <Image
-                      src={m.avatar_url}
-                      alt={m.name}
-                      className={styles.avatar}
-                      fill
-                      sizes="300px"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className={styles.placeholder}>No Image</div>
-                  )}
+              <Link href={`/basic/members/${m.id}`}>
+                <div className={styles.cardInner}>
+                  <div className={styles.cardFront}>
+                    {m.avatar_url ? (
+                      <Image
+                        src={m.avatar_url}
+                        alt={m.name}
+                        className={styles.avatar}
+                        fill
+                        sizes="300px"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className={styles.placeholder}>
+                        <Image src={Placeholder} alt="Placeholder images" />
+                      </div>
+                    )}
+                  </div>
+                    <div className={styles.cardBack}>
+                      <h3>{m.name}</h3>
+                      <p>{m.role || "—"}</p>              
+                    </div>
                 </div>
-
-                <div className={styles.cardBack}>
-                  <h3>{m.name}</h3>
-                  <p>{m.role || "—"}</p>
-                </div>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>

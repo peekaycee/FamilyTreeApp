@@ -569,7 +569,7 @@ function EventForm({
       >
         <h3>{initial ? "Edit Event" : "Create Event"}</h3>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Event Title" />
-        <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
+        <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} placeholder="Date" />
         <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" />
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
         <input type="file" multiple accept="image/*" onChange={(e) => handleImages(e.target.files)} />

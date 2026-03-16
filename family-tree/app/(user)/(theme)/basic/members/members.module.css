@@ -333,6 +333,21 @@
   background: var(--color-secondary);
 }
 
+/* .aboutBtn {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: var(--color-secondary);
+  color: var(--color-white-text);
+  text-decoration: none;
+  font-size: 14px;
+  margin-top: 1em;
+  transition: all 0.3s ease;
+}
+.aboutBtn:hover{
+  background: var(--color-accent);
+  letter-spacing: 1px;
+} */
 /* ----------------------------
    RESPONSIVE
 ---------------------------- */

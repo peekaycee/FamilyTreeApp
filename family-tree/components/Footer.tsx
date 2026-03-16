@@ -116,9 +116,9 @@ export default function Footer() {
               <div className={styles.navLinks}>
                 <h3>Links</h3>
                 <Link href="/basic/homePage">Home</Link>
-                <Link href="/basic/stories">Our Story</Link>
-                <Link href="/basic/legacy">Legacy</Link>
-                <Link href="/basic/familyStories">Family Stories</Link>
+                <Link href="/basic/stories">Our Family</Link>
+                <Link href="/basic/legacy">Our Legacy</Link>
+                <Link href="/basic/familyStories">Our Stories</Link>
                 <Link href="/basic/family-builder">Family Tree</Link>
                 <Link href="/basic/members">Family Album</Link>
                 <Link href="/basic/achievements">Achievements</Link>

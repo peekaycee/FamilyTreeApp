@@ -7,13 +7,15 @@ import Image from 'next/image'
 import { useEffect, useState, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, ChevronDown } from 'lucide-react'
+import Placeholder from '../public/images/image-placeholder-removebg-preview.png';
 import Logo from '../public/images/logo.png';
 import styles from './components.module.css'
 import Button from './Button'
 import useGlobalAuth from "@/app/hooks/useGlobalAuth";
 import { Settings } from "lucide-react";
 import NavSearch from "./NavSearch"
-// import { useToast } from '../app/ToastContext';
+import { useSettings } from "@/app/contexts/SettingsContext"
+
 
 export default function Navbar() {
   // const [loggedIn, setLoggedIn] = useState(false)
@@ -23,7 +25,7 @@ export default function Navbar() {
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-  // const { showToast } = useToast();
+  const { state } = useSettings()
 
   // Close drawer when clicking outside
   useEffect(() => {
@@ -177,7 +179,12 @@ export default function Navbar() {
             </Link>
             <Link href="/basic/settings/profile-image" className={styles.profileImageLink}>
               <div className={styles.profileImage}>
-                <Image src="/images/pee2.png" alt="Profile Image" width={100} height={100}/>
+                <Image 
+                  src={state.currentAvatar || Placeholder} 
+                  alt="Profile Image" 
+                  width={100} 
+                  height={100}
+                />
               </div>
             </Link>
           </>

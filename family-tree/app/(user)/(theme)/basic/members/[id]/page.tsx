@@ -27,13 +27,6 @@ interface Child {
   name: string;
 }
 
-interface Union {
-  partner_a: string;
-  partner_b: string;
-  partnerA?: { id: string; name: string } | null;
-  partnerB?: { id: string; name: string } | null;
-}
-
 export default async function MemberPage({
   params,
 }: {
@@ -44,7 +37,7 @@ export default async function MemberPage({
 
   if (!id || !uuidValidate(id)) notFound();
 
-  // Fetch member with father, mother, birth_date, death_date
+  /* ===== FETCH MEMBER ===== */
   const { data, error } = await supabase
     .from("family_members")
     .select(`
@@ -68,69 +61,110 @@ export default async function MemberPage({
     .single();
 
   if (error || !data) {
-    console.error(error);
+    console.error("MEMBER FETCH ERROR:", error);
     notFound();
   }
 
-  // Fetch children
-  const { data: children } = await supabase
+  // Safe normalization (prevents undefined issues)
+const normalizeRelation = (
+  rel: any
+): { id: string; name: string } | null => {
+  if (!rel) return null;
+
+  // If it's an array → take first element
+  if (Array.isArray(rel)) {
+    return rel.length > 0 ? rel[0] : null;
+  }
+
+  // If it's already an object → return as is
+  return rel;
+};
+
+const member: FamilyMember = {
+  ...data,
+  father: normalizeRelation(data.father),
+  mother: normalizeRelation(data.mother),
+};
+
+  /* ===== FETCH CHILDREN ===== */
+  const { data: childrenData } = await supabase
     .from("family_members")
     .select("id, name")
     .or(`father_id.eq.${id},mother_id.eq.${id}`);
 
-  // Fetch spouse from family_unions
-const { data: unions } = await supabase
-  .from("family_unions")
-  .select(`
-    partner_a,
-    partner_b
-  `)
-  .or(`partner_a.eq.${id},partner_b.eq.${id}`);
+  const children: Child[] = childrenData ?? [];
 
-let spouse: { id: string; name: string } | null = null;
+  /* ===== FETCH SPOUSE ===== */
+  const { data: unions } = await supabase
+    .from("family_unions")
+    .select("partner_a, partner_b")
+    .or(`partner_a.eq.${id},partner_b.eq.${id}`);
 
-if (unions && unions.length > 0) {
-  const u = unions[0];
-  let spouseId: string | null = null;
+  let spouse: { id: string; name: string } | null = null;
 
-  if (u.partner_a === id) spouseId = u.partner_b;
-  else if (u.partner_b === id) spouseId = u.partner_a;
+  if (unions && unions.length > 0) {
+    const u = unions[0];
 
-  if (spouseId) {
-    // Fetch spouse's actual name from family_members
-    const { data: spouseData } = await supabase
-      .from("family_members")
-      .select("id, name")
-      .eq("id", spouseId)
-      .single();
+    const spouseId =
+      u.partner_a === id ? u.partner_b :
+      u.partner_b === id ? u.partner_a :
+      null;
 
-    if (spouseData) spouse = { id: spouseData.id, name: spouseData.name };
+    if (spouseId) {
+      const { data: spouseData } = await supabase
+        .from("family_members")
+        .select("id, name")
+        .eq("id", spouseId)
+        .single();
+
+      if (spouseData) {
+        spouse = {
+          id: spouseData.id,
+          name: spouseData.name,
+        };
+      }
+    }
   }
-}
 
+  /* ===== SAFE DERIVED VALUES ===== */
+  const fatherName = member.father?.name ?? "Not recorded";
+  const motherName = member.mother?.name ?? "Not recorded";
+
+  /* ===== UI ===== */
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>{data.name}</h1>
-      <p>Role: {data.role ?? "N/A"}</p>
-      <p>Generation: {data.generation}</p>
-      <p>Position: ({data.pos_x}, {data.pos_y})</p>
-      {data.avatar_url && (
-        <Image src={data.avatar_url} alt="Avatar" width={100} height={100} />
+      <h1>{member.name}</h1>
+
+      <p>Role: {member.role ?? "N/A"}</p>
+      <p>Generation: {member.generation ?? "N/A"}</p>
+      <p>
+        Position: (
+        {member.pos_x ?? "?"}, {member.pos_y ?? "?"}
+        )
+      </p>
+
+      {member.avatar_url && (
+        <Image
+          src={member.avatar_url}
+          alt="Avatar"
+          width={100}
+          height={100}
+        />
       )}
 
       <hr />
 
       <h3>Father</h3>
-      <p>{data.father?.name ?? "Not recorded"}</p>
+      <p>{fatherName}</p>
 
       <h3>Mother</h3>
-      <p>{data.mother?.name ?? "Not recorded"}</p>
+      <p>{motherName}</p>
 
       <h3>Spouse</h3>
       <p>{spouse?.name ?? "Not recorded"}</p>
 
       <h3>Children</h3>
-      {children && children.length > 0 ? (
+      {children.length > 0 ? (
         <ul>
           {children.map((child) => (
             <li key={child.id}>{child.name}</li>
@@ -143,10 +177,10 @@ if (unions && unions.length > 0) {
       <hr />
 
       <h3>Birth Date</h3>
-      <p>{data.birth_date ?? "Not recorded"}</p>
+      <p>{member.birth_date ?? "Not recorded"}</p>
 
       <h3>Death Date</h3>
-      <p>{data.death_date ?? "Not recorded"}</p>
+      <p>{member.death_date ?? "Not recorded"}</p>
     </div>
   );
 }

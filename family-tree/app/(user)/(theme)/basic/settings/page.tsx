@@ -7,7 +7,7 @@ import styles from "./settings.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 import { useSettings } from "@/app/contexts/SettingsContext";
 import Placeholder from "@/public/images/image-placeholder-removebg-preview.png";
-import { PanelLeft, X, LayoutDashboard } from "lucide-react";
+import { MoreVertical, X, LayoutDashboard } from "lucide-react";
 
 const supabase = createSupabaseBrowserClient();
 
@@ -334,7 +334,7 @@ export default function Settings() {
 
       {!sidebarOpen && (
         <button title="Open Tab" type="button" className={styles.sidebarToggle} onClick={toggleSidebar}>
-          <PanelLeft size={15} />
+          <MoreVertical size={20} strokeWidth={2} />
         </button>
       )}
 
@@ -390,7 +390,7 @@ export default function Settings() {
                   height={300}
                 />
               <label className={styles.uploadBtn}>
-                Change Image
+                <p>Change Image</p>
                 <input
                   type="file"
                   hidden
@@ -445,7 +445,7 @@ export default function Settings() {
               </label>
               <input
                 className={styles.input}
-                placeholder="Type your family name..."
+                placeholder="example: Awolowo"
                 value={state.familyName}
                 onChange={(e) =>
                   dispatch({

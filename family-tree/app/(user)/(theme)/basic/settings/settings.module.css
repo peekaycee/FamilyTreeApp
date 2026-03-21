@@ -184,10 +184,16 @@ FORM CONTROLS
   margin-top: 0.35em;
   margin-bottom: 2.5rem;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-accent);
   background: transparent;
   color: var(--color-black-text);
 }
+
+.input:focus,
+.select:focus{
+  outline: none;
+  box-shadow:0 2px 6px rgba(0, 0, 0, 0.15);
+} 
 
 .input::placeholder {
   color: rgba(0, 0, 0, 0.45);

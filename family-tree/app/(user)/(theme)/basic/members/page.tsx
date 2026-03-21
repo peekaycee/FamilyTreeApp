@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 import styles from "./members.module.css";
 import { useRouter } from "next/navigation";
 import Placeholder from "@/public/images/image-placeholder-removebg-preview.png";
@@ -27,6 +26,8 @@ export default function FamilyMembersPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [search, setSearch] = useState("");
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
 
    /* ================= AUTH FETCH ================= */
@@ -54,6 +55,24 @@ export default function FamilyMembersPage() {
 
   useEffect(() => {
     fetchMembers();
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (!gridRef.current) return;
+
+      if (!gridRef.current.contains(e.target as Node)) {
+        setFlippedCards({});
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
   }, []);
 
   /* ================= INFINITE SCROLL ================= */
@@ -84,6 +103,19 @@ export default function FamilyMembersPage() {
     router.push(`/basic/members/${id}`);
   };
 
+  const isTouchDevice = () => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width:1024px)").matches;
+  };
+
+  const handleCardTap = (id: string) => {
+    if (!isTouchDevice()) return;
+
+    setFlippedCards((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
   /* ================= RENDER ================= */
 
   return (
@@ -121,7 +153,7 @@ export default function FamilyMembersPage() {
         </div>
 
         {/* Members Grid */}
-        <div className={styles.grid}>
+        <div className={styles.grid} ref={gridRef}>
           {filtered.slice(0, visibleCount).map((m, i) => (
             <motion.div
               key={m.id}
@@ -131,30 +163,46 @@ export default function FamilyMembersPage() {
               viewport={{ once: false }}
               transition={{ delay: i * 0.05 }}
             >
-              <Link href={`/basic/members/${m.id}`}>
-                <div className={styles.cardInner}>
-                  <div className={styles.cardFront}>
-                    {m.avatar_url ? (
-                      <Image
-                        src={m.avatar_url}
-                        alt={m.name}
-                        className={styles.avatar}
-                        fill
-                        sizes="300px"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className={styles.placeholder}>
-                        <Image src={Placeholder} alt="Placeholder images" />
-                      </div>
-                    )}
-                  </div>
-                    <div className={styles.cardBack}>
-                      <h3>{m.name}</h3>
-                      <p>{m.role || "—"}</p>              
+              <div
+                className={`${styles.cardInner} ${
+                  flippedCards[m.id] ? styles.flipped : ""
+                }`}
+                onClick={() => handleCardTap(m.id)}
+              >
+                <div className={styles.cardFront}>
+                  {m.avatar_url ? (
+                    <Image
+                      src={m.avatar_url}
+                      alt={m.name}
+                      className={styles.avatar}
+                      fill
+                      sizes="300px"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className={styles.placeholder}>
+                      <Image src={Placeholder} alt="Placeholder images" />
                     </div>
+                  )}
                 </div>
-              </Link>
+
+                <div className={styles.cardBack}>
+                  <h3>{m.name}</h3>
+                  <p>{m.role || "—"}</p>
+
+                  {/* Navigation button */}
+                  <button
+                    type="button"
+                    className={styles.profileBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToMember(m.id);
+                    }}
+                  >
+                    View Profile →
+                  </button>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

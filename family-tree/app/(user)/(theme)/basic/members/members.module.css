@@ -333,21 +333,17 @@
   background: var(--color-secondary);
 }
 
-/* .aboutBtn {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 6px;
+.profileBtn {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
   background: var(--color-secondary);
   color: var(--color-white-text);
-  text-decoration: none;
   font-size: 14px;
-  margin-top: 1em;
-  transition: all 0.3s ease;
+  cursor: pointer;
 }
-.aboutBtn:hover{
-  background: var(--color-accent);
-  letter-spacing: 1px;
-} */
 /* ----------------------------
    RESPONSIVE
 ---------------------------- */

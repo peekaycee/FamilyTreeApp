@@ -128,11 +128,13 @@
   padding: 10px 16px;
   border-radius: 8px;
   border: 1px solid var(--color-accent);
-  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.25s ease;
 }
-
+.uploadBtn p{
+  font-size: 0.75rem;
+  font-weight: 500;
+}
 .uploadBtn:hover {
   background: var(--color-accent);
   color: var(--color-white-text);
@@ -211,7 +213,8 @@ FORM CONTROLS
   border: none;
   outline: none;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 0.95rem;
   background: var(--color-primary);
   color: var(--color-white-text);
   margin-top: auto;
@@ -256,16 +259,17 @@ FORM CONTROLS
 
 /* Sidebar toggle button for mobile/tablet */
 .sidebarToggle {
-  background-color: var(--color-secondary);
   color: var(--color-white-text);
   border: none;
   outline: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  padding: 0.3em 0.1em;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   margin-bottom: 1rem;
-  display: none; 
+  margin-right: 0.45rem;
+  display: none;
+  vertical-align: middle; 
 }
 
 .sidebarToggleClose{

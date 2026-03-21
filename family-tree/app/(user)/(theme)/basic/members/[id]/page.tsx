@@ -1,24 +1,52 @@
-import { notFound } from "next/navigation"
-import Image from "next/image"
-import { validate as uuidValidate } from "uuid"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import { validate as uuidValidate } from "uuid";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+/* ===== TYPES ===== */
+interface FamilyMember {
+  id: string;
+  user_id: string;
+  name: string;
+  role: string | null;
+  avatar_url: string | null;
+  father_id: string | null;
+  mother_id: string | null;
+  pos_x: number | null;
+  pos_y: number | null;
+  generation: number | null;
+  is_direct_relative: boolean | null;
+  birth_date: string | null;
+  death_date: string | null;
+  father?: { id: string; name: string } | null;
+  mother?: { id: string; name: string } | null;
+}
+
+interface Child {
+  id: string;
+  name: string;
+}
+
+interface Union {
+  partner_a: string;
+  partner_b: string;
+  partnerA?: { id: string; name: string } | null;
+  partnerB?: { id: string; name: string } | null;
+}
 
 export default async function MemberPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const supabase = await createSupabaseServerClient()
-  const { id } = await params
+  const supabase = await createSupabaseServerClient();
+  const { id } = await params;
 
-  // UUID validation
-  if (!id || !uuidValidate(id)) {
-    notFound()
-  }
+  if (!id || !uuidValidate(id)) notFound();
 
+  // Fetch member with father, mother, birth_date, death_date
   const { data, error } = await supabase
-    .from("family_members")
+    .from<FamilyMember>("family_members")
     .select(`
       id,
       user_id,
@@ -27,41 +55,58 @@ export default async function MemberPage({
       avatar_url,
       father_id,
       mother_id,
-      spouse_id,
       pos_x,
       pos_y,
       generation,
       is_direct_relative,
-      father:father_id (
-        id,
-        name
-      ),
-      mother:mother_id (
-        id,
-        name
-      ),
-      spouse:spouse_id (
-        id,
-        name
-      )
+      birth_date,
+      death_date,
+      father:father_id ( id, name ),
+      mother:mother_id ( id, name )
     `)
     .eq("id", id)
-    .single()
+    .single();
 
-  if (error) {
-    console.error("Supabase error:", error)
-    notFound()
+  if (error || !data) {
+    console.error(error);
+    notFound();
   }
 
-  if (!data) {
-    notFound()
-  }
-
-  // Fetch children separately (reverse relationship)
+  // Fetch children
   const { data: children } = await supabase
-    .from("family_members")
+    .from<Child>("family_members")
     .select("id, name")
-    .or(`father_id.eq.${id},mother_id.eq.${id}`)
+    .or(`father_id.eq.${id},mother_id.eq.${id}`);
+
+  // Fetch spouse from family_unions
+const { data: unions } = await supabase
+  .from<Union>("family_unions")
+  .select(`
+    partner_a,
+    partner_b
+  `)
+  .or(`partner_a.eq.${id},partner_b.eq.${id}`);
+
+let spouse: { id: string; name: string } | null = null;
+
+if (unions && unions.length > 0) {
+  const u = unions[0];
+  let spouseId: string | null = null;
+
+  if (u.partner_a === id) spouseId = u.partner_b;
+  else if (u.partner_b === id) spouseId = u.partner_a;
+
+  if (spouseId) {
+    // Fetch spouse's actual name from family_members
+    const { data: spouseData } = await supabase
+      .from<FamilyMember>("family_members")
+      .select("id, name")
+      .eq("id", spouseId)
+      .single();
+
+    if (spouseData) spouse = { id: spouseData.id, name: spouseData.name };
+  }
+}
 
   return (
     <div style={{ padding: "2rem" }}>
@@ -69,30 +114,20 @@ export default async function MemberPage({
       <p>Role: {data.role ?? "N/A"}</p>
       <p>Generation: {data.generation}</p>
       <p>Position: ({data.pos_x}, {data.pos_y})</p>
-      {data.avatar_url && <Image src={data.avatar_url} alt="Avatar" width={100} height={100} />}
+      {data.avatar_url && (
+        <Image src={data.avatar_url} alt="Avatar" width={100} height={100} />
+      )}
 
       <hr />
 
       <h3>Father</h3>
-      {data.father?.[0] ? (
-        <p>{data.father[0].name}</p>
-      ) : (
-        <p>Not recorded</p>
-      )}
+      <p>{data.father?.name ?? "Not recorded"}</p>
 
       <h3>Mother</h3>
-      {data.mother?.[0] ? (
-        <p>{data.mother[0].name}</p>
-      ) : (
-        <p>Not recorded</p>
-      )}
+      <p>{data.mother?.name ?? "Not recorded"}</p>
 
       <h3>Spouse</h3>
-      {data.spouse?.[0] ? (
-        <p>{data.spouse[0].name}</p>
-      ) : (
-        <p>Not recorded</p>
-      )}
+      <p>{spouse?.name ?? "Not recorded"}</p>
 
       <h3>Children</h3>
       {children && children.length > 0 ? (
@@ -104,6 +139,14 @@ export default async function MemberPage({
       ) : (
         <p>No children recorded</p>
       )}
+
+      <hr />
+
+      <h3>Birth Date</h3>
+      <p>{data.birth_date ?? "Not recorded"}</p>
+
+      <h3>Death Date</h3>
+      <p>{data.death_date ?? "Not recorded"}</p>
     </div>
-  )
+  );
 }

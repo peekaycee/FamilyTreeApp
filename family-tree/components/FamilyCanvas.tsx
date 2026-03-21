@@ -19,9 +19,9 @@ export type MemberRow = {
   role?: string | null;
   father_id?: string | null;
   mother_id?: string | null;
-  // spouse_id?: string | null;
   pos_x?: number | null;
   pos_y?: number | null;
+  generation?: number | null; // ✅ ADD THIS LINE
   avatar_url?: string | null;
   avatar_path?: string | null;
   created_at?: string | null;
@@ -491,8 +491,9 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
     try {
       const sprite = PIXI.Sprite.from(m.avatar_url);
       sprite.anchor.set(0.5);
-      sprite.width = NODE_RADIUS * 2;
-      sprite.height = NODE_RADIUS * 2;
+      const size = NODE_RADIUS * 2;
+      const scale = Math.max(size / sprite.texture.width, size / sprite.texture.height);
+      sprite.scale.set(scale);
       const mask = new PIXI.Graphics();
       mask.beginFill(0x333333);
       mask.drawCircle(0, 0, NODE_RADIUS - 1);
@@ -513,11 +514,20 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   label.anchor.set(0.5, 0);
   c.addChild(label);
 
+  // Generation label
+  const genLabel = new PIXI.Text(
+    `Gen ${m.generation ?? 0}`,
+    { fontSize: 10, fill: 0x666666 }
+  );
+  genLabel.anchor.set(0.5);
+  genLabel.y = -NODE_RADIUS - 10;
+  // c.addChild(genLabel); // you can turn this on to see generation label
+
   // Role label
   const roleLabel = new PIXI.Text(m.role ?? "", { fontSize: 12, fill: 0x333333, align: "center" });
   roleLabel.y = NODE_RADIUS + 22;
   roleLabel.anchor.set(0.5, -0.35);
-  // c.addChild(roleLabel); // you can turn this on to see roles text
+  // c.addChild(roleLabel); // you can turn this on to see roles label
 
   // ---------------------- Dragging ----------------------
   let dragging = false;
@@ -1032,6 +1042,24 @@ const handleCreateMember = async () => {
       showToast("These two members are already spouses.");
       return;
     }
+
+    const getGeneration = (fatherId?: string | null, motherId?: string | null) => {
+    const parentGenerations = [fatherId, motherId]
+      .filter(Boolean)
+      .map((pid) => {
+        const parent = memberMap[pid!];
+        return parent?.generation ?? 0;
+      });
+
+    if (parentGenerations.length === 0) return 0;
+
+    return Math.max(...parentGenerations) + 1;
+  };
+
+  const generation = getGeneration(addFather, addMother);
+  const pos_x = Math.round(Math.random() * 400 - 200);
+  const pos_y = generation * 120;
+
     // ---------------- Insert Member (ONLY ONCE) ----------------
     const memberInsert = {
       id,
@@ -1040,14 +1068,15 @@ const handleCreateMember = async () => {
       role: addRole,
       father_id: addFather,
       mother_id: addMother,
-      // pos_x: Math.round(Math.random() * 800 + 100),
-      // pos_y: Math.round(Math.random() * 200 + 100),
+      pos_x,
+      pos_y,
+      generation,
       avatar_url,
       avatar_path,
       birth_date: addBirthDate ?? null,
       death_date: addDeathDate ?? null,
     };
-
+    console.log("INSERTING MEMBER:", memberInsert);
     const { error: insertError } = await supabase
       .from("family_members")
       .insert([memberInsert]);

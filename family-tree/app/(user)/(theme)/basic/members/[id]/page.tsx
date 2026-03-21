@@ -46,7 +46,7 @@ export default async function MemberPage({
 
   // Fetch member with father, mother, birth_date, death_date
   const { data, error } = await supabase
-    .from<FamilyMember>("family_members")
+    .from("family_members")
     .select(`
       id,
       user_id,
@@ -74,13 +74,13 @@ export default async function MemberPage({
 
   // Fetch children
   const { data: children } = await supabase
-    .from<Child>("family_members")
+    .from("family_members")
     .select("id, name")
     .or(`father_id.eq.${id},mother_id.eq.${id}`);
 
   // Fetch spouse from family_unions
 const { data: unions } = await supabase
-  .from<Union>("family_unions")
+  .from("family_unions")
   .select(`
     partner_a,
     partner_b
@@ -99,7 +99,7 @@ if (unions && unions.length > 0) {
   if (spouseId) {
     // Fetch spouse's actual name from family_members
     const { data: spouseData } = await supabase
-      .from<FamilyMember>("family_members")
+      .from("family_members")
       .select("id, name")
       .eq("id", spouseId)
       .single();

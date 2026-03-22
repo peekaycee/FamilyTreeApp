@@ -1136,7 +1136,8 @@
 .dateInfo label{
   margin-bottom: 11px;
 }
-.dateInfo input{
+.dateInfo input{ 
+  width: 100%;
   padding: 4px 10px;
   outline: none;
   border-radius: 8px;

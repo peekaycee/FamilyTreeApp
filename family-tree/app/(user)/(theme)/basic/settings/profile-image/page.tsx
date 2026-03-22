@@ -13,27 +13,48 @@ type ThemeMode = "light" | "dark" | "system";
 
 export default function ProfileImageSettings() {
 
-  const { state, dispatch } = useSettings();
-
+  const { state, dispatch, isHydrated } = useSettings();
+  
   // const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hoveredAvatar, setHoveredAvatar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   // const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const [isSaving, setIsSaving] = useState(false);
-
-  const [initialProfile, setInitialProfile] = useState<{ familyName: string; avatar: string | null }>({
+  
+  const [initialProfile, setInitialProfile] = useState<{
+    familyName: string;
+    avatar: string | null;
+  }>({
     familyName: "",
-    avatar: null
+    avatar: null,
   });
-
-  const [initialSettings, setInitialSettings] = useState<{ theme: ThemeMode; accentColor: string }>({
+  
+  const [initialSettings, setInitialSettings] = useState<{
+    theme: ThemeMode;
+    accentColor: string;
+  }>({
     theme: "system",
-    accentColor: "#3b82f6"
+    accentColor: "#3b82f6",
   });
-
+  
+  useEffect(() => {
+    if (!state.familyName) return; // prevents empty overwrite
+    
+    setInitialProfile({
+      familyName: state.familyName,
+      avatar: state.currentAvatar,
+    });
+    
+    setInitialSettings({
+      theme: state.theme,
+      accentColor: state.accentColor,
+    });
+  }, [state.accentColor, state.currentAvatar, state.familyName, state.theme]);
+  
+  
   /* =====================
-     Detect mobile
+  Detect mobile
   ===================== */
 
   useEffect(() => {
@@ -43,77 +64,7 @@ export default function ProfileImageSettings() {
     return () => window.removeEventListener("resize", updateMobile);
   }, []);
 
-  /* =====================
-     Hydrate settings
-  ===================== */
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const userId = user.id;
-
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("family_name, profile_image_url")
-        .eq("id", userId)
-        .single();
-
-      const { data: settingsData } = await supabase
-        .from("user_settings")
-        .select("theme, accent_color")
-        .eq("id", userId)
-        .single();
-
-      const { data: historyData } = await supabase
-        .from("profile_images")
-        .select("image_url")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-
-      const validHistory = historyData?.map((img) => img.image_url) || [];
-      const fetchedProfileImage = profileData?.profile_image_url || null;
-
-      const storedAvatar = localStorage.getItem("currentAvatar");
-
-      const avatarToUse =
-        storedAvatar && validHistory.includes(storedAvatar)
-          ? storedAvatar
-          : fetchedProfileImage || validHistory[0] || null;
-
-      dispatch({
-        type: "SET_SETTINGS",
-        payload: {
-          familyName: profileData?.family_name || "",
-          theme: settingsData?.theme || "system",
-          accentColor: settingsData?.accent_color || "#3b82f6"
-        }
-      });
-
-      dispatch({ type: "SET_CURRENT_AVATAR", payload: avatarToUse });
-      dispatch({ type: "SET_IMAGE_HISTORY", payload: validHistory });
-
-      setInitialProfile({
-        familyName: profileData?.family_name || "",
-        avatar: avatarToUse
-      });
-
-      setInitialSettings({
-        theme: settingsData?.theme || "system",
-        accentColor: settingsData?.accent_color || "#3b82f6"
-      });
-
-      if (avatarToUse) localStorage.setItem("currentAvatar", avatarToUse);
-      else localStorage.removeItem("currentAvatar");
-    };
-
-    fetchSettings();
-
-  }, [dispatch]);
-
-  /* =====================
+    /* =====================
      Upload avatar
   ===================== */
   const handleImageUpload = async (file: File) => {
@@ -132,7 +83,7 @@ export default function ProfileImageSettings() {
     reader.readAsDataURL(file);
 
     try {
-
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return alert("User not authenticated");
 
@@ -146,8 +97,8 @@ export default function ProfileImageSettings() {
         .storage
         .from("profile_avatars")
         .upload(filePath, file, { cacheControl: "3600", upsert: false });
-
-      if (uploadError) throw uploadError;
+        
+        if (uploadError) throw uploadError;
 
       const { data } =
         supabase.storage.from("profile_avatars").getPublicUrl(filePath);
@@ -159,7 +110,7 @@ export default function ProfileImageSettings() {
         .update({ profile_image_url: publicUrl })
         .eq("id", userId);
 
-      await supabase
+        await supabase
         .from("profile_images")
         .insert({ user_id: userId, image_url: publicUrl });
 
@@ -174,9 +125,9 @@ export default function ProfileImageSettings() {
 
     }
   };
-
+  
   /* =====================
-     Switch avatar
+  Switch avatar
   ===================== */
 
   const switchAvatar = (url: string) => {
@@ -203,7 +154,7 @@ export default function ProfileImageSettings() {
       if (!user) return alert("User not authenticated");
 
       const userId = user.id;
-
+      
       const storageBase =
         supabase.storage.from("profile_avatars").getPublicUrl("").data.publicUrl;
 
@@ -237,7 +188,7 @@ export default function ProfileImageSettings() {
           .from("profiles")
           .update({ profile_image_url: null })
           .eq("id", userId);
-      }
+        }
 
     } catch (err) {
 
@@ -248,7 +199,7 @@ export default function ProfileImageSettings() {
   };
 
   /* =====================
-     Save settings
+  Save settings
   ===================== */
 
   const saveSettings = async () => {
@@ -283,7 +234,7 @@ export default function ProfileImageSettings() {
         await supabase
           .from("profiles")
           .upsert({ id: userId, ...profileChanges }, { onConflict: "id" });
-
+          
         setInitialProfile({
           familyName: state.familyName,
           avatar: state.currentAvatar
@@ -301,7 +252,7 @@ export default function ProfileImageSettings() {
           theme: state.theme,
           accentColor: state.accentColor
         });
-
+        
       }
 
       alert("Settings saved successfully!");
@@ -314,12 +265,14 @@ export default function ProfileImageSettings() {
     } finally {
 
       setIsSaving(false);
-
+      
     }
   };
-
+  
+  if (!isHydrated) return null;
+  
   /* =====================
-     UI
+  UI
   ===================== */
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useReducer, useEffect } from "react";
+import { createContext, useContext, useReducer, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 
 const supabase = createSupabaseBrowserClient();
@@ -34,6 +34,7 @@ const initialState: SettingsState = {
   currentAvatar: null,
   imageHistory: [],
 };
+
 
 function settingsReducer(state: SettingsState, action: SettingsAction): SettingsState {
   switch (action.type) {
@@ -81,16 +82,21 @@ function settingsReducer(state: SettingsState, action: SettingsAction): Settings
 const SettingsContext = createContext<{
   state: SettingsState;
   dispatch: React.Dispatch<SettingsAction>;
+  isHydrated: boolean;
 } | null>(null);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(settingsReducer, initialState);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   /* Hydrate settings once globally */
   useEffect(() => {
     const fetchSettings = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setIsHydrated(true); // still mark as done
+        return;
+      }
 
       const userId = user.id;
 
@@ -134,13 +140,15 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "SET_IMAGE_HISTORY", payload: validHistory });
 
       if (avatarToUse) localStorage.setItem("currentAvatar", avatarToUse);
+
+      setIsHydrated(true);
     };
 
     fetchSettings();
   }, []);
 
   return (
-    <SettingsContext.Provider value={{ state, dispatch }}>
+    <SettingsContext.Provider value={{ state, dispatch, isHydrated }}>
       {children}
     </SettingsContext.Provider>
   );

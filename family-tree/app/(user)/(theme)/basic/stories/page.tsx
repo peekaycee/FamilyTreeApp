@@ -4,8 +4,15 @@ import { motion } from "framer-motion";
 import styles from "./stories.module.css";
 import Image from "next/image";
 import { Heart, Users, BookOpen } from "lucide-react";
+import { useSettings } from "@/app/contexts/SettingsContext";
+
 
 export default function OurStoryPage() {
+  
+  const { state, isHydrated  } = useSettings();
+  
+  if (!isHydrated) return null;
+
   return (
     <div className={styles.container}>
       {/* --------------------------- HERO --------------------------- */}
@@ -39,7 +46,7 @@ export default function OurStoryPage() {
           transition={{ duration: 0.8 }}
         >
           <p className={styles.subtitle}>
-            The legacy of the Awolowo family, a journey shaped by heritage,
+            The legacy of the {state.familyName} family, a journey shaped by heritage,
             resilience, shared values, and the generations that continue to
             carry our name forward with dignity and pride.
           </p>
@@ -53,7 +60,7 @@ export default function OurStoryPage() {
         >
           <Image
             src="/images/family21.png"
-            alt="Awolowo Family Legacy"
+            alt="{state.familyName} Family Legacy"
             fill
             className={styles.heroImage}
           />
@@ -77,14 +84,10 @@ export default function OurStoryPage() {
             className={styles.textBlock}
           >
             <h2 className={styles.heading}>
-              The Awolowo Family Roots
+              The {state.familyName} Family Roots
             </h2>
             <p className={styles.text}>
-              This platform exists to document and preserve the story of the
-              Awolowo family, our beginnings, our journeys, our challenges,
-              and our triumphs. What started as shared memories passed down by
-              word of mouth is now carefully recorded so that no chapter of our
-              history is ever lost.
+              This platform exists to document and preserve the story of the {state.familyName} family, our beginnings, our journeys, our challenges, and our triumphs. What started as shared memories passed down by word of mouth is now carefully recorded so that no chapter of our history is ever lost.
             </p>
           </motion.div>
 
@@ -97,7 +100,7 @@ export default function OurStoryPage() {
           >
             <Image
               src="/images/family25.png"
-              alt="Awolowo family heritage"
+              alt="{state.familyName} family heritage"
               fill
               className={styles.sectionImage}
               loading="eager"
@@ -129,7 +132,7 @@ export default function OurStoryPage() {
             <Heart className={styles.icon} />
             <h4>Love & Togetherness</h4>
             <p>
-              At the heart of the Awolowo family is love — expressed through
+              At the heart of the {state.familyName} family is love — expressed through
               unity, mutual respect, shared laughter, and standing together
               through every season of life.
             </p>
@@ -148,7 +151,7 @@ export default function OurStoryPage() {
             <p>
               From elders to the youngest members, our family story is one
               continuous thread. This space ensures that every generation of
-              the Awolowos remains connected, informed, and represented.
+              the {state.familyName}&apos;s remains connected, informed, and represented.
             </p>
           </motion.div>
 
@@ -165,7 +168,7 @@ export default function OurStoryPage() {
             <p>
               We are committed to documenting our history with intention —
               preserving stories, photographs, milestones, and memories so
-              future generations of the Awolowo family can know exactly where
+              future generations of the {state.familyName} family can know exactly where
               they come from.
             </p>
           </motion.div>
@@ -190,7 +193,7 @@ export default function OurStoryPage() {
           >
             <Image
               src="/images/family10.png"
-              alt="Awolowo family generations"
+              alt="{state.familyName} family generations"
               fill
               className={styles.sectionImage}
             />
@@ -205,7 +208,7 @@ export default function OurStoryPage() {
           >
             <h2 className={styles.heading}>A Story That Continues</h2>
             <p className={styles.text}>
-              The Awolowo family story is still being written. This platform
+              Our family story is still being written. This platform
               serves as a living archive — a place where memories are honored,
               loved ones are remembered, and every new chapter adds meaning to
               the legacy we leave behind.

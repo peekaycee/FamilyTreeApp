@@ -11,14 +11,16 @@ import { useState, useEffect } from 'react';
 import { testimonies } from '../../../../constants/Testimonies';
 import Button from '../../../../../components/Button';
 import { useRouter } from "next/navigation";
+import { useSettings } from "@/app/contexts/SettingsContext";
 
 export default function HomePage() {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
+  const { state, isHydrated  } = useSettings();
+  
   const goToStory = () => router.push("/basic/stories");
   const goToTree = () => router.push('/basic/family-builder');
   const goToMembers = () => router.push('/basic/members');
-  
 
   // Automatically change testimonial every 3 seconds
   useEffect(() => {
@@ -26,14 +28,16 @@ export default function HomePage() {
       setCurrent((prev) => (prev + 1) % testimonies.length);
     }, 5000);
     return () => clearInterval(interval);
-  });
+  }, []);
+  
+  if (!isHydrated) return null;
 
   return (
     <section className={styles.homepage}>
       <section className={styles.hero}>
         <div className={styles.overlay}></div>
         <div className={styles.heroText}>
-          <h1>Welcome Home! <br /> The Awolowo Family</h1>
+          <h1>Welcome Home! <br /> The {state.familyName} Family</h1>
           <p>Celebrating our roots, memories, and enduring legacy.</p>
           <Button tag={'Explore Our Story'} onClick={goToStory}/>
         </div>
@@ -232,7 +236,7 @@ export default function HomePage() {
        <section className={styles.featuredAncestors}>
          <h1>Legacy Spotlight</h1>
          <p>
-           Honoring the pillars of the Awolowo family whose courage, wisdom, and
+           Honoring the pillars of the {state.familyName} family whose courage, wisdom, and
            sacrifices shaped generations.
          </p>
 
@@ -245,7 +249,7 @@ export default function HomePage() {
               viewport={{ once: true }}
             >
              <Image src={Family16} alt="Ancestor" width={220} height={220} />
-             <h3>Chief Samuel Awolowo</h3>
+             <h3>Chief Samuel {state.familyName}</h3>
              <p>
                A visionary leader whose values of unity and discipline continue
                to guide our family today.
@@ -259,7 +263,7 @@ export default function HomePage() {
               transition={{ delay: 0.2, duration: 0.2 }}
               viewport={{ once: true }}
             >             <Image src={Family19} alt="Ancestor" width={220} height={220} />
-             <h3>Madam Esther Awolowo</h3>
+             <h3>Madam Esther {state.familyName}</h3>
              <p>
                The heart of the family—known for resilience, kindness, and
                unwavering faith.
@@ -273,7 +277,7 @@ export default function HomePage() {
        <section className={styles.ctaSection}>
          <h1>Every Name Has a Story</h1>
          <p>
-           Help us complete the Awolowo family legacy by adding members,
+           Help us complete the {state.familyName} family legacy by adding members,
            memories, and stories that must never be forgotten.
          </p>
 

@@ -29,7 +29,7 @@ export default function HomePage() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
-  
+
   if (!isHydrated) return null;
 
   return (

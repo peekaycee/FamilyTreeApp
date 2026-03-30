@@ -302,7 +302,6 @@ FORM CONTROLS
   }
 
   .sidebar {
-    display: none; 
     position: absolute;
     top: 0;
     left: 0;
@@ -313,15 +312,13 @@ FORM CONTROLS
     flex-direction: column;
     padding: 5rem 1rem 2em;
     border-right: 1px solid var(--border);
-    transition: transform 0.3s ease;
-    transform: translateX(-100%);
     color: var(--color-white-text);
   }
 
-  .sidebar.open {
+  /* .sidebar.open {
     display: flex;
-    transform: translateX(0); /* slide in */
-  }
+    transform: translateX(0);
+  } */
 
   /* Overlay when sidebar is open */
   .overlay {

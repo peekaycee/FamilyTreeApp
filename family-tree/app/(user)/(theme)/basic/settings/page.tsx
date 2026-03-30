@@ -8,6 +8,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 import { useSettings } from "@/app/contexts/SettingsContext";
 import Placeholder from "@/public/images/image-placeholder-removebg-preview.png";
 import { MoreVertical, X, LayoutDashboard } from "lucide-react";
+import { motion } from "framer-motion";
 
 const supabase = createSupabaseBrowserClient();
 
@@ -21,6 +22,7 @@ export default function Settings() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hoveredAvatar, setHoveredAvatar] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showSaveBtn, setShowSaveBtn] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(prev => !prev);
@@ -37,19 +39,32 @@ export default function Settings() {
     accentColor: "#3b82f6"
   });
 
+  
   /* =====================
-     Detect mobile
+  Detect mobile
   ===================== */
-
+  
   useEffect(() => {
     const updateMobile = () => setIsMobile(window.innerWidth <= 768);
     updateMobile();
     window.addEventListener("resize", updateMobile);
     return () => window.removeEventListener("resize", updateMobile);
   }, []);
+  
+  useEffect(() => {
+    if (!sidebarOpen) {
+      const timer = setTimeout(() => {
+        setShowSaveBtn(true);
+      }, 300); // must match your animation duration
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowSaveBtn(false);
+    }
+  }, [sidebarOpen]);
 
   /* =====================
-     Hydrate settings
+  Hydrate settings
   ===================== */
 
   useEffect(() => {
@@ -338,7 +353,14 @@ export default function Settings() {
         </button>
       )}
 
-      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.open : ""}`}>
+      <motion.aside 
+        className={`${styles.sidebar} ${sidebarOpen ? styles.open : ""}`}
+        initial={false}
+        animate={{
+          x: isMobile ? (sidebarOpen ? 0 : -260) : 0
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
         <button title="Close" type="button" className={styles.sidebarToggleClose} onClick={toggleSidebar}>
           <X size={22} />
         </button>
@@ -354,16 +376,16 @@ export default function Settings() {
         <button onClick={() => setActiveTab("tree")}>Family Tree</button>
         <button onClick={() => setActiveTab("privacy")}>Privacy</button>
         <button onClick={() => setActiveTab("notifications")}>Notifications</button>
-        {!sidebarOpen && 
-          (<button
+        {showSaveBtn && (
+          <button
             className={styles.sidebarSaveBtn}
             onClick={saveSettings}
             disabled={isSaving}
           >
             {isSaving ? "Saving..." : "Save Setting"}
-          </button>)
-        }
-      </aside>
+          </button>
+        )}
+      </motion.aside>
 
       <div
         className={`${styles.overlay} ${sidebarOpen ? styles.show : ""}`}

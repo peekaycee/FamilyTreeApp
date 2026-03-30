@@ -1,11 +1,47 @@
 :root {
-  --color-bg: #fAf8f5;
-  --color-primary: #1b3a2e;
-  --color-secondary: #c9a646;
-  --color-accent: #e8c535;
-  --color-white-text: #f7f7f7;
-  --color-black-text: #333;
   --font-primary: 'Playfair Display', serif;
   --font-secondary: 'Inter', sans-serif;
   --font-accent: 'Dancing Script', serif;
+  --color-white: #faf8f5;
+  --color-black: #000;
+}
+
+/* Light Theme */
+[data-theme='light'] {
+  --color-bg: #faf8f5;          /* page background */
+  --color-primary: #1b3a2e;     /* links, headers */
+  --color-secondary: #c9a646;   /* buttons, secondary actions */
+  --color-accent: #e8c535;      /* hover, highlights */
+  --color-text: #000;           /* main text */
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+  --color-bg: #000;
+  --color-primary: #111;     /* softened teal-green for headings/links */
+  --color-secondary: #b8962e;   /* muted gold for buttons */
+  --color-accent: #ffbf00;      /* brighter gold for highlights */
+  --color-text: #f7f7f7;
+}
+
+/* System Theme: will follow OS preference automatically */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --color-bg: #121212;
+    --color-black-text: #f7f7f7;
+    --color-white-text: #333;
+    --color-primary: #88c0d0;
+    --color-secondary: #a58c31;
+    --color-accent: #ffd700;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --color-bg: #faf8f5;
+    --color-white-text: #f7f7f7;
+    --color-black-text: #333;
+    --color-primary: #1b3a2e;
+    --color-secondary: #c9a646;
+    --color-accent: #e8c535;
+  }
 }

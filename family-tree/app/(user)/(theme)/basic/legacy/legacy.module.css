@@ -1,7 +1,7 @@
 /* HERO */
 .hero {
   background: var(--color-primary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,8 +17,7 @@
   margin: 0 0 8px 0;
 }
 .heroLead { 
-  margin: 0 0 18px 0; 
-  color: var(--color-white-text); 
+  margin: 0 0 18px 0;
 }
 .heroCTAs { 
   display:flex;
@@ -29,7 +28,7 @@
 }
 .ctaPrimary {
   background: var(--color-secondary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   border-radius: 8px;
   padding: 10px 14px;
   display:flex; 
@@ -39,15 +38,9 @@
   cursor: pointer;
   transition: all 0.25s ease;
 }
-.ctaPrimary a {
-  color: var(--color-white-text);
-}
-.ctaGhost:hover a{
-  color: var(--color-white-text);
-}
 .ctaGhost {
-  background: var(--color-bg);
-  color: var(--color-black-text);
+  background: var(--color-white);
+  color: var(--color-black);
   border-radius: 8px;
   padding: 10px 14px;
   display: flex;
@@ -55,14 +48,14 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.25s ease; 
 }
-.ctaGhost:hover{
-  color: var(--color-white-text);
+.ctaGhost:hover {
+  color: var(--color-white);
 }
 .ctaSmall {
   background: var(--color-primary); 
-  color: var(--color-white-text); 
+  color: var(--color-white);
   border-radius: 6px; 
   padding:6px 10px; 
   border:none; 
@@ -82,19 +75,17 @@
 .sectionTitle { 
   font-size: 2rem; 
   margin-bottom: 1em;
-  color: var(--color-black-text);
+  color: var(--color-text);
 }
 .treeRow {
   display:flex; 
   gap:20px; 
   align-items: flex-start;
   justify-content: space-between; 
-  color: var(--color-black-text);
+  color: var(--color-text);
 }
 .treeViewer {
   width: fit-content;
-  background: var(--color-bg);
-  background: transparent;
   padding:14px; 
 }
 .treeList { 
@@ -110,14 +101,21 @@
   border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
-  background: var(--color-primary); 
+  background: var(--color-white);  
+  color: var(--color-black);
   cursor:pointer; 
+  transition: all 0.25s ease; 
+}
+.treeNode:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  color: var(--color-white);
 }
 .nodeAvatar {
   width:48px; 
   height:48px; 
   border-radius: 16px; 
-  background: var(--color-bg); 
+  background: var(--color-black); 
   background-position: center;
   background-size: cover;
 }
@@ -130,8 +128,12 @@
   height: 100%;
 }
 .nodeMeta { 
-  color: var(--color-text); 
+  color: var(--color-black);  
   font-size: 12px; 
+  transition: all 0.25s ease; 
+}
+.treeNode:hover .nodeMeta{
+  color: var(--color-white);
 }
 .details{
     display: flex;
@@ -142,30 +144,25 @@
 /* Aside */
 .treeAside { 
   width:320px; 
-  background-color: var(--color-bg);
+  background-color: var(--color-white);
+  color: var(--color-black);
   border-radius: 16px;
   padding: 1em; 
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
-.featureCard { 
-  width: fit-content;
-  display:flex; 
-  gap: 12px; 
-  margin-top: 0.5em;
-  align-items: center; 
-  background: var(--color-bg); 
-  padding: 0.75em; 
-  border-radius:16px; 
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+.treeAside button {
+  background-color: var(--color-secondary);
+}
+.treeAside button:hover {
+  background-color: var(--color-accent);
 }
 .featureAvatar { 
   width: fit-content; 
   height: 75px; 
   flex-shrink: 0; 
   border-radius: 16px; 
-  background: var(--color-bg); 
+  background: var(--color-black); 
   margin: 8px 0;
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
@@ -173,13 +170,7 @@
 .featureCard p{
   margin-bottom: 0.5rem;
 }
-.featureCard button{
-  background: var(--color-secondary);
-  color: var(--color-white-text);
-}
-.featureCard button:hover{
-  background: var(--color-accent);
-}
+
 /* Timeline */
 .timelineSection { 
   margin-top: 28px; 
@@ -188,7 +179,7 @@
 .timelineHoriz {
   display: flex; 
   align-items: center;
-  gap: 12px; 
+  gap: 12px;
   padding: 1em 0;
   overflow-x: auto; 
 }
@@ -197,7 +188,8 @@
 }
 .timelineCard { 
   min-width:260px; 
-  background: var(--color-bg);
+  background: var(--color-white);
+  color: var(--color-black);
   padding: 1em 1.5em; 
   border-radius: 16px; 
   border: 1px solid rgba(0,0,0,0.05);
@@ -206,12 +198,12 @@
 }
 .timelineYear { 
   font-size:28px; 
-  color: var(--color-black-text);
+  color: var(--color-black);
   opacity: 0.5; 
   margin-bottom: 8px; 
 }
 .timelineBody { 
-  color: var(--color-black-text); 
+  color: var(--color-black); 
 }
 
 /* Stories */
@@ -265,6 +257,7 @@
   height: 100%;
   padding: 1em 1.5em;
   background: var(--color-primary);
+  color: var(--color-white) ;
   margin-top: -5px;
  }
  .storyBody p{
@@ -287,20 +280,22 @@
 .viewAll{
   margin: 0 auto;
   text-align: center;
+  color: var(--color-white);
 }
 /* modal */
 .modalBackdrop { 
   position:fixed; 
   inset:0; 
   color: var(--color-black-text);
-  background: rgba(2,6,23,0.45); 
+  background: rgba(2,6,23,0.75); 
   display:flex; 
   align-items:center; 
   justify-content:center; 
   z-index:50; 
 }
 .detailModal { 
-  background: var(--color-bg); 
+  background: var(--color-white);
+  color: var(--color-black); 
   border-radius: 16px; 
   padding: 1.5em; 
   width: min(780px,92%); 

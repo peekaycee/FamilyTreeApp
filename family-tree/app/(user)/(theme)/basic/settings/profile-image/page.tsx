@@ -31,27 +31,12 @@ export default function ProfileImageSettings() {
   });
   
   const [initialSettings, setInitialSettings] = useState<{
-    theme: ThemeMode;
-    accentColor: string;
-  }>({
-    theme: "system",
-    accentColor: "#3b82f6",
-  });
-  
-  useEffect(() => {
-    if (!state.familyName) return; // prevents empty overwrite
-    
-    setInitialProfile({
-      familyName: state.familyName,
-      avatar: state.currentAvatar,
+      theme: ThemeMode;
+      accentColor: string;
+    }>({
+      theme: "system",
+      accentColor: "#3b82f6",
     });
-    
-    setInitialSettings({
-      theme: state.theme,
-      accentColor: state.accentColor,
-    });
-  }, [state.accentColor, state.currentAvatar, state.familyName, state.theme]);
-  
   
   /* =====================
   Detect mobile

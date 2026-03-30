@@ -115,12 +115,16 @@ const latestStories = stories.slice(0, 2);
             Preserving the stories, deeds and milestones that built our family.
           </p>
           <div className={styles.heroCTAs}>
-            <button className={styles.ctaPrimary}>
-              <Play size={16} /> <Link href={"/basic/familyStories"}>Explore Stories</Link>
-            </button>
-            <button className={styles.ctaGhost}>
-              <CornerDownLeft size={14} /> <Link href={"/basic/family-builder"}>View Family Tree</Link>
-            </button>
+            <Link href={"/basic/familyStories"}>
+              <button className={styles.ctaPrimary}>
+                <Play size={16} /> Explore Stories
+              </button>
+            </Link>
+            <Link href={"/basic/family-builder"}>
+              <button className={styles.ctaGhost}>
+                <CornerDownLeft size={14} /> View Family Tree
+              </button>
+            </Link>
           </div>
         </motion.div>
       </section>

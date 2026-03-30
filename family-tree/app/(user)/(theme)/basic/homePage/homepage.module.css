@@ -9,7 +9,6 @@
   width: 100%;
   height: 75vh;
   display: flex;
-  color: var(--color-white-text); 
   background-color: var(--color-primary); 
   background-blend-mode: overlay;
 }
@@ -18,6 +17,7 @@
   width: 55%;
   height: 100%;
   display: flex;
+  color: var(--color-white);
   padding: 0 1em 0 7em;
   flex-direction: column;
   align-items: flex-start;
@@ -41,7 +41,7 @@
 }
 .cta { 
   background-color: var(--color-secondary); 
-  color: var(--color-white-text); 
+  color: var(--color-white); 
   padding: 0.75rem 1rem; 
   border-radius: 5px; 
   font-weight: 400; 
@@ -144,11 +144,16 @@
   width: 100%;
   height: auto;
   padding: 5em 7em;
+  background: var(--color-bg);
+  color: var(--color-black);
 }
-.card h3,
-.features h1{
+  .card h3,
+  .features h1{
   text-align: center;
   font-weight: bold;
+}
+.features h1{
+  color: var(--color-text);
 }
 .cards{
   width: 100%;
@@ -159,11 +164,11 @@
   grid-template-columns: repeat( auto-fit, minmax(220px, 1fr)); 
 }
 .card { 
-  background: var(--color-bg); 
+  background: var(--color-white); 
   border-radius: 10px; 
   padding: 2.5rem 4em; 
   border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 .card h3{
   margin: 0.5em 0;
@@ -207,7 +212,12 @@
 .howItWorksCard p {
   text-align: center;
   line-height: 1.5;
+  color: var(--color-text);
 }
+.howItWorksCard p{
+  color: var(--color-db);
+}
+
 .howItWorksCards {
   width: 100%;
   height: auto;
@@ -219,8 +229,8 @@
   flex-wrap: wrap;
 }
 .howItWorksCard {
-  background: var(--color-bg);
-  color: var(--color-black-text);
+  background: var(--color-white);
+  color: var(--color-black);
   width: 30%;
   min-width: 250px;
   height: 100px;
@@ -242,7 +252,7 @@
   width: 100%;
   height: auto;
   background: var(--color-primary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   padding: 3em 0;
   display: flex;
   flex-direction: column;
@@ -282,7 +292,7 @@
 .testimonyImage {
   width: 300px;
   height: 300px;
-  background: var(--color-bg);
+  background: var(--color-white);
   border-radius: 50%;
   overflow: hidden;
   display: flex;
@@ -504,6 +514,7 @@
   font-weight: 600;
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
+  color: var(--color-dw);
 }
 
 .featuredAncestors > p {
@@ -512,6 +523,7 @@
   font-size: 1.05rem;
   line-height: 1.7;
   color: var(--color-black-text);
+  color: var(--color-dw);
 }
 
 .ancestorCards {
@@ -523,7 +535,8 @@
 }
 
 .ancestorCard {
-  background: var(--color-bg);
+  background: var(--color-white);
+  color: var(--color-black);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 2.5rem 2rem 3rem;
@@ -557,10 +570,15 @@
   margin: 0 auto;
 }
 .featuredAncestors button{
-  background: var(--color-primary);
+  background: var(--color-secondary);
+  color: var(--color-white);
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
   margin-top: -30px;
 }
-
+.featuredAncestors button:hover{
+  background: var(--color-accent);
+}
 /* ===========================
    CTA SECTION
 =========================== */
@@ -568,7 +586,7 @@
 .ctaSection {
   padding: 1rem 2rem 6rem;
   background: var(--color-bg);
-  color: var(--color-black-text);
+  color: var(--color-text);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -594,6 +612,7 @@
   font-size: 1.05rem;
   line-height: 1.8;
   color: var(--color-black-text);
+  color: var(--color-dw);
 }
 
 .ctaActions {
@@ -609,6 +628,7 @@
   font-weight: 500;
   transition: all 0.3s ease;
   text-align: center;
+  color: var(--color-white);
 }
 
 /* ===========================

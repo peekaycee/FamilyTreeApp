@@ -6,7 +6,7 @@
   align-items: center; 
   justify-content: space-between;  
   background: var(--color-primary);
-  color: var(--color-white-text); 
+  color: var(--color-white); 
   position: relative;
   z-index: 10; 
 }
@@ -16,7 +16,7 @@
   justify-content: center;
 }
 .links a {
-  color: var(--color-white-text); 
+  color: var(--color-white); 
   text-decoration:none; 
   transition: all 0.3s ease;
   position: relative;
@@ -49,7 +49,7 @@
   background: inherit; 
   border: none; 
   cursor: pointer; 
-  color: var(--color-white-text);
+  color: var(--color-white);
   transition: all 0.3s ease;
 }
 .mobileLogout:hover,
@@ -70,7 +70,7 @@
 .dropdownButton {
   background: none;
   border: none;
-  color: var(--color-white-text);
+  color: var(--color-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -94,22 +94,38 @@
   background: none;
 }
 .links .profileImage{
-  background: var(--color-bg);
+  background: var(--color-white);
   position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; 
 }
 .links .profileImage img{
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
+}
+.mobileProfileImage{
+  background: var(--color-white);
+  position: absolute;
+  bottom: 40;
+  right: 40;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+.mobileProfileImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
 }
 .dropdownButton:hover {
   color: var(--color-accent);
@@ -147,7 +163,7 @@
 }
 .dropdownMenu a {
   padding: 1rem 0rem;
-  color: var(--color-white-text);
+  color: var(--color-white);
   text-decoration: none;
   transition: all 0.3s ease;
   border-radius: 4px;
@@ -186,7 +202,7 @@
   background: none;
   border: none;
   padding: 1rem 0;
-  color: var(--color-white-text);
+  color: var(--color-white);
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -198,7 +214,7 @@
 .mobileDropdown a {
   padding: 0.75rem 1.5rem;
   text-decoration: none;
-  color: var(--color-white-text);
+  color: var(--color-white);
   transition: all 0.3s;
   border-radius: 4px;
 }
@@ -246,7 +262,7 @@
 .hamburger {
   display: none;
   cursor: pointer;
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 
 /* Responsive */
@@ -261,15 +277,15 @@
   width: 100%;
   height: auto;
   background: var(--color-primary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   text-align: center;
   padding: 1em 0 0;
 }
 .footer a{
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 .adminLink{
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 .footerContent {
   width: 100%;
@@ -358,7 +374,7 @@
 }
 .newsLetter .subscribeSubmit{
   background: var(--color-secondary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   font-size: 0.85rem;
   border: none;
   outline: none;
@@ -388,7 +404,7 @@
   justify-content: flex-start;
 }
 .socials a{
-  background: var(--color-bg);
+  background: var(--color-white);
   width: 23px;
   height: 23px;
   display: flex;
@@ -433,7 +449,7 @@
   padding: 0.5em;
   border-radius: 50%;
   cursor: pointer;
-  color: var(--color-white-text);
+  color: var(--color-white);
   transition: all 0.3s ease;
 }
 .moveUp:hover{
@@ -447,7 +463,7 @@
   z-index: 9999;
   padding: 14px 18px;
   border-radius: 10px;
-  color: var(--color-white-text);
+  color: var(--color-white);
   font-size: 0.9rem;
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
   animation: slideIn 0.3s ease-out;
@@ -612,7 +628,7 @@
 .hamburger {
   display: none;
   cursor: pointer;
-  color: var(--color-white-text);
+  color: var(--color-white);
   z-index: 1001;
   transition: all 0.3s ease;
 }
@@ -638,7 +654,7 @@
 .mobileMenu a,
 .mobileMenu button {
   display: block;
-  color: var(--color-white-text);
+  color: var(--color-white);
   text-decoration: none;
   padding: 0.7em 0;
   font-size: 1rem;
@@ -668,7 +684,7 @@
 .hamburger {
   display: none;
   cursor: pointer;
-  color: var(--color-white-text);
+  color: var(--color-white);
   z-index: 1002;
   transition: all 0.3s ease;
 }
@@ -713,7 +729,7 @@
 
 .mobileDrawer a,
 .mobileDrawer button {
-  color: var(--color-white-text);
+  color: var(--color-white);
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: 500;
@@ -770,7 +786,7 @@
   position: relative;
   min-height: 600px;
   background: var(--color-bg);
-  color: var(--color-black-text);
+  color: var(--color-text);
 }
 
 .nodeCount {
@@ -786,7 +802,7 @@
   padding: 16px;
   border-radius: 8px;
   z-index: 100;
-  color: var(--color-white-text);
+  color: var(--color-white);
   min-width: 400px;
 }
 
@@ -824,7 +840,7 @@
 .controls button {
   background: var(--color-secondary);
   border: 1px solid rgba(255,255,255,0.04);
-  color: var(--color-white-text);
+  color: var(--color-white);
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
@@ -838,7 +854,7 @@
 }
 .nodeCount {
   background: var(--color-primary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   padding: 10px;
   border-radius: 8px;
   opacity: 0.9;
@@ -978,7 +994,7 @@
 .editOverlay h3,
 .addOverlay h3 {
   margin: 0 0 14px 0;
-  color: var(--color-black-text);
+  color: var(--color-black);
   font-size: 18px;
   font-weight: 700;
   text-align: center;
@@ -990,7 +1006,7 @@
   flex-direction: column;
   gap: 6px;
   margin-bottom: 12px;
-  color: var(--color-black-text);
+  color: var(--color-black);
   font-size: 14px;
 }
 
@@ -1001,7 +1017,7 @@
   padding: 5px 10px;
   border-radius: 8px;
   background: var(--color-bg);
-  color: var(--color-black-text);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
   outline: none;
@@ -1023,7 +1039,7 @@
 
 .editOverlay input[type="file"],
 .addOverlay input[type="file"] {
-  color: var(--color-black-text);
+  color: var(--color-black);
   margin-top: 4px;
 }
 
@@ -1041,7 +1057,7 @@
   background: var(--color-secondary);
   padding: 8px 14px;
   border-radius: 8px;
-  color: var(--color-white-text);
+  color: var(--color-white);
   font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
@@ -1083,7 +1099,7 @@
   justify-content: center;
   align-items: center;
   font-size: 10px;
-  color: var(--color-white-text);
+  color: var(--color-text);
 }
 
 .searchEngine{
@@ -1099,7 +1115,7 @@
   color: var(--color-accent)
 }
 .searchEngine input::placeholder{
-  color: var(--color-white-text);
+  color: var(--color-white);
   opacity: 0.35;
 }
 .searchEngine input:focus{
@@ -1142,7 +1158,7 @@
   outline: none;
   border-radius: 8px;
   background: var(--color-bg);
-  color: var(--color-black-text);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(0,0,0,0.1);

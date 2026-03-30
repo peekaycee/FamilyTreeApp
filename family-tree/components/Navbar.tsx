@@ -25,7 +25,7 @@ export default function Navbar() {
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-  const { state } = useSettings()
+  const { state, isHydrated } = useSettings();
 
   // Close drawer when clicking outside
   useEffect(() => {
@@ -110,6 +110,8 @@ export default function Navbar() {
   if (!item.children) return false
   return item.children.some((c: any) => pathname === c.href)
 }
+
+if (!isHydrated) return null;
 
   return (
     <nav className={styles.nav}>
@@ -235,6 +237,20 @@ export default function Navbar() {
             <Link href="/basic/settings" onClick={closeMenu}>
               Settings
             </Link>
+            <Link 
+                href="/basic/settings/profile-image" 
+                onClick={closeMenu}
+                className={styles.profileImageLink}
+              >
+                <div className={styles.mobileProfileImage}>
+                  <Image
+                    src={state.currentAvatar || Placeholder}
+                    alt="Profile Image"
+                    width={100}
+                    height={100}
+                  />
+                </div>
+              </Link>
           </>
         )}
       </div>

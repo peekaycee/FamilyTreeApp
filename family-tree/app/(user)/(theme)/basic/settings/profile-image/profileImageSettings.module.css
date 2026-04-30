@@ -49,13 +49,15 @@
 }
 
 .avatar {
+  background: var(--color-white);
   width: 150px;
   height: 150px;
   border-radius: 50%;
+  border-radius: 50%;
   object-fit: cover;
   object-position: center;
-  border: 2px solid #ddd;
-  box-shadow:0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow:0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all .25s ease; 
 }
 
 .avatarPlaceholder {
@@ -79,7 +81,8 @@
 .uploadBtn {
   padding: 10px 16px;
   border-radius: 8px;
-  border: 1px solid var(--color-accent);
+  background: var(--color-secondary);
+  color: var(--color-white);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -88,7 +91,6 @@
 
 .uploadBtn:hover {
   background: var(--color-accent);
-  color: var(--color-white-text);
   letter-spacing: 1px;
 }
 
@@ -99,12 +101,14 @@
 }
 
 .historyGrid img {
+  background: var(--color-white);
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
-  box-shadow:0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow:0 2px 6px rgba(225, 225, 225, 0.2);
+  /* border: 1px solid rgba(197, 184, 63, 0.2); */
   transition: all .25s ease;
 }
 
@@ -125,8 +129,8 @@
   cursor: pointer;
   font-weight: 400;
   font-size: 0.95rem;
-  background: var(--color-primary);
-  color: var(--color-white-text);
+  background: var(--color-secondary);
+  color: var(--color-white);
 }
 
 /* Additional Settings Css */

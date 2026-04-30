@@ -290,7 +290,7 @@ export default function FamilyStoriesPage() {
 
               <h3>{editingId ? "Edit Story" : "Add Story"}</h3>
 
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" autoFocus/>
               <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Author" />
               <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Excerpt" />
               <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Content" />

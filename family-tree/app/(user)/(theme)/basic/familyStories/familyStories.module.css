@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   background: var(--color-primary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   text-align: center;
 }
 .hero h1{
@@ -15,19 +15,10 @@
 }
 .ctaGhost {
   background: var(--color-secondary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   border-radius: 8px;
   padding: 10px 14px;
   margin-top: 1.5em;
-}
-.shareButton{
-  background: var(--color-bg);
-  color: var(--color-black-text);
-  font-weight: 500;
-}
-.shareButton:hover {
-  background: var(--color-accent);
-  color: var(--color-white-text);
 }
 .sendCaret{
   transform: rotate(180deg);
@@ -35,6 +26,7 @@
  .clearButton {
     display: flex;
     gap: 12px;
+    color: var(--color-white);
   }
   .clearButton button{
     padding: 0.65em 0;
@@ -44,7 +36,7 @@
   }
   .clearButton button:nth-child(2) {
     flex: 1;
-    background: var(--color-primary);
+    background: var(--color-secondary);
   }
   .clearButton button:nth-child(2):hover {
     background: var(--color-accent);
@@ -103,10 +95,11 @@
   height: 100%;
   padding: 1em 1.5em;
   background: var(--color-primary);
+  color: var(--color-white);
   margin-top: -5px;
  }
  .storyBody p{
-  margin-top: 1em;
+  margin-top: 1em; 
  }
  .storyActions{
   width: 100%;
@@ -119,20 +112,19 @@
  .storyActions button:first-child {
     margin-right: 8px;
  }
+ .storyActions .shareButton{
+  flex: 1;
+  margin-left: 16px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-weight: 500;
+}
+.shareButton:hover {
+  background: var(--color-accent);
+  color: var(--color-white);
+}
 /* small utilities */
-.muted { 
-  color:var(--color-black-text);
-  opacity: 0.75; 
-  font-size: 14px; 
-}
-.small { 
-  font-size: 14px; 
-  color: var(--color-black-text);
-  opacity: 0.75;
-  margin: 0.75em 0;
-}
 .mute { 
-  color: var(--color-white-text);
   opacity: 0.5; 
   font-size: 14px;
 }
@@ -202,11 +194,9 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(3px);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 20px;
   z-index: 1000;
 }
@@ -217,10 +207,9 @@
   position: relative;
   width: 100%;
   max-width: 520px;
-
-  background: var(--color-bg);
+  background: var(--color-white);
+  color: var(--color-black);
   border-radius: 16px;
-
   padding: 28px 26px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
 
@@ -240,7 +229,7 @@
   font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 4px;
-  color: var(--color-black-text);
+  color: var(--color-black);
 }
 .detailModal h3{
   text-align: center;
@@ -275,7 +264,7 @@
 .detailModal1 > button:first-of-type:hover,
 .detailModal > button:first-of-type:hover {
   background: var(--color-accent);
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 
 .readDeleteBtns{
@@ -324,7 +313,7 @@
   margin-top: 10px;
 
   background: var(--color-secondary);
-  color: var(--color-white-text);
+  color: var(--color-white);
 
   border: none;
   border-radius: 8px;
@@ -334,7 +323,7 @@
   font-weight: 500;
 
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+  transition: background 0.2s ease, transform 0.1s ease; 
 }
 
 .detailModal > button:last-of-type:hover {

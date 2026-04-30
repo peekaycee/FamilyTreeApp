@@ -20,7 +20,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: var(--color-white-text);
+  color: var(--color-white);
   text-align: center;
 }
 .heroSection h1 {
@@ -49,15 +49,14 @@
 }
 .storyText {
   flex: 1;
+  color: var(--color-text);
 }
 .storyText h2 {
-  color: var(--color-black-text);
   margin-bottom: 1rem;
   font-size: 1.8rem;
 }
 .storyText p {
   margin-bottom: 1.5rem;
-  color: var(--color-black-text);
   line-height: 1.7;
 }
 .stats {
@@ -67,7 +66,9 @@
   gap: 2rem;
   text-align: center;
   padding: 2rem 1rem;
-  background: var(--color-bg);
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 1px solid #eee;
   border-radius: 2rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
   cursor: default;
@@ -76,13 +77,11 @@
 .stats h3 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #2b2d42;
   margin: 0;
 }
 
 .stats p {
   font-size: 1rem;
-  color: #4a4a4a;
 }
 .roundedImage {
   object-fit: cover;
@@ -150,8 +149,8 @@
   margin-top: 2rem;
 }
 .valueCard {
-  background: #fff;
-  color: var(--color-black-text);
+  background: var(--color-white);
+  color: var(--color-black);
   border-radius: 1rem;
   padding: 2rem 1.5rem;
   width: 280px;
@@ -185,7 +184,8 @@
   margin: 0 auto;
 }
 .teamCard {
-  background: white;
+  background: var(--color-white);
+  color: var(--color-black);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-top: 2em;

@@ -101,7 +101,7 @@ export default function Register() {
 
   return (
     <section className={styles.authPage}>
-      {!submitted && <h2>Family Legacy Plan</h2>}
+      {!submitted && <h1>Family Legacy Plan</h1>}
         {submitted ? (
           <div className={styles.acknowledge}>
             <h3>Thank you for your interest</h3>

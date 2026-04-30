@@ -70,7 +70,7 @@ export default function Login() {
 
   return (
     <section className={styles.authPage}>
-      <h2>Login</h2>
+      <h1>Login</h1>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <input
@@ -90,7 +90,7 @@ export default function Login() {
           {loading ? 'Logging in…' : 'Login'}
         </button>
       </form>
-      <p>
+      <p className={styles.instruction}>
         Don&apos;t have an account? <a href="/plans">Choose a plan | </a>
         <a href="/password">Forgot password</a>
       </p>

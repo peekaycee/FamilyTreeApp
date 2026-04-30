@@ -199,7 +199,8 @@ export default function Home() {
             className={styles.plan}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.2 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ duration: 0.25 }}
             viewport={{ once: true }}
           >
             <h2>Family Heritage Plan</h2>
@@ -218,7 +219,8 @@ export default function Home() {
             className={styles.plan}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.2 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ duration: 0.25 }}
             viewport={{ once: true }}
           >
             <h2>Family Legacy Plan</h2>
@@ -237,7 +239,8 @@ export default function Home() {
             className={styles.plan}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.2 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ duration: 0.25 }}
             viewport={{ once: true }}
           >
             <h2>Family Premium Plan</h2>

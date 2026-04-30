@@ -25,23 +25,21 @@
 }
 
 /* System Theme: will follow OS preference automatically */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root[data-theme='system'] {
-    --color-bg: #121212;
-    --color-black-text: #f7f7f7;
-    --color-white-text: #333;
-    --color-primary: #88c0d0;
-    --color-secondary: #a58c31;
-    --color-accent: #ffd700;
+    --color-bg: #000;
+    --color-primary: #111;  
+    --color-secondary: #b8962e;
+    --color-accent: #ffbf00; 
+    --color-text: #f7f7f7;
   }
 }
 @media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
-    --color-bg: #faf8f5;
-    --color-white-text: #f7f7f7;
-    --color-black-text: #333;
-    --color-primary: #1b3a2e;
-    --color-secondary: #c9a646;
-    --color-accent: #e8c535;
+    --color-bg: #faf8f5;    
+    --color-primary: #1b3a2e;    
+    --color-secondary: #c9a646;   
+    --color-accent: #e8c535;     
+    --color-text: #000;          
   }
-}
+} */

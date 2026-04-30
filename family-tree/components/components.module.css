@@ -363,7 +363,7 @@
   border-radius: 10px;
 }
 .newsLetter .subscribeEmail{
-  background: var(--color-bg);
+  background: var(--color-white);
   font-size: 0.85rem;
   border: none;
   outline: none;
@@ -855,9 +855,10 @@
 .nodeCount {
   background: var(--color-primary);
   color: var(--color-white);
+  border: 1px solid rgba(255,255,255,0.15);
   padding: 10px;
   border-radius: 8px;
-  opacity: 0.9;
+  opacity: 0.75;
 }
 
 /* ----------------------------------------- */
@@ -970,7 +971,7 @@
   width: fit-content;
   max-width: calc(100% - 40px);
   transform: translate(-50%, -50%);
-  background: var(--color-bg);
+  background: var(--color-white);
   backdrop-filter: blur(8px);
   border-radius: 16px;
   padding: 1.5em;
@@ -1016,8 +1017,8 @@
 .addOverlay select {
   padding: 5px 10px;
   border-radius: 8px;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--color-white);
+  color: var(--color-black);
   font-size: 14px;
   font-weight: 500;
   outline: none;
@@ -1055,9 +1056,9 @@
 .editButtons button {
   width: 25%;
   background: var(--color-secondary);
+  color: var(--color-white);
   padding: 8px 14px;
   border-radius: 8px;
-  color: var(--color-white);
   font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
@@ -1065,7 +1066,7 @@
 
 .editButtons button.longButton {
   flex: 1;
-  background: var(--color-primary);
+  background: var(--color-secondary);
 }
 
 .editButtons button:hover {
@@ -1094,12 +1095,12 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 1px solid var(--color-bg);
+  border: 1px solid var(--color-white);
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 10px;
-  color: var(--color-text);
+  color: var(--color-black);
 }
 
 .searchEngine{
@@ -1157,8 +1158,8 @@
   padding: 4px 10px;
   outline: none;
   border-radius: 8px;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--color-white);
+  color: var(--color-black);
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(0,0,0,0.1);

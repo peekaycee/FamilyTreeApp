@@ -12,7 +12,7 @@ export default function Home() {
   const goToFamilyPremiumPlan = () => router.push("/familyPremiumPlan");
 
   return (
-    <section className={styles.homepage}>
+    <section className={styles.container}>
       {/* Hero */}
       <section className={styles.hero}>
         <h1>Choose Your Plan</h1>
@@ -24,8 +24,8 @@ export default function Home() {
             className={styles.plan}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.2 }}
-            viewport={{ once: true }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ duration: 0.25 }}
           >
             <h2>Family Heritage Plan</h2>
             <p>NGN350,000 Setup + NGN100,000/Year</p>
@@ -43,8 +43,8 @@ export default function Home() {
             className={styles.plan}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.2 }}
-            viewport={{ once: true }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ duration: 0.25 }}
           >
             <h2>Family Legacy Plan</h2>
             <p>NGN500,000 Setup + NGN150,000/Year</p>
@@ -62,8 +62,8 @@ export default function Home() {
             className={styles.plan}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.2 }}
-            viewport={{ once: true }}
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ duration: 0.25 }}
           >
             <h2>Family Premium Plan</h2>
             <p>NGN700,000 Setup + NGN200,000/Year</p>

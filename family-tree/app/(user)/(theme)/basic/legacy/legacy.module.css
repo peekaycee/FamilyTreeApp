@@ -115,7 +115,7 @@
   width:48px; 
   height:48px; 
   border-radius: 16px; 
-  background: var(--color-black); 
+  background: var(--color-white); 
   background-position: center;
   background-size: cover;
 }
@@ -162,7 +162,7 @@
   height: 75px; 
   flex-shrink: 0; 
   border-radius: 16px; 
-  background: var(--color-black); 
+  background: var(--color-white); 
   margin: 8px 0;
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
@@ -286,7 +286,7 @@
 .modalBackdrop { 
   position:fixed; 
   inset:0; 
-  color: var(--color-black-text);
+  color: var(--color-black);
   background: rgba(2,6,23,0.75); 
   display:flex; 
   align-items:center; 
@@ -314,10 +314,11 @@
   border: none; 
   background: transparent; 
   cursor:pointer; 
-  color:var(--color-black-text); 
+  color:var(--color-black); 
+  transition: all 0.3s ease;
 }
 .closeBtn:hover {
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 .nextFamilySpotlight{
   margin-top: 0.75em;

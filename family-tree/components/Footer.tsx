@@ -124,6 +124,7 @@ export default function Footer() {
                 <Link href="/basic/achievements">Achievements</Link>
                 <Link href="/basic/events">Ceremonies</Link>
                 <Link href="/basic/memorials">Memorials</Link>
+                <Link href="/plans">Plans</Link>
                 {/* <Link href="/basic/dashboard">Dashboard</Link> */}
                 <Link href="/basic/settings">Settings</Link>
                 <Button
@@ -204,6 +205,7 @@ export default function Footer() {
                 <Link href="/contact">Contact</Link>
                 <Link href="/auth/login">Login</Link>
                 <Link href="/auth/register">Register</Link>
+                <Link href="/plans">Plans</Link>
                 <Link href="/admin/password" className={styles.adminLink}>
                   Admin
                 </Link>

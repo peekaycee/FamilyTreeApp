@@ -6,7 +6,7 @@
   display: flex;
   height: auto;
   background-color: var(--color-bg);
-  color: var(--color-black-text);
+  color: var(--color-text);
 }
 
 /* ==================================================
@@ -16,8 +16,10 @@
 .sidebar { 
   width: 260px;
   padding: 2rem 1.5rem;
-  box-shadow:0 2px 6px rgba(0, 0, 0, 0.2);
+  border-right: 1px solid rgba(225, 225, 225, 0.2);
+  box-shadow:0 2px 6px rgba(0, 0, 0, 0.15);
   background: var(--color-bg);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -47,12 +49,14 @@
   justify-content: flex-start;
   vertical-align: middle;
   gap: 5px;
+  transition: all 0.25s ease;
 }
 
 .sidebar button:hover,
 .sidebar a:hover,
 .dashboard a:hover{
   color: var(--color-accent);
+  letter-spacing: 1px;
 }
 /* ==================================================
    MAIN CONTENT
@@ -106,12 +110,15 @@
 }
 
 .avatar {
+  background: var(--color-white);
   width: 150px;
   height: 150px;
   border-radius: 50%;
+  border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ddd;
+  object-position: center;
   box-shadow:0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all .25s ease; 
 }
 
 .avatarPlaceholder {
@@ -125,22 +132,22 @@
 }
 
 .uploadBtn {
+  background: var(--color-secondary);
   padding: 10px 16px;
   border-radius: 8px;
-  border: 1px solid var(--color-accent);
   cursor: pointer;
   transition: all 0.25s ease;
 }
 .uploadBtn p{
   font-size: 0.75rem;
   font-weight: 500;
+  color: var(--color-white);
 }
 .uploadBtn:hover {
   background: var(--color-accent);
   color: var(--color-white-text);
   letter-spacing: 1px;
 }
-
 
 .historyGrid {
   display: flex;
@@ -149,6 +156,7 @@
 }
 
 .historyGrid img {
+  background: var(--color-white);
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -186,15 +194,18 @@ FORM CONTROLS
   margin-top: 0.35em;
   margin-bottom: 2.5rem;
   border-radius: 8px;
-  border: 1px solid var(--color-accent);
-  background: transparent;
-  color: var(--color-black-text);
+  outline: none;
+  border: 1px solid #ddd;
+  box-shadow:0 2px 6px rgba(0, 0, 0, 0.1);
+  background: var(--color-white);
+  color: var(--color-black);
 }
 
 .input:focus,
 .select:focus{
   outline: none;
   box-shadow:0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-accent);
 } 
 
 .input::placeholder {
@@ -215,14 +226,14 @@ FORM CONTROLS
   cursor: pointer;
   font-weight: 400;
   font-size: 0.95rem;
-  background: var(--color-primary);
-  color: var(--color-white-text);
+  background: var(--color-secondary);
+  color: var(--color-white);
   margin-top: auto;
 }
 
 .sidebar .sidebarSaveBtn:hover{
   background: var(--color-accent);
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 
 

@@ -25,7 +25,7 @@
 }
 
 /* System Theme: will follow OS preference automatically */
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
   :root[data-theme='system'] {
     --color-bg: #000;
     --color-primary: #111;  
@@ -42,4 +42,4 @@
     --color-accent: #e8c535;     
     --color-text: #000;          
   }
-} */
+}

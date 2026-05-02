@@ -108,8 +108,8 @@ export default function HomePage() {
             className={styles.card}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2, y: -5 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            transition={{ duration: 0.2 }}
             viewport={{ once: true }}
           >
              <div className={styles.featureIcon}>🌿</div>
@@ -122,8 +122,8 @@ export default function HomePage() {
             className={styles.card}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2, y: -5 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            transition={{ duration: 0.2 }}
             viewport={{ once: true }}
           >
             <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
@@ -135,7 +135,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2, y: -5 }}
+            transition={{ duration: 0.2 }}
             viewport={{ once: true }}
           >
             <div className={styles.featureIcon}>🛡️</div>
@@ -169,8 +169,8 @@ export default function HomePage() {
             className={styles.howItWorksCard}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{duration: 0.2, y: -5 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            transition={{duration: 0.2 }}
             viewport={{ once: true }}
           >
             <p><span>1.</span> Build The Family Tree</p>
@@ -179,8 +179,8 @@ export default function HomePage() {
             className={styles.howItWorksCard}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }} 
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.25, y: -5 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            transition={{ duration: 0.25 }}
             viewport={{ once: true }}
           >
             <p><span>2.</span> Add Family Members & Stories</p>
@@ -189,8 +189,8 @@ export default function HomePage() {
             className={styles.howItWorksCard}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.25, y: -5 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            transition={{ duration: 0.25 }}
             viewport={{ once: true }}
           >
             <p><span>3.</span> Preserve Memories for Future Generations</p>
@@ -251,7 +251,7 @@ export default function HomePage() {
               className={styles.ancestorCard}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -5 }}
               transition={{ duration: 0.2 }}
               viewport={{ once: true }}
             >
@@ -267,7 +267,7 @@ export default function HomePage() {
               className={styles.ancestorCard}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -5 }}
               transition={{ duration: 0.2 }}
               viewport={{ once: true }}
             >             <Image src={Family19} alt="Ancestor" width={220} height={220} />

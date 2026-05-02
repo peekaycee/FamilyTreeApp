@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useSettings } from "@/app/hooks/useSettings";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { state, isHydrated } = useSettings();
@@ -31,9 +30,5 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
   }, [state.theme, state.accentColor, isHydrated, isPublicPage]);
 
-  return (
-  <>
-    <Link href="/">Link</Link>
-    {children}
-  </>);
+  return <>{children}</>;
 }

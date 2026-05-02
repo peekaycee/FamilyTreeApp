@@ -1,31 +1,3 @@
-// "use client";
-
-// import { useEffect } from "react";
-// import { usePathname } from "next/navigation";
-// import { useSettings } from "@/app/hooks/useSettings";
-
-// export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  
-//   const { state, isHydrated } = useSettings();
-
-//   useEffect(() => {
-//     if (!isHydrated) return;
-
-//     const root = document.documentElement;
-
-//     // Apply theme
-//     root.setAttribute("data-theme", state.theme);
-
-//     // Apply accent color
-//     if (state.accentColor) {
-//       root.style.setProperty("--color-accent", state.accentColor);
-//     }
-
-//   }, [state.theme, state.accentColor, isHydrated]);
-
-//   return <>{children}</>;
-// }
-
 "use client";
 
 import { useEffect } from "react";

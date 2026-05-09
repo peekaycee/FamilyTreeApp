@@ -145,7 +145,7 @@
 }
 .uploadBtn:hover {
   background: var(--color-accent);
-  color: var(--color-white-text);
+  color: var(--color-white);
   letter-spacing: 1px;
 }
 
@@ -270,7 +270,8 @@ FORM CONTROLS
 
 /* Sidebar toggle button for mobile/tablet */
 .sidebarToggle {
-  color: var(--color-white-text);
+  color: var(--color-white);
+  border: none;
   border: none;
   outline: none;
   padding: 0.3em 0.1em;
@@ -301,7 +302,7 @@ FORM CONTROLS
   .sidebarToggle {
     position: absolute;
     top: 140px;
-    right: 20px;
+    left: 25px;
     display: inline-block;
     cursor: pointer;
   }
@@ -322,15 +323,9 @@ FORM CONTROLS
     z-index: 50;
     flex-direction: column;
     padding: 5rem 1rem 2em;
-    border-right: 1px solid var(--border);
-    color: var(--color-white-text);
+    /* border-right: 1px solid var(--border); */
+    color: var(--color-white);
   }
-
-  /* .sidebar.open {
-    display: flex;
-    transform: translateX(0);
-  } */
-
   /* Overlay when sidebar is open */
   .overlay {
     display: none;
@@ -357,7 +352,7 @@ FORM CONTROLS
   top: -6px;
   right: -6px;
   background: transparent;
-  color: var(--color-black-text);
+  color: var(--color-black);
   border: none;
   outline: none;
   padding: 0;
@@ -377,5 +372,5 @@ FORM CONTROLS
 .avatarWrapper .deleteBtn {
   opacity: 1;
   background-color: red;
-  color: var(--color-white-text);
+  color: var(--color-white);
 }

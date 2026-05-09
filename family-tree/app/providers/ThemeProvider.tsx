@@ -22,10 +22,8 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     if (isPublicPage) {
       root.setAttribute("data-theme", "light");
 
-      // optional: ensure accent is reset or neutral on public pages
-      if (state.accentColor) {
-        root.style.setProperty("--color-accent", state.accentColor);
-      }
+      // force original public accent color
+      root.style.setProperty("--color-accent", "#e8c535");
 
       return;
     }

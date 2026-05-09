@@ -1,7 +1,7 @@
 .page {
   /* padding: 4rem 6vw 6rem; */
   background: var(--color-bg);
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 /* HERO */
 .hero {
@@ -39,8 +39,8 @@
 .primary,
 .cta {
   flex: 1;
-  background: var(--color-primary);
-  color: var(--color-white-text);
+  background: var(--color-secondary);
+  color: var(--color-white);
   border-radius: 8px;
   padding: 12px 10px;
   display:flex; 
@@ -50,17 +50,14 @@
   border: none; 
   cursor: pointer;
 }
-.primary{
-  background: var(--color-secondary);
-}
 
 .cta:hover {
   background: var(--color-accent);
 }
 
 .ghost {
-  background: var(--color-bg);
-  color: var(--color-black-text);
+  background: var(--color-white);
+  color: var(--color-black);
   border-radius: 8px;
   padding: 12px 10px;
   display: flex;
@@ -72,13 +69,14 @@
 .modalActions .ghost:hover,
 .ghost:hover {
   background: var(--color-accent);
-  color: var(--color-white-text);
+  color: var(--color-white);
   transform: translateY(-1px);
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
 }
-.modalActions .ghost{
+
+.modalActions .ghost{ 
   background: var(--color-secondary);
-  color: var(--color-white-text);
+  color: var(--color-white);
   width: 20%;
 }
 
@@ -90,8 +88,8 @@
   text-align: center;
   padding: 1.5rem;
   border-radius: 16px;
-  background: var(--color-bg);
-  color: var(--color-black-text);
+  background: var(--color-white);
+  color: var(--color-black);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.05);
@@ -101,8 +99,8 @@
 .countdown:hover{
   box-shadow: 0 12px 36px rgba(0,0,0,0.1);
   transform: scale(1.05) translateY(-2px);
-  background: var(--color-primary);
-  color: var(--color-white-text);
+  background: var(--color-accent);
+  color: var(--color-white);
 }
 
 .countdown small {
@@ -139,16 +137,21 @@
 }
 
 .tabBtns button {
-  background: var(--color-bg);
+  background: var(--color-white);
   font-size: 1rem;
   font-weight: 500;
-  color: var(--color-black-text);
+  color: var(--color-black);
   cursor: pointer;
   padding-bottom: 0.4rem;
 }
 
+.tabBtns button:hover{
+  background: var(--color-secondary);
+  color: var(--color-white);
+}
+
 .tabBtns .active {
-  border-bottom: 2px solid var(--color-primary);  
+  border-bottom: 2px solid var(--color-secondary);  
 }
 
 /* GRID */
@@ -164,8 +167,8 @@
 .eventCard {
   padding: 1.6rem;
   border-radius: 22px;
-  background: var(--color-primary);
-  color: var(--color-white-text);
+  background: var(--color-white);
+  color: var(--color-black);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.05);
@@ -198,30 +201,30 @@
 }
 
 .cardActions button {
-  
   border: none;
   outline: none;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
 }
+
 .cardActions button:first-child{
  background: var(--color-secondary);
- color: var(--color-white-text);
+ color: var(--color-white);
 }
 .cardActions button:nth-child(2){
  background: var(--color-secondary);
- color: var(--color-white-text);
+ color: var(--color-white);
 }
 .deleteBtn:hover,
 .cardActions button:nth-child(2):hover,
 .cardActions button:first-child:hover{
   background: var(--color-accent);
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 .deleteBtn{
-  background: var(--color-bg);
-  color: var(--color-black-text);
+  background: var(--color-secondary);
+  color: var(--color-white);
 }
 
 /* MODAL */
@@ -237,7 +240,7 @@
 }
 
 .modal {
-  background: var(--color-bg);
+  background: var(--color-white);
   padding: 2.2rem;
   border-radius: 26px;
   max-width: 520px;
@@ -250,7 +253,7 @@
 }
 .modal h3,
 .modal p {
-  color: var(--color-black-text);
+  color: var(--color-black);
   opacity: 0.85;
 }
 .modalActions {
@@ -261,17 +264,17 @@
   justify-content: space-between;
 }
 .modalActions button:nth-child(2){
-  background: var(--color-primary);
-  color: var(--color-white-text);
+  background: var(--color-secondary);
+  color: var(--color-white);
 }
 .modalActions button:nth-child(2):hover{
   background: var(--color-accent);
-  color: var(--color-white-text);
+  color: var(--color-white);
 }
 
 /* FORM */
 .form {
-  background: var(--color-bg);
+  background: var(--color-white);
   padding: 1.5em 2rem;
   border-radius: 26px;
   max-width: 560px;
@@ -282,7 +285,7 @@
 .form h3 {
   margin-bottom: 1rem;
   text-align: center;
-  color: var(--color-black-text);
+  color: var(--color-black);
 }
 
 .form input,

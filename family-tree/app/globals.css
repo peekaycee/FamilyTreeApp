@@ -24,7 +24,7 @@ a {
 }
 button { 
   background-color:var(--color-secondary); 
-  color: var(--color-white-text); 
+  color: var(--color-white); 
   border: none; 
   outline: none;
   border-radius: 5px; 
@@ -44,14 +44,14 @@ button:hover {
 
 [data-theme='light'] {
   --bg: var(--color-bg);
-  --text: var(--color-black-text);
+  --text: var(--color-black);
   --border: rgba(0, 0, 0, 0.08);
   --accent: var(--color-secondary);
 }
 
 [data-theme='dark'] {
   --bg: var(--color-primary);
-  --text: var(--color-white-text);
+  --text: var(--color-white);
   --border: rgba(255, 255, 255, 0.12);
   --accent: var(--color-accent);
 }

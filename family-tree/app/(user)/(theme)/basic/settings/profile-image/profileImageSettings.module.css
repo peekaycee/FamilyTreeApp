@@ -3,7 +3,7 @@
   width: 100%;
   height: auto;
   background-color: var(--color-bg);
-  color: var(--color-black-text);
+  color: var(--color-black);
 }
 
 /* =============== MAIN CONTENT ============== */
@@ -145,7 +145,7 @@
   top: -6px;
   right: -6px;
   background: transparent;
-  color: var(--color-black-text);
+  color: var(--color-black);
   border: none;
   outline: none;
   padding: 0;
@@ -165,5 +165,5 @@
 .avatarWrapper .deleteBtn {
   opacity: 1;
   background-color: red;
-  color: var(--color-white-text);
+  color: var(--color-white);
 }

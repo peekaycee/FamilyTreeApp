@@ -360,7 +360,7 @@ const deleteMemorial = async (id: string) => {
             <motion.div className={styles.modal} onClick={(e) => e.stopPropagation()}>
               <h3>{editingId ? "Edit Memorial" : "Add Memorial"}</h3>
 
-              <input placeholder="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <input placeholder="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoFocus />
               <input type="number" placeholder="Year born" value={form.born} onChange={(e) => setForm({ ...form, born: e.target.value })} />
               <input type="number" placeholder="Year died" value={form.died} onChange={(e) => setForm({ ...form, died: e.target.value })} />
               <input placeholder="Short tribute" value={form.tribute} onChange={(e) => setForm({ ...form, tribute: e.target.value })} />

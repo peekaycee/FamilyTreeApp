@@ -345,7 +345,7 @@
   border-radius: 8px;
   font-size: 1rem;
   line-height: 1.4;
-  color: var(--color-white-text);
+  color: var(--color-white);
   backdrop-filter: blur(12px);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.25),

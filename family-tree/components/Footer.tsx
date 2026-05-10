@@ -8,7 +8,6 @@ import Logo from '../public/images/logo.png'
 import FacebookIcon from '../public/images/facebook.svg'
 import InstagramIcon from '../public/images/instagram.svg'
 import TiktokIcon from '../public/images/tiktok.svg'
-import Badge from '../public/images/badge.png'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Button from './Button'
@@ -165,7 +164,8 @@ export default function Footer() {
                   }}
                 >
                   <Link href="/familyLegacyPlan">
-                    <Image src={Badge} alt="Plan Badge" width={150} height={150} />
+                    {/* <Image src={Badge} alt="Plan Badge" width={150} height={150} /> */}
+                    <Image src="/images/badge.png" alt="Plan Badge" width={150} height={150} />
                   </Link>
                 </motion.div>
                 <p className={styles.upgrade}>

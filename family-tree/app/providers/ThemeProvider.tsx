@@ -3,13 +3,31 @@
 import { useEffect } from "react";
 import { useSettings } from "@/app/hooks/useSettings";
 import { usePathname } from "next/navigation";
+import useGlobalAuth from "@/app/hooks/useGlobalAuth";
 
-export default function ThemeProvider({ children }: { children: React.ReactNode }) {
+export default function ThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { state, isHydrated } = useSettings();
+
   const pathname = usePathname();
 
-  // ✅ Define all public pages here
-  const publicRoutes = ["/", "/about", "/auth/login", "/contact"];
+  // ✅ REAL AUTH STATE
+  const loggedIn = useGlobalAuth();
+
+  // ✅ Public pages
+  const publicRoutes = [
+    "/",
+    "/about",
+    "/auth/login",
+    "/contact",
+    "/auth/fam3_reg-permit/register",
+    "/familyHeritagePlan",
+    "/familyLegacyPlan",
+    "/familyPremiumPlan",
+  ];
 
   const isPublicPage = publicRoutes.includes(pathname);
 
@@ -18,24 +36,37 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
     const root = document.documentElement;
 
-    // 🚨 Force light theme for ALL public pages
-    if (isPublicPage) {
+    /**
+     * PUBLIC VISITOR
+     * Force public branding/light theme
+     */
+    if (isPublicPage && !loggedIn) {
       root.setAttribute("data-theme", "light");
 
-      // force original public accent color
+      // force public accent
       root.style.setProperty("--color-accent", "#e8c535");
 
       return;
     }
 
-    // ✅ Tenant/system theme logic
+    /**
+     * LOGGED-IN USERS
+     * Follow saved dashboard/app theme
+     */
     root.setAttribute("data-theme", state.theme);
 
+    // use user's selected accent
     if (state.accentColor) {
       root.style.setProperty("--color-accent", state.accentColor);
     }
-
-  }, [state.theme, state.accentColor, isHydrated, isPublicPage]);
+  }, [
+    pathname,
+    loggedIn,
+    isPublicPage,
+    isHydrated,
+    state.theme,
+    state.accentColor,
+  ]);
 
   return <>{children}</>;
 }

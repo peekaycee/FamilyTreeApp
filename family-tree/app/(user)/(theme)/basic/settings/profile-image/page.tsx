@@ -35,7 +35,7 @@ export default function ProfileImageSettings() {
       accentColor: string;
     }>({
       theme: "system",
-      accentColor: "#3b82f6",
+      accentColor: "#e8c535",
     });
   
   /* =====================

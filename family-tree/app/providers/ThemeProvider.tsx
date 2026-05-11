@@ -31,42 +31,87 @@ export default function ThemeProvider({
 
   const isPublicPage = publicRoutes.includes(pathname);
 
+  // useEffect(() => {
+  //   if (!isHydrated) return;
+
+  //   const root = document.documentElement;
+
+  //   /**
+  //    * PUBLIC VISITOR
+  //    * Force public branding/light theme
+  //    */
+  //   if (isPublicPage && !loggedIn) {
+  //     root.setAttribute("data-theme", "light");
+
+  //     // force public accent
+  //     root.style.setProperty("--color-accent", "#e8c535");
+
+  //     return;
+  //   }
+
+  //   /**
+  //    * LOGGED-IN USERS
+  //    * Follow saved dashboard/app theme
+  //    */
+  //   root.setAttribute("data-theme", state.theme);
+
+  //   // use user's selected accent
+  //   if (state.accentColor) {
+  //     root.style.setProperty("--color-accent", state.accentColor);
+  //   }
+  // }, [
+  //   pathname,
+  //   loggedIn,
+  //   isPublicPage,
+  //   isHydrated,
+  //   state.theme,
+  //   state.accentColor,
+  // ]);
+
   useEffect(() => {
-    if (!isHydrated) return;
+  if (!isHydrated) return;
 
-    const root = document.documentElement;
+  const root = document.documentElement;
 
-    /**
-     * PUBLIC VISITOR
-     * Force public branding/light theme
-     */
-    if (isPublicPage && !loggedIn) {
-      root.setAttribute("data-theme", "light");
+  /**
+   * =========================================
+   * PUBLIC PAGES
+   * Always use church branding colors
+   * =========================================
+   */
+  if (isPublicPage && !loggedIn) {
+    root.setAttribute("data-theme", "light");
 
-      // force public accent
-      root.style.setProperty("--color-accent", "#e8c535");
+    // remove any previously injected accent
+    root.style.removeProperty("--color-accent");
 
-      return;
-    }
+    // force branding accent
+    root.style.setProperty("--color-accent", "#e8c535");
 
-    /**
-     * LOGGED-IN USERS
-     * Follow saved dashboard/app theme
-     */
-    root.setAttribute("data-theme", state.theme);
+    return;
+  }
 
-    // use user's selected accent
-    if (state.accentColor) {
-      root.style.setProperty("--color-accent", state.accentColor);
-    }
-  }, [
-    pathname,
-    loggedIn,
-    isPublicPage,
-    isHydrated,
-    state.theme,
-    state.accentColor,
-  ]);
+  /**
+   * =========================================
+   * AUTHENTICATED APP/DASHBOARD
+   * Use user settings
+   * =========================================
+   */
+  root.setAttribute("data-theme", state.theme);
+
+  // fallback prevents default blue
+  const accent = state.accentColor || "#e8c535";
+
+  root.style.setProperty("--color-accent", accent);
+
+}, [
+  pathname,
+  loggedIn,
+  isPublicPage,
+  isHydrated,
+  state.theme,
+  state.accentColor,
+]);
 
   return <>{children}</>;
 }

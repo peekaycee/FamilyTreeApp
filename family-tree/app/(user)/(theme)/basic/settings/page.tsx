@@ -36,7 +36,7 @@ export default function Settings() {
 
   const [initialSettings, setInitialSettings] = useState<{ theme: ThemeMode; accentColor: string }>({
     theme: "system",
-    accentColor: "#3b82f6"
+    accentColor: "#e8c535",
   });
 
   
@@ -106,10 +106,9 @@ export default function Settings() {
 
       dispatch({
         type: "SET_SETTINGS",
-        payload: {
-          familyName: profileData?.family_name || "",
+        payload: {          familyName: profileData?.family_name || "",
           theme: settingsData?.theme || "system",
-          accentColor: settingsData?.accent_color || "#3b82f6"
+          accentColor: settingsData?.accent_color || "#e8c535"
         }
       });
 
@@ -123,7 +122,7 @@ export default function Settings() {
 
       setInitialSettings({
         theme: settingsData?.theme || "system",
-        accentColor: settingsData?.accent_color || "#3b82f6"
+        accentColor: settingsData?.accent_color || "#e8c535"
       });
 
       if (avatarToUse) localStorage.setItem("currentAvatar", avatarToUse);
@@ -507,9 +506,9 @@ export default function Settings() {
 
             </select>
 
-            <label>Accent Color</label>
+            {/* <label>Accent Color</label> */}
 
-            <input
+            {/* <input
               className={styles.input}
               type="color"
               value={state.accentColor}
@@ -519,7 +518,7 @@ export default function Settings() {
                   payload: { accentColor: e.target.value }
                 })
               }
-            />
+            /> */}
   
           </section>
         )}
@@ -537,41 +536,3 @@ export default function Settings() {
   );
 }
 
-
-
-
-
-/* =====================
-   ZUSTAND STORE (OPTIONAL DROP-IN)
-===================== */
-
-// import { create } from 'zustand'
-// export const useSettingsStore = create((set) => ({
-//   settings: {},
-//   update: (data) => set({ settings: data })
-// }))
-
-/* =====================
-   BACKEND DTO / SCHEMA
-===================== */
-
-// SettingsDTO
-// {
-//   userId: string;
-//   familyName: string;
-//   theme: 'light' | 'dark' | 'system';
-//   accentColor: string;
-//   profileImageUrl: string;
-//   privacy: {
-//     visibility: 'family' | 'admin' | 'private';
-//   };
-// }
-
-
-// I will need this in the nearest future
-// profile_avatars/
-//    user-id-1/
-//        avatar1.png
-//        avatar2.png
-//    user-id-2/
-//        avatar1.png

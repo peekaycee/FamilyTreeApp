@@ -29,7 +29,7 @@ const initialState: SettingsState = {
   displayName: "",
   familyName: "",
   theme: "system",
-  accentColor: "#3b82f6",
+  accentColor: "#e8c535",
   profileImage: null,
   currentAvatar: null,
   imageHistory: [],
@@ -132,7 +132,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         payload: {
           familyName: profileData?.family_name || "",
           theme: settingsData?.theme || "system",
-          accentColor: settingsData?.accent_color || "#3b82f6",
+          accentColor: settingsData?.accent_color || "#e8cc53",
         },
       });
 

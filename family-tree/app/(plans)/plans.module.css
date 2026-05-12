@@ -103,7 +103,7 @@
   background-color: transparent;
   padding: 1em;
   border-radius: 16px;
-  color: var(--color-black-text);
+  color: var(--color-black);
 }
 
 .acknowledge h3{

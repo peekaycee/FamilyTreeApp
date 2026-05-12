@@ -14,7 +14,7 @@ type Achievement = {
   person: string;
   year: number;
   category: string;
-  badge: "gold" | "silver" | "bronze";
+  badge: "none" | "gold" | "silver" | "bronze";
   image_path: string | null;
   detail: string;
 };
@@ -42,7 +42,7 @@ export default function AchievementsPage() {
     person: "",
     year: new Date().getFullYear(),
     category: "Academics",
-    badge: "bronze",
+    badge: "none",
     image_path: null,
     detail: "",
   });
@@ -200,11 +200,39 @@ export default function AchievementsPage() {
 
 
   /* ================= DELETE ================= */
-  const handleDelete = async (id: string) => {
+//   const handleDelete = async (id: string) => {
+//   if (!id) {
+//     showToast("Missing achievement ID.", "error");
+//     return;
+//   }
+
+//   try {
+//     const res = await authFetch(`/api/achievements/${id}`, { method: "DELETE" });
+
+//     let data: any;
+//     try { data = await res.json(); } catch { data = {}; }
+
+//     if (!res.ok || data?.error) throw new Error(data?.error || "Delete failed");
+
+//     setAchievements(prev => prev.filter(a => a.id !== id));
+//     showToast("Achievement deleted.", "success");
+//   } catch (err: any) {
+//     console.error("Delete error:", err);
+//     showToast(err.message || "Delete failed.", "error");
+//   }
+// };
+
+const handleDelete = async (id: string) => {
   if (!id) {
     showToast("Missing achievement ID.", "error");
     return;
   }
+
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this achievement?"
+  );
+
+  if (!confirmed) return;
 
   try {
     const res = await authFetch(`/api/achievements/${id}`, { method: "DELETE" });
@@ -212,9 +240,12 @@ export default function AchievementsPage() {
     let data: any;
     try { data = await res.json(); } catch { data = {}; }
 
-    if (!res.ok || data?.error) throw new Error(data?.error || "Delete failed");
+    if (!res.ok || data?.error) {
+      throw new Error(data?.error || "Delete failed");
+    }
 
     setAchievements(prev => prev.filter(a => a.id !== id));
+
     showToast("Achievement deleted.", "success");
   } catch (err: any) {
     console.error("Delete error:", err);
@@ -233,7 +264,7 @@ export default function AchievementsPage() {
       person: "",
       year: new Date().getFullYear(),
       category: "Academics",
-      badge: "bronze",
+      badge: "none",
       image_path: null,
       detail: "",
     });
@@ -392,6 +423,7 @@ export default function AchievementsPage() {
                 setForm({ ...form, badge: e.target.value as Achievement["badge"] })
               }
             >
+              <option value="none">None</option>
               <option value="gold">Gold</option>
               <option value="silver">Silver</option>
               <option value="bronze">Bronze</option>

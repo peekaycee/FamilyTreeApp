@@ -57,8 +57,9 @@
 .candleBtn {
   width: fit-content;
   min-width: 100px;
+  height: 50px;
   margin-right: 0.5rem;
-  padding: 0.75rem 1.8rem;
+  padding: 0.75rem 3rem;
   border-radius: 50px;
   background: var(--color-secondary);
   color: var(--color-white);
@@ -105,7 +106,7 @@
   border: none;
   outline: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  font-family: inherit;
+  font-family: var(--font-secondary);
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
@@ -118,9 +119,9 @@
 }
 
 .newMessage button {
-  align-self: flex-start;
-  padding: 0.65rem 1.5rem;
+  padding: 0.65rem 3rem;
   border-radius: 50px;
+  height: 50px;
   border: none;
   background: var(--color-secondary);
   color: var(--color-white);
@@ -128,7 +129,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   place-self: flex-end;
-  margin-right: 2em;
 }
 
 .newMessage button:hover {

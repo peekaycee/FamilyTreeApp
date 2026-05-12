@@ -48,9 +48,12 @@ export default async function MemorialDetailPage({ params }: Params) {
   if (error || !memorial) return notFound();
 
   const normalizedMemorial = {
-    ...memorial,
-    candle_count: getCandleCount(memorial),
-  };
+      ...memorial,
+      picture:
+        memorial.picture ||
+        "/images/image-placeholder-removebg-preview (1).png",
+      candle_count: getCandleCount(memorial),
+    };
 
   return <MemorialDetailClient initialMemorial={normalizedMemorial} />;
 }

@@ -92,9 +92,8 @@
 
 /* Vision */
 .visionSection {
-  background: var(--color-black-text);
-  /* background: var(--color-black-text); */
-  color: var(--color-white-text);
+  background: var(--color-black);
+  color: var(--color-white);
   padding: 5rem 2rem;
   width: 100%;
 }
@@ -117,7 +116,7 @@
   width: fit-content;
   height: auto;
   border-radius: 1rem;
-  background: var(--color-black-text);
+  background: var(--color-black);
 }
 .visionText h2 {
   color: var(--color-secondary);

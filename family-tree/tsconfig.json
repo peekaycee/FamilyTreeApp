@@ -30,6 +30,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/(user)/(theme)/basic/family-builder/page.tsx"  ],
   "exclude": ["node_modules"]
 }

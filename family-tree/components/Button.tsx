@@ -13,6 +13,7 @@ export default function Button({
 }: ButtonProps) {
   return (
     <button
+      className={styles.button}
       onClick={onClick}
       // disabled={disabled}
       type={type}

@@ -27,6 +27,7 @@ export default function ThemeProvider({
     "/familyHeritagePlan",
     "/familyLegacyPlan",
     "/familyPremiumPlan",
+    "/plans",
   ];
 
   const isPublicPage = publicRoutes.includes(pathname);

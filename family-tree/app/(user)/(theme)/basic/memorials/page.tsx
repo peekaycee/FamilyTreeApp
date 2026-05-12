@@ -195,8 +195,41 @@ const saveMemorial = async () => {
 };
 
 /* ================= DELETE ================= */
+// const deleteMemorial = async (id: string) => {
+//   if (!id) return showToast("Invalid memorial ID", "error");
+
+//   try {
+//     const res = await authFetch(`/api/memorials/${id}`, { method: "DELETE" });
+
+//     // Parse JSON safely
+//     const text = await res.text();
+//     const data = text ? JSON.parse(text) : null;
+
+//     if (!res.ok) throw new Error(data?.error || "Delete failed");
+
+//     // Remove memorial from state
+//     setMemorials((prev) => prev.filter((m) => m.id !== id));
+//     setCandles((prev) => {
+//       const next = { ...prev };
+//       delete next[id];
+//       return next;
+//     });
+
+//     showToast("Memorial deleted.", "success");
+//   } catch (err: any) {
+//     console.error(err);
+//     showToast(err.message || "Delete failed", "error");
+//   }
+// };
+
 const deleteMemorial = async (id: string) => {
   if (!id) return showToast("Invalid memorial ID", "error");
+
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this memorial?"
+  );
+
+  if (!confirmed) return;
 
   try {
     const res = await authFetch(`/api/memorials/${id}`, { method: "DELETE" });
@@ -209,6 +242,7 @@ const deleteMemorial = async (id: string) => {
 
     // Remove memorial from state
     setMemorials((prev) => prev.filter((m) => m.id !== id));
+
     setCandles((prev) => {
       const next = { ...prev };
       delete next[id];

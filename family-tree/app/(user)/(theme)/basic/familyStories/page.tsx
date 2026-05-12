@@ -296,7 +296,7 @@ export default function FamilyStoriesPage() {
               <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Content" />
               <input type="file" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
               <div className={styles.clearButton}>
-                <button className={styles.closeBtn} onClick={resetForm}>Clear</button>
+                <button className={styles.closeBtn} onClick={resetForm}>Cancel</button>
                 <button onClick={saveStory} disabled={loading}>
                   {loading ? "Saving..." : "Save"}
                 </button>

@@ -39,6 +39,7 @@
 .primary,
 .cta {
   flex: 1;
+  height: 50px;
   background: var(--color-secondary);
   color: var(--color-white);
   border-radius: 8px;
@@ -57,6 +58,7 @@
 
 .ghost {
   background: var(--color-white);
+  height: 50px;
   color: var(--color-black);
   border-radius: 8px;
   padding: 12px 10px;
@@ -138,6 +140,7 @@
 
 .tabBtns button {
   background: var(--color-white);
+  height: 50px;
   font-size: 1rem;
   font-weight: 500;
   color: var(--color-black);
@@ -198,9 +201,12 @@
 .cardActions {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .cardActions button {
+  height: 40px; 
+  flex: 1;
   border: none;
   outline: none;
   font-size: 0.9rem;

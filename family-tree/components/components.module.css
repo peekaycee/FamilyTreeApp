@@ -35,6 +35,9 @@
   background: rgba(255, 255, 255, 0.1);
   z-index: 100;
 }
+.button{
+  height: 50px;
+}
 .brand {
     display: flex;
     align-items: center;
@@ -828,7 +831,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  padding: 2em 3em 0em;
+  padding: 2em 3em 1em;
 }
 .buttons{
   flex: 1;
@@ -845,6 +848,7 @@
   border-radius: 8px;
   cursor: pointer;
   padding: 0.75rem 1.5rem;
+  height: 50px;
   font-weight: 500;
   transition: all 0.3s ease;
   text-align: center;
@@ -856,8 +860,12 @@
   background: var(--color-primary);
   color: var(--color-white);
   border: 1px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 10px;
   border-radius: 8px;
+  height: 50px;
   opacity: 0.75;
 }
 
@@ -1055,6 +1063,7 @@
 
 .editButtons button {
   width: 25%;
+  height: 40px;
   background: var(--color-secondary);
   color: var(--color-white);
   padding: 8px 14px;

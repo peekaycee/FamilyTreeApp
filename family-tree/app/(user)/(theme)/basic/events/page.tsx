@@ -294,17 +294,25 @@ useEffect(() => {
   }
 };
 
-
   const deleteEvent = async (id: string) => {
-    try {
-      const res = await authFetch(`/api/events?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete event");
-      await fetchEvents();
-        showToast("Event deleted successfully", "success");
-    } catch {
-      showToast("Failed to delete event", "error");
-    }
-  };
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this event?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const res = await authFetch(`/api/events?id=${id}`, { method: "DELETE" });
+
+    if (!res.ok) throw new Error("Failed to delete event");
+
+    await fetchEvents();
+
+    showToast("Event deleted successfully", "success");
+  } catch {
+    showToast("Failed to delete event", "error");
+  }
+};
 
   /* ================= RENDER ================= */
 

@@ -17,8 +17,8 @@
 
 /* Dark Theme */
 [data-theme='dark'] {
-  --color-bg: #000;
-  --color-primary: #111;     /* softened teal-green for headings/links */
+  --color-bg: rgb(10, 40, 48);
+  --color-primary: rgb(1, 42, 48);
   --color-secondary: #b8962e;   /* muted gold for buttons */
   --color-accent: #ffbf00;      /* brighter gold for highlights */
   --color-text: #f7f7f7;
@@ -27,8 +27,8 @@
 /* System Theme: will follow OS preference automatically */
 @media (prefers-color-scheme: dark) {
   :root[data-theme='system'] {
-    --color-bg: #000;
-    --color-primary: #111;  
+    --color-bg: rgb(10, 40, 48);
+    --color-primary: rgb(1, 42, 48);  
     --color-secondary: #b8962e;
     --color-accent: #ffbf00; 
     --color-text: #f7f7f7;

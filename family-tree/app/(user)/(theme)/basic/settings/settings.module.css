@@ -37,7 +37,7 @@
   border: none;
   padding: 0.6rem 0;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 500;
   color: inherit;
   cursor: pointer;
@@ -55,6 +55,7 @@
 .sidebar button:hover,
 .sidebar a:hover,
 .dashboard a:hover{
+  background: none;
   color: var(--color-accent);
   letter-spacing: 1px;
 }
@@ -128,21 +129,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 1rem;
 }
 
 .uploadBtn {
   background: var(--color-secondary);
-  padding: 10px 16px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
 }
+
 .uploadBtn p{
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--color-white);
 }
+
 .uploadBtn:hover {
   background: var(--color-accent);
   color: var(--color-white);
@@ -219,13 +226,14 @@ FORM CONTROLS
 .mobileSidebarSaveBtn,
 .sidebar .sidebarSaveBtn {
   width: fit-content;
+  height: 50px;
   padding:  10px 16px;
   border-radius: 8px;
   border: none;
   outline: none;
   cursor: pointer;
   font-weight: 400;
-  font-size: 0.95rem;
+  font-size: 1rem;
   background: var(--color-secondary);
   color: var(--color-white);
   margin-top: auto;

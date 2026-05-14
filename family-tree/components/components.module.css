@@ -282,7 +282,7 @@
   background: var(--color-primary);
   color: var(--color-white);
   text-align: center;
-  padding: 1em 0 0;
+  padding: 3em 0 0;
 }
 .footer a{
   color: var(--color-white);

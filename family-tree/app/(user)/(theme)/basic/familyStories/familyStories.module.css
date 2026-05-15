@@ -69,13 +69,17 @@
   border-radius: 16px; 
   overflow: hidden; 
   border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05); 
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1); 
   display: flex; 
   flex-direction: column;
   align-items: center;
   justify-content: center; 
   margin-bottom: 2em;
   transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 0 8px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 .storyCard:hover{
   background-origin: padding-box;

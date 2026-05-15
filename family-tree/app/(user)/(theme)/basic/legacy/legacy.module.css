@@ -335,7 +335,7 @@
 }
 /* small utilities */
 .muted { 
-  color:var(--color-black);
+  color: var(--color-text);
   opacity: 0.75; 
   font-size: 14px; 
 }

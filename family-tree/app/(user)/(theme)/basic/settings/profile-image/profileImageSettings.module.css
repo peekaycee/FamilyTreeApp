@@ -21,6 +21,7 @@
   font-size: 2rem;
   margin-bottom: 1.5rem;
   color: var(--color-text);
+  text-align: center;
 }
 
 /* ==================================================
@@ -110,6 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   padding:  10px 16px;
   border-radius: 8px;
   border: none;
@@ -123,7 +125,7 @@
 
 .uploadBtn {
   transition: all 0.25s ease;
-  font-size: 1.07rem;
+  font-size: 1.05rem;
 }
 
 .uploadBtn:hover {
@@ -165,3 +167,11 @@
   background-color: red;
   color: var(--color-white);
 }
+
+@media (max-width: 768px) {
+  .content h1{
+    font-size: 1.85rem;
+  }
+}
+
+

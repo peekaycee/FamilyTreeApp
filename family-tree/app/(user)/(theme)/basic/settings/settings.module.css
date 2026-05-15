@@ -33,6 +33,7 @@
 }
 
 .sidebar button {
+  width: fit-content;
   background: none;
   border: none;
   padding: 0.6rem 0;
@@ -44,6 +45,7 @@
 }
 
 .dashboard a {
+  width: fit-content;
   display: flex;
   align-items: center;
   justify-content: flex-start;

@@ -130,147 +130,93 @@ const member: FamilyMember = {
   /* ===== SAFE DERIVED VALUES ===== */
   const fatherName = member.father?.name ?? "Not recorded";
   const motherName = member.mother?.name ?? "Not recorded";
-
-  // /* ===== UI ===== */
-  // return (
-  //   <div style={{ padding: "2rem" }}>
-  //     <h1>{member.name}</h1>
-
-  //     <p>Role: {member.role ?? "N/A"}</p>
-  //     <p>Generation: {member.generation ?? "N/A"}</p>
-  //     <p>
-  //       Position: (
-  //       {member.pos_x ?? "?"}, {member.pos_y ?? "?"}
-  //       )
-  //     </p>
-
-  //     {member.avatar_url && (
-  //       <Image
-  //         src={member.avatar_url}
-  //         alt="Avatar"
-  //         width={100}
-  //         height={100}
-  //       />
-  //     )}
-
-  //     <hr />
-
-  //     <h3>Father</h3>
-  //     <p>{fatherName}</p>
-
-  //     <h3>Mother</h3>
-  //     <p>{motherName}</p>
-
-  //     <h3>Spouse</h3>
-  //     <p>{spouse?.name ?? "Not recorded"}</p>
-
-  //     <h3>Children</h3>
-  //     {children.length > 0 ? (
-  //       <ul>
-  //         {children.map((child) => (
-  //           <li key={child.id}>{child.name}</li>
-  //         ))}
-  //       </ul>
-  //     ) : (
-  //       <p>No children recorded</p>
-  //     )}
-
-  //     <hr />
-
-  //     <h3>Birth Date</h3>
-  //     <p>{member.birth_date ?? "Not recorded"}</p>
-
-  //     <h3>Death Date</h3>
-  //     <p>{member.death_date ?? "Not recorded"}</p>
-  //   </div>
-  // );
   /* ===== UI ===== */
-return (
-  <div className={styles.memberPage}>
-    <div className={styles.memberCard}>
-      
-      {/* HEADER */}
-      <div className={styles.memberHeader}>
-        <div className={styles.avatarWrapper}>
-          {member.avatar_url ? (
-            <Image
-              src={member.avatar_url}
-              alt={member.name}
-              width={140}
-              height={140}
-              className={styles.avatar}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {member.name.charAt(0)}
-            </div>
-          )}
-        </div>
-
-        <div className={styles.headerInfo}>
-          <h1 className={styles.memberName}>{member.name}</h1>
-
-          <div className={styles.badges}>
-            <span className={styles.roleBadge}>
-              {member.role ?? "No Role"}
-            </span>
-
-            <span className={styles.generationBadge}>
-              Gen {member.generation ?? "N/A"}
-            </span>
+  return (
+    <div className={styles.memberPage}>
+      <div className={styles.memberCard}>
+        
+        {/* HEADER */}
+        <div className={styles.memberHeader}>
+          <div className={styles.avatarWrapper}>
+            {member.avatar_url ? (
+              <Image
+                src={member.avatar_url}
+                alt={member.name}
+                width={140}
+                height={140}
+                className={styles.avatar}
+              />
+            ) : (
+              <div className={styles.avatarPlaceholder}>
+                {member.name.charAt(0)}
+              </div>
+            )}
           </div>
 
-          {/* <p className={styles.position}>
-            Position: ({member.pos_x ?? "?"},{" "}
-            {member.pos_y ?? "?"})
-          </p> */}
-        </div>
-      </div>
+          <div className={styles.headerInfo}>
+            <h1 className={styles.memberName}>{member.name}</h1>
 
-      {/* RELATIONS */}
-      <div className={styles.grid}>
-        <div className={styles.infoCard}>
-          <h3>Father</h3>
-          <p>{fatherName}</p>
-        </div>
+            <div className={styles.badges}>
+              <span className={styles.roleBadge}>
+                {member.role ?? "No Role"}
+              </span>
 
-        <div className={styles.infoCard}>
-          <h3>Mother</h3>
-          <p>{motherName}</p>
-        </div>
+              <span className={styles.generationBadge}>
+                Gen {member.generation ?? "N/A"}
+              </span>
+            </div>
 
-        <div className={styles.infoCard}>
-          <h3>Spouse</h3>
-          <p>{spouse?.name ?? "Not recorded"}</p>
+            {/* <p className={styles.position}>
+              Position: ({member.pos_x ?? "?"},{" "}
+              {member.pos_y ?? "?"})
+            </p> */}
+          </div>
         </div>
 
-        <div className={styles.infoCard}>
-          <h3>Birth Date</h3>
-          <p>{member.birth_date ?? "Not recorded"}</p>
-        </div>
+        {/* RELATIONS */}
+        <div className={styles.grid}>
+          <div className={styles.infoCard}>
+            <h3>Father</h3>
+            <p>{fatherName}</p>
+          </div>
 
-        <div className={styles.infoCard}>
-          <h3>Death Date</h3>
-          <p>{member.death_date ?? "Not recorded"}</p>
-        </div>
+          <div className={styles.infoCard}>
+            <h3>Mother</h3>
+            <p>{motherName}</p>
+          </div>
 
-        <div className={styles.infoCard}>
-          <h3>Children</h3>
+          <div className={styles.infoCard}>
+            <h3>Spouse</h3>
+            <p>{spouse?.name ?? "Not recorded"}</p>
+          </div>
 
-          {children.length > 0 ? (
-            <ul className={styles.childrenList}>
-              {children.map((child) => (
-                <li key={child.id} className={styles.childItem}>
-                  {child.name}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No children recorded</p>
-          )}
+          <div className={styles.infoCard}>
+            <h3>Birth Date</h3>
+            <p>{member.birth_date ?? "Not recorded"}</p>
+          </div>
+
+          <div className={styles.infoCard}>
+            <h3>Death Date</h3>
+            <p>{member.death_date ?? "Not recorded"}</p>
+          </div>
+
+          <div className={styles.infoCard}>
+            <h3>Children</h3>
+
+            {children.length > 0 ? (
+              <ul className={styles.childrenList}>
+                {children.map((child) => (
+                  <li key={child.id} className={styles.childItem}>
+                    {child.name}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No children recorded</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }

@@ -15,9 +15,10 @@
 
 .sidebar { 
   width: 260px;
+  height: 100dvh;
   padding: 2rem 1.5rem;
-  border-right: 1px solid rgba(225, 225, 225, 0.2);
-  box-shadow:0 2px 6px rgba(0, 0, 0, 0.15);
+  border-right: 1px solid rgba(221, 221, 221, 0.5);
+  border-radius: 0 4px 4px 0;
   background: var(--color-bg);
   color: var(--color-text);
   display: flex;

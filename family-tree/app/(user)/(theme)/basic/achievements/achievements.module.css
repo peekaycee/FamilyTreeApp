@@ -68,6 +68,7 @@
   color: var(--color-white);
   cursor: pointer;
   font-size: 0.85rem;
+  transition: all .25s ease;
 }
 .filterRow button:hover{
   background: var(--color-accent);
@@ -75,9 +76,10 @@
   border-color: transparent;
 }
 .filterRow button.active {
-  background: var(--color-primary);
-  color: var(--color-white);
+  background: var(--color-white);
+  color: var(--color-black);
   border-color: transparent;
+  border: 1px solid var(--color-secondary);
 }
 .searchWrap {
   position: relative;
@@ -97,6 +99,7 @@
   cursor: pointer;
   color: var(--color-text);
   opacity: 0.7;
+  transition: all .25s ease;
 }
 
 .clearBtn:hover {
@@ -176,14 +179,22 @@
   margin: 0.25rem 0 0.5rem;
 }
 
+.cardImageHolder{
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  justify-content: center;
+}
+
 .cardImage {
   width: fit-content;
   max-height: 220px;
   object-fit: cover;
   object-position: center;
   border-radius: 16px;
-  margin: 0.5rem 0;
-  /* display: none; */
+  margin: 0.5rem 0 0 1em;
 }
 
 .cardActions {

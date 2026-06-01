@@ -191,7 +191,10 @@
   transform: rotate(180deg);
 }
 
-
+.sendCaret{
+  transform: rotate(180deg);
+  margin-left: 4px;
+}
 /* Mobile dropdown */
 .mobileDropdown {
   display: flex;

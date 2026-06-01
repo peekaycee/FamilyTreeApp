@@ -17,8 +17,8 @@
 
 /* Dark Theme */
 [data-theme='dark'] {
-  --color-bg: rgb(10, 40, 48);
-  --color-primary: rgb(1, 42, 48);
+  --color-bg: rgba(10, 40, 48, 0.95); /* semi-transparent dark background */
+  --color-primary: rgba(1, 42, 48, 0.5); /* slightly lighter for better contrast */
   --color-secondary: #b8962e;   /* muted gold for buttons */
   --color-accent: #ffbf00;      /* brighter gold for highlights */
   --color-text: #f7f7f7;
@@ -27,8 +27,8 @@
 /* System Theme: will follow OS preference automatically */
 @media (prefers-color-scheme: dark) {
   :root[data-theme='system'] {
-    --color-bg: rgb(10, 40, 48);
-    --color-primary: rgb(1, 42, 48);  
+    --color-bg: rgba(10, 40, 48, 0.95);
+    --color-primary: rgba(1, 42, 48, 0.5);  
     --color-secondary: #b8962e;
     --color-accent: #ffbf00; 
     --color-text: #f7f7f7;

@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef, useCallback  } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./familyStories.module.css";
-import { CornerDownLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
+import ShareButtons from "@/components/ShareButton";
 
 type Story = {
   id: string;
@@ -215,6 +215,11 @@ export default function FamilyStoriesPage() {
     setShowAddModal(true);
   };
 
+  const siteUrl =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "";
+
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
@@ -261,9 +266,20 @@ export default function FamilyStoriesPage() {
                     {/* <button onClick={() => editStory(s)}>Edit</button> */}
                     <button onClick={() => deleteStory(s)}>Delete</button>
                   </div>
-                  <button className={styles.shareButton}>
-                    Share <CornerDownLeft size={14} className={styles.sendCaret}/>
-                  </button>
+                  <ShareButtons
+                    className={styles.shareButton}
+                    title={s.title}
+                    text={`Image:
+${s.image_url ?? "No image available"}
+
+Title: ${s.title}
+Author: ${s.author}
+
+Excerpt: ${s.excerpt}
+
+Click the link to read more:`}
+                    url={`${siteUrl}/family-stories/${s.id}`}
+                  />
                 </div>
               </div>
             </motion.article>

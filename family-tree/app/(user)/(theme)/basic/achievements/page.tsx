@@ -330,13 +330,15 @@ const handleDelete = async (id: string) => {
                 </p>
 
                 {a.image_path && (
-                  <Image
-                    className={styles.cardImage}
-                    src={a.image_path}
-                    alt={a.title}
-                    width={150}
-                    height={150}
-                  />
+                  <div className={styles.cardImageHolder}>
+                    <Image
+                      className={styles.cardImage}
+                      src={a.image_path}
+                      alt={a.title}
+                      width={150}
+                      height={150}
+                    />
+                  </div>
                 )}
 
                 <p>{a.detail}</p>

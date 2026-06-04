@@ -9,6 +9,7 @@ import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 import { timelineData } from "@/app/constants/Timeline";
 import { familyTreeSample } from "@/app/constants/familyTreeSample";
+import ShareButtons from "@/components/ShareButton";
 
 interface FamilyStory {
   id: string;
@@ -100,6 +101,11 @@ const latestStories = stories.slice(0, 2);
   const goToFamilyStories = () => {
     window.location.href = "/basic/familyStories";
   };
+
+  const siteUrl =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "";
 
   return (
     <main className={styles.page}>
@@ -329,9 +335,23 @@ const latestStories = stories.slice(0, 2);
           <p>{s.excerpt}</p>
           <div className={styles.storyActions}>
             <button className={styles.ctaSmall} onClick={() => setSelectedStory(s.id)}>Read</button>
-            <button className={styles.ctaGhost}>
+            {/* <button className={styles.ctaGhost}>
               Share<CornerDownLeft size={14} className={styles.sendCaret}/>
-            </button>
+            </button> */}
+            <ShareButtons
+              className={styles.ctaGhost}
+              title={s.title}
+              text={`Image:
+${s.image_url ?? "No image available"}
+
+Title: ${s.title}
+Author: ${s.author}
+
+Excerpt: ${s.excerpt}
+
+Click the link to read more:`}
+              url={`${siteUrl}/family-stories/${s.id}`}
+            />
           </div>
         </div>
       </motion.article>

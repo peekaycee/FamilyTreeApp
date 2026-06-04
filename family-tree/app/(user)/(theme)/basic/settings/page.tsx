@@ -9,7 +9,6 @@ import { useSettings } from "@/app/contexts/SettingsContext";
 import Placeholder from "@/public/images/image-placeholder-removebg-preview.png";
 import { MoreVertical, X, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
-import ShareButton from "@/components/ShareButton";
 
 const supabase = createSupabaseBrowserClient();
 
@@ -532,7 +531,6 @@ export default function Settings() {
             {isSaving ? "Saving..." : "Save Setting"}
           </button>)
         }
-        <ShareButton />
       </main>
     </div>
   );

@@ -277,8 +277,9 @@ Author: ${s.author}
 
 Excerpt: ${s.excerpt}
 
-Click the link to read more:`}
-              url={`${siteUrl}/basic/familyStories`}
+`}
+              // Click the link to read more:
+              // url={`${siteUrl}/basic/familyStories`}
                   />
                 </div>
               </div>

@@ -350,7 +350,7 @@ Author: ${s.author}
 Excerpt: ${s.excerpt}
 
 Click the link to read more:`}
-              url={`${siteUrl}/family-stories/${s.id}`}
+              url={`${siteUrl}/basic/family-stories`}
             />
           </div>
         </div>

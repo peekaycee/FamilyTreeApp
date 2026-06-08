@@ -527,7 +527,7 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   const roleLabel = new PIXI.Text(m.role ?? "", { fontSize: 12, fill: 0x333333, align: "center" });
   roleLabel.y = NODE_RADIUS + 22;
   roleLabel.anchor.set(0.5, -0.35);
-  // c.addChild(roleLabel); // you can turn this on to see roles label
+  c.addChild(roleLabel); // you can turn this on to see roles label
 
   // ---------------------- Dragging ----------------------
   let dragging = false;

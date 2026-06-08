@@ -268,6 +268,7 @@ export default function FamilyStoriesPage() {
                   </div>
                   <ShareButtons
                     className={styles.shareButton}
+                    url={`${siteUrl}/family-stories/${s.id}`}
                     title={s.title}
                     text={`Image:
 ${s.image_url ?? "No image available"}
@@ -278,8 +279,6 @@ Author: ${s.author}
 Excerpt: ${s.excerpt}
 
 `}
-              // Click the link to read more:
-              // url={`${siteUrl}/basic/familyStories`}
                   />
                 </div>
               </div>

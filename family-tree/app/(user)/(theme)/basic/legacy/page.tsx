@@ -340,6 +340,7 @@ const latestStories = stories.slice(0, 2);
             </button> */}
             <ShareButtons
               className={styles.ctaGhost}
+              url={`${siteUrl}/family-stories/${s.id}`}
               title={s.title}
               text={`Image:
 ${s.image_url ?? "No image available"}

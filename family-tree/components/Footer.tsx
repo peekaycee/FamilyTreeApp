@@ -124,7 +124,13 @@ export default function Footer() {
                 <Link href="/basic/events">Ceremonies</Link>
                 <Link href="/basic/memorials">Memorials</Link>
                 <Link href="/plans">Plans</Link>
-                {/* <Link href="/basic/dashboard">Dashboard</Link> */}
+                <Link 
+                  style={{
+                    pointerEvents: 'none',
+                    cursor: "pointer",
+                  }}
+                  href="/admin/password">Admin
+                </Link>
                 <Link href="/basic/settings">Settings</Link>
                 <Button
                   onClick={handleLogout}
@@ -194,7 +200,19 @@ export default function Footer() {
             <div className={styles.footerContent}>
               <div className={styles.footerLogo}>
                 <Link href="/">
-                  <Image src={Logo} alt="Footer Logo" width={100} height={100} />
+                  <Image
+                    src={Logo}
+                    alt="Footer Logo"
+                    width={150}
+                    height={150}
+                    priority
+                    style={{
+                      display: 'block',
+                      width: '150px',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
+                  />
                 </Link>
               </div>
 
@@ -204,11 +222,11 @@ export default function Footer() {
                 <Link href="/about">About</Link>
                 <Link href="/contact">Contact</Link>
                 <Link href="/auth/login">Login</Link>
-                <Link href="/auth/register">Register</Link>
+                <Link href="/plans">Register</Link>
                 <Link href="/plans">Plans</Link>
-                <Link href="/admin/password" className={styles.adminLink}>
+                {/* <Link href="/admin/password" className={styles.adminLink}>
                   Admin
-                </Link>
+                </Link> */}
               </div>
 
               <div className={styles.plans}>

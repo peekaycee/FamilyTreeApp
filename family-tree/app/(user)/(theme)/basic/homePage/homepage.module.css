@@ -90,7 +90,7 @@
 }
 .img1 {
   bottom: 120px;
-  left: 5%;
+  left: 3%;
   transform: rotate(-12deg);
   z-index: 52;
 }
@@ -98,19 +98,19 @@
 .img2 {
   height: 340px;
   top: 60px;
-  right: 10%;
+  right: 15%;
   transform: rotate(6deg);
 }
 
 .img3 {
   bottom: 25px;
-  left: 35%;
+  left: 50%;
   transform: rotate(-10deg);
   z-index: 52;
 }
 .img4 {
   top: 25px;
-  right: 40%;
+  right: 45%;
   transform: rotate(-4deg);
 }
 

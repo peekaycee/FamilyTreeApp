@@ -1,17 +1,175 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import styles from "./stories.module.css";
 import Image from "next/image";
 import { Heart, Users, BookOpen } from "lucide-react";
 import { useSettings } from "@/app/contexts/SettingsContext";
+import { createSupabaseBrowserClient } from "@/lib/supabase/supabaseClient";
 
+type FamilyImage = {
+  id?: string;
+  title?: string;
+  image_url?: string | null;
+  image_path_url?: string | null;
+  sort_order?: number;
+  is_published?: boolean;
+};
+
+type FamilyContentResponse = {
+  content?: {
+    our_family?: {
+      images?: FamilyImage[];
+    };
+  };
+};
 
 export default function OurStoryPage() {
-  
-  const { state, isHydrated  } = useSettings();
-  
-  if (!isHydrated) return null;
+  const { state, isHydrated } = useSettings();
+
+  const [familyImages, setFamilyImages] = useState<FamilyImage[]>([]);
+  const [hasResolvedInitialContent, setHasResolvedInitialContent] =
+    useState(false);
+
+  // Fetch and persist the authenticated tenant's family images.
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchFamilyImages() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        // Each authenticated user has a separate cache.
+        const cacheKey = session?.user?.id
+          ? `ft_our_family_images_${session.user.id}`
+          : null;
+
+        // Display previously fetched images immediately.
+        if (cacheKey) {
+          try {
+            const cachedContent = localStorage.getItem(cacheKey);
+
+            if (cachedContent) {
+              const parsedContent: FamilyContentResponse =
+                JSON.parse(cachedContent);
+
+              const cachedImages =
+                parsedContent.content?.our_family?.images || [];
+
+              if (isMounted) {
+                setFamilyImages(
+                  cachedImages
+                    .filter(
+                      (image) =>
+                        image.is_published === true &&
+                        (image.image_url || image.image_path_url)
+                    )
+                    .sort(
+                      (a, b) =>
+                        (a.sort_order ?? 0) - (b.sort_order ?? 0)
+                    )
+                );
+
+                setHasResolvedInitialContent(true);
+              }
+            }
+          } catch (cacheError) {
+            console.error(
+              "Error reading cached family images:",
+              cacheError
+            );
+          }
+        }
+
+        // Retrieve the latest content from the authenticated tenant.
+        const response = await fetch("/api/family-site-content", {
+          method: "GET",
+          cache: "no-store",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+
+          console.error("Family content API error:", {
+            status: response.status,
+            statusText: response.statusText,
+            response: errorText,
+          });
+
+          throw new Error(
+            `Unable to retrieve family images. Status: ${response.status}`
+          );
+        }
+
+        const result: FamilyContentResponse = await response.json();
+
+        const images = result.content?.our_family?.images || [];
+
+        if (!isMounted) return;
+
+        setFamilyImages(
+          images
+            .filter(
+              (image) =>
+                image.is_published === true &&
+                (image.image_url || image.image_path_url)
+            )
+            .sort(
+              (a, b) =>
+                (a.sort_order ?? 0) - (b.sort_order ?? 0)
+            )
+        );
+
+        // Save the latest response for immediate display next time.
+        if (cacheKey) {
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(result));
+          } catch (cacheError) {
+            console.error(
+              "Error saving family images to cache:",
+              cacheError
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching family images:", error);
+      } finally {
+        if (isMounted) {
+          setHasResolvedInitialContent(true);
+        }
+      }
+    }
+
+    fetchFamilyImages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!isHydrated || !hasResolvedInitialContent) return null;
+
+  // Use published CMS images, with the original images as fallbacks.
+  const heroFamilyImage =
+    familyImages[0]?.image_url ||
+    familyImages[0]?.image_path_url ||
+    "/images/family21.png";
+
+  const rootsFamilyImage =
+    familyImages[1]?.image_url ||
+    familyImages[1]?.image_path_url ||
+    "/images/family25.png";
+
+  const generationsFamilyImage =
+    familyImages[2]?.image_url ||
+    familyImages[2]?.image_path_url ||
+    "/images/family10.png";
 
   return (
     <div className={styles.container}>
@@ -38,8 +196,9 @@ export default function OurStoryPage() {
           </span>
         </h1>
       </section>
+
       <section className={styles.contentContainer}>
-        <motion.div 
+        <motion.div
           className={styles.heroContent}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,10 +218,11 @@ export default function OurStoryPage() {
           transition={{ delay: 0.3, duration: 1 }}
         >
           <Image
-            src="/images/family21.png"
-            alt="{state.familyName} Family Legacy"
+            src={heroFamilyImage}
+            alt={`${state.familyName} Family Legacy`}
             fill
             className={styles.heroImage}
+            unoptimized
           />
         </motion.div>
       </section>
@@ -86,8 +246,13 @@ export default function OurStoryPage() {
             <h2 className={styles.heading}>
               The {state.familyName} Family Roots
             </h2>
+
             <p className={styles.text}>
-              This platform exists to document and preserve the story of the {state.familyName} family, our beginnings, our journeys, our challenges, and our triumphs. What started as shared memories passed down by word of mouth is now carefully recorded so that no chapter of our history is ever lost.
+              This platform exists to document and preserve the story of the
+              {` ${state.familyName} `}family, our beginnings, our journeys,
+              our challenges, and our triumphs. What started as shared memories
+              passed down by word of mouth is now carefully recorded so that
+              no chapter of our history is ever lost.
             </p>
           </motion.div>
 
@@ -99,11 +264,12 @@ export default function OurStoryPage() {
             className={styles.imageBlock}
           >
             <Image
-              src="/images/family25.png"
-              alt="{state.familyName} family heritage"
+              src={rootsFamilyImage}
+              alt={`${state.familyName} family heritage`}
               fill
               className={styles.sectionImage}
               loading="eager"
+              unoptimized
             />
           </motion.div>
         </motion.div>
@@ -130,11 +296,13 @@ export default function OurStoryPage() {
             transition={{ duration: 0.5 }}
           >
             <Heart className={styles.icon} />
-            <h4>Love & Togetherness</h4>
+
+            <h4>Love &amp; Togetherness</h4>
+
             <p>
-              At the heart of the {state.familyName} family is love — expressed through
-              unity, mutual respect, shared laughter, and standing together
-              through every season of life.
+              At the heart of the {state.familyName} family is love —
+              expressed through unity, mutual respect, shared laughter,
+              and standing together through every season of life.
             </p>
           </motion.div>
 
@@ -147,11 +315,14 @@ export default function OurStoryPage() {
             transition={{ duration: 0.6 }}
           >
             <Users className={styles.icon} />
+
             <h4>Generational Bond</h4>
+
             <p>
               From elders to the youngest members, our family story is one
-              continuous thread. This space ensures that every generation of
-              the {state.familyName}&apos;s remains connected, informed, and represented.
+              continuous thread. This space ensures that every generation
+              of the {state.familyName} family remains connected, informed,
+              and represented.
             </p>
           </motion.div>
 
@@ -164,12 +335,14 @@ export default function OurStoryPage() {
             transition={{ duration: 0.7 }}
           >
             <BookOpen className={styles.icon} />
+
             <h4>Preserving Our Legacy</h4>
+
             <p>
               We are committed to documenting our history with intention —
               preserving stories, photographs, milestones, and memories so
-              future generations of the {state.familyName} family can know exactly where
-              they come from.
+              future generations of the {state.familyName} family can know
+              exactly where they come from.
             </p>
           </motion.div>
         </div>
@@ -192,10 +365,11 @@ export default function OurStoryPage() {
             }}
           >
             <Image
-              src="/images/family10.png"
-              alt="{state.familyName} family generations"
+              src={generationsFamilyImage}
+              alt={`${state.familyName} family generations`}
               fill
               className={styles.sectionImage}
+              unoptimized
             />
           </motion.div>
 
@@ -207,11 +381,12 @@ export default function OurStoryPage() {
             }}
           >
             <h2 className={styles.heading}>A Story That Continues</h2>
+
             <p className={styles.text}>
-              Our family story is still being written. This platform
-              serves as a living archive — a place where memories are honored,
-              loved ones are remembered, and every new chapter adds meaning to
-              the legacy we leave behind.
+              Our family story is still being written. This platform serves
+              as a living archive — a place where memories are honored,
+              loved ones are remembered, and every new chapter adds meaning
+              to the legacy we leave behind.
             </p>
           </motion.div>
         </motion.div>

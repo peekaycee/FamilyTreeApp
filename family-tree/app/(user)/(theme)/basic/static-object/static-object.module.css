@@ -1,0 +1,403 @@
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background: #faf8f5;
+  color: var(--color-black);
+  padding-bottom: 5em;
+}
+
+.hero {
+  width: 100%;
+  min-height: 280px;
+  padding: 3em 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.eyebrow {
+  color: var(--color-secondary);
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  margin: 0.5em 0;
+  font-family: var(--font-primary);
+}
+
+.hero p {
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+.workspace {
+  width: min(1200px, 94%);
+  margin: 2.5em auto;
+}
+
+.tenantPanel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2em;
+  padding: 1.5em;
+  border-radius: 14px;
+  background: var(--color-white);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+}
+
+.tenantPanel label,
+.field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.6em;
+}
+
+.tenantPanel select,
+.field input:not([type="file"]):not([type="checkbox"]),
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.75em 0.9em;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  color: #333;
+  font: inherit;
+}
+
+.tenantPanel select:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--color-secondary);
+}
+
+.tenantDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35em;
+  color: #555;
+  overflow-wrap: anywhere;
+}
+
+.tenantDetails strong {
+  color: var(--color-primary);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  margin: 2em 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabs button {
+  border: none;
+  background: transparent;
+  color: #555;
+  padding: 1em 1.5em;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs button:hover,
+.tabs .activeTab {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-secondary);
+}
+
+.editor,
+.records {
+  background: var(--color-white);
+  border-radius: 14px;
+  padding: 2em;
+  margin-top: 2em;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  margin-bottom: 1.5em;
+}
+
+.sectionHeading h2 {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  margin-bottom: 0.3em;
+}
+
+.sectionHeading p {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.field {
+  margin-bottom: 1.3em;
+}
+
+.field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.field input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 0.8em;
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.field small {
+  display: block;
+  margin-top: 0.5em;
+  overflow-wrap: anywhere;
+}
+
+.field a,
+.recordBody a {
+  display: inline-block;
+  margin-top: 0.6em;
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: #777;
+}
+
+.uploaded {
+  color: #168044;
+}
+
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5em;
+}
+
+.publishToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin: 1.5em 0;
+  cursor: pointer;
+}
+
+.publishToggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.saveButton,
+.cancel {
+  border: none;
+  border-radius: 8px;
+  padding: 0.9em 1.5em;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.saveButton {
+  width: 100%;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  transition: background 0.2s ease;
+}
+
+.saveButton:hover {
+  background: var(--color-accent);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancel {
+  background: #eee;
+  color: #444;
+}
+
+.success,
+.error {
+  padding: 1em 1.2em;
+  border-radius: 8px;
+  margin: 1em 0;
+}
+
+.success {
+  background: #e8f6ed;
+  color: #176b36;
+}
+
+.error {
+  background: #fdecec;
+  color: #a11c1c;
+}
+
+.recordsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.3em;
+}
+
+.recordCard {
+  overflow: hidden;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.recordCard > img,
+.recordCard > video {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.recordBody {
+  padding: 1.2em;
+}
+
+.recordType {
+  color: #927324;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.recordBody h3 {
+  color: var(--color-primary);
+  margin: 0.6em 0;
+  overflow-wrap: anywhere;
+}
+
+.recordBody p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0.6em 0;
+  overflow-wrap: anywhere;
+}
+
+.published,
+.unpublished {
+  display: inline-block;
+  margin-top: 0.6em;
+  padding: 0.35em 0.7em;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.published {
+  background: #e7f6ec;
+  color: #176b36;
+}
+
+.unpublished {
+  background: #f1f1f1;
+  color: #666;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+
+.actions button {
+  flex: 1;
+  min-width: 65px;
+  padding: 0.65em 0.5em;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.actions button:hover {
+  opacity: 0.85;
+}
+
+.actions .deleteButton {
+  background: #a72c2c;
+}
+
+.empty {
+  padding: 2em 1em;
+  text-align: center;
+  color: #777;
+}
+
+@media (max-width: 900px) {
+  .recordsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tenantPanel {
+    grid-template-columns: 1fr;
+    gap: 1.2em;
+  }
+}
+
+@media (max-width: 600px) {
+  .workspace {
+    width: 92%;
+  }
+
+  .editor,
+  .records {
+    padding: 1.2em;
+  }
+
+  .mediaGrid,
+  .recordsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tabs {
+    gap: 0.2em;
+  }
+
+  .tabs button {
+    padding: 0.8em 0.7em;
+    font-size: 0.9rem;
+  }
+
+  .actions button {
+    min-width: 75px;
+  }
+}

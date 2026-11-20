@@ -112,82 +112,188 @@ export default function LegacyPage() {
 
   // Fetch Featured Family and Family Timeline CMS content.
   // Display cached content immediately, then refresh from Supabase.
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    const applyLegacyContent = (result: FamilySiteContentResponse) => {
-      // Featured Family reads exclusively from Legacy → Featured Family.
-      // Supports either one object or an array of records.
-      const featuredFamilyData =
-        result.content?.legacy?.featured_family;
+  //   const applyLegacyContent = (result: FamilySiteContentResponse) => {
+  //     // Featured Family reads exclusively from Legacy → Featured Family.
+  //     // Supports either one object or an array of records.
+  //     const featuredFamilyData =
+  //       result.content?.legacy?.featured_family;
 
-      const members = (
-        Array.isArray(featuredFamilyData)
-          ? featuredFamilyData
-          : featuredFamilyData
-            ? [featuredFamilyData]
-            : []
-      )
-        .filter((item) => item.is_published === true)
-        .sort(
-          (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
-        );
+  //     const members = (
+  //       Array.isArray(featuredFamilyData)
+  //         ? featuredFamilyData
+  //         : featuredFamilyData
+  //           ? [featuredFamilyData]
+  //           : []
+  //     )
+  //       .filter((item) => item.is_published === true)
+  //       .sort(
+  //         (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  //       );
 
-      // Family Timeline reads exclusively from Legacy → Timeline.
-      const timeline = (result.content?.legacy?.timeline ?? [])
-        .filter((item) => item.is_published === true)
-        .sort(
-          (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
-        );
+  //     // Family Timeline reads exclusively from Legacy → Timeline.
+  //     const timeline = (result.content?.legacy?.timeline ?? [])
+  //       .filter((item) => item.is_published === true)
+  //       .sort(
+  //         (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  //       );
 
-      if (!isMounted) return;
+  //     if (!isMounted) return;
 
-      setFeaturedMembers(members);
-      setFamilyTimeline(timeline);
-      setFeatured(members.length > 0 ? getFeaturedMember(members) : null);
-    };
+  //     setFeaturedMembers(members);
+  //     setFamilyTimeline(timeline);
+  //     setFeatured(members.length > 0 ? getFeaturedMember(members) : null);
+  //   };
 
-    const fetchLegacyContent = async () => {
-      let cacheKey: string | null = null;
+  //   const fetchLegacyContent = async () => {
+  //     let cacheKey: string | null = null;
 
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+  //     try {
+  //       const {
+  //         data: { session },
+  //       } = await supabase.auth.getSession();
 
-        // Each authenticated user has a separate cache.
-        cacheKey = session?.user?.id
-          ? `ft_legacy_content_${session.user.id}`
-          : null;
+  //       // Each authenticated user has a separate cache.
+  //       cacheKey = session?.user?.id
+  //         ? `ft_legacy_content_${session.user.id}`
+  //         : null;
 
-        // Load cached content immediately.
-        if (cacheKey) {
-          try {
-            const cachedContent = localStorage.getItem(cacheKey);
+  //       // Load cached content immediately.
+  //       if (cacheKey) {
+  //         try {
+  //           const cachedContent = localStorage.getItem(cacheKey);
 
-            if (cachedContent) {
-              const parsedContent: FamilySiteContentResponse =
-                JSON.parse(cachedContent);
+  //           if (cachedContent) {
+  //             const parsedContent: FamilySiteContentResponse =
+  //               JSON.parse(cachedContent);
 
-              if (parsedContent.content?.legacy && isMounted) {
-                applyLegacyContent(parsedContent);
-                setHasResolvedInitialContent(true);
-              }
-            }
-          } catch (cacheError) {
-            console.error(
-              "Error reading cached legacy content:",
-              cacheError
-            );
-          }
-        }
+  //             if (parsedContent.content?.legacy && isMounted) {
+  //               applyLegacyContent(parsedContent);
+  //               setHasResolvedInitialContent(true);
+  //             }
+  //           }
+  //         } catch (cacheError) {
+  //           console.error(
+  //             "Error reading cached legacy content:",
+  //             cacheError
+  //           );
+  //         }
+  //       }
 
-        // Retrieve the latest content from the API.
-        const response = await fetch("/api/family-site-content", {
-          method: "GET",
-          cache: "no-store",
-          credentials: "include",
-        });
+  //       // Retrieve the latest content from the API.
+  //       const response = await fetch("/api/family-site-content", {
+  //         method: "GET",
+  //         cache: "no-store",
+  //         credentials: "include",
+  //       });
+
+  //       if (!response.ok) {
+  //         const errorText = await response.text();
+
+  //         console.error("Legacy content API error:", {
+  //           status: response.status,
+  //           statusText: response.statusText,
+  //           response: errorText,
+  //         });
+
+  //         throw new Error(
+  //           `Failed to fetch family legacy content. Status: ${response.status}`
+  //         );
+  //       }
+
+  //       const result: FamilySiteContentResponse = await response.json();
+
+  //       if (!isMounted) return;
+
+  //       applyLegacyContent(result);
+
+  //       // Persist the latest successful response.
+  //       if (cacheKey) {
+  //         try {
+  //           localStorage.setItem(cacheKey, JSON.stringify(result));
+  //         } catch (cacheError) {
+  //           console.error(
+  //             "Error saving legacy content to cache:",
+  //             cacheError
+  //           );
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching legacy content:", error);
+  //     } finally {
+  //       if (isMounted) {
+  //         setHasResolvedInitialContent(true);
+  //       }
+  //     }
+  //   };
+
+  //   fetchLegacyContent();
+
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, [supabase]);
+
+
+useEffect(() => {
+  let isMounted = true;
+
+  const applyLegacyContent = (
+    result: FamilySiteContentResponse
+  ) => {
+
+    // Featured Family reads exclusively from Legacy → Featured Family.
+    const featuredFamilyData =
+      result.content?.legacy?.featured_family;
+
+    const members = (
+      Array.isArray(featuredFamilyData)
+        ? featuredFamilyData
+        : featuredFamilyData
+          ? [featuredFamilyData]
+          : []
+    )
+      .filter((item) => item.is_published === true)
+      .sort(
+        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+      );
+
+    // Family Timeline reads exclusively from Legacy → Timeline.
+    const timeline = (
+      result.content?.legacy?.timeline ?? []
+    )
+      .filter((item) => item.is_published === true)
+      .sort(
+        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+      );
+
+    if (!isMounted) return;
+
+    setFeaturedMembers(members);
+    setFamilyTimeline(timeline);
+
+    setFeatured(
+      members.length > 0 ? getFeaturedMember(members) : null
+    );
+  };
+
+
+  const fetchLegacyContent = async () => {
+
+    let cacheKey: string | null = null;
+
+    try {
+
+      // Start retrieving the latest CMS content immediately.
+      // This runs concurrently with authentication and cache retrieval.
+
+      const refreshPromise = fetch("/api/family-site-content", {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+      }).then(async (response) => {
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -203,38 +309,138 @@ export default function LegacyPage() {
           );
         }
 
-        const result: FamilySiteContentResponse = await response.json();
+        return (await response.json()) as FamilySiteContentResponse;
 
-        if (!isMounted) return;
+      });
 
-        applyLegacyContent(result);
 
-        // Persist the latest successful response.
-        if (cacheKey) {
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(result));
-          } catch (cacheError) {
-            console.error(
-              "Error saving legacy content to cache:",
-              cacheError
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching legacy content:", error);
-      } finally {
-        if (isMounted) {
-          setHasResolvedInitialContent(true);
-        }
+      // Handle background errors immediately.
+      const safeRefreshPromise = refreshPromise.then(
+        (result) => ({
+          ok: true as const,
+          result,
+        }),
+        (error) => ({
+          ok: false as const,
+          error,
+        })
+      );
+
+
+      // Identify the authenticated tenant.
+      const {
+        data: { session },
+        error: authError,
+      } = await supabase.auth.getSession();
+
+      if (!isMounted) return;
+
+      if (authError) {
+        throw authError;
       }
-    };
 
-    fetchLegacyContent();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
+      // Create a separate cache for each authenticated tenant.
+      cacheKey = session?.user?.id
+        ? `ft_legacy_content_${session.user.id}`
+        : null;
+
+
+      // DISPLAY CACHED LEGACY CONTENT IMMEDIATELY.
+      if (cacheKey) {
+
+        try {
+
+          const cachedContent = localStorage.getItem(cacheKey);
+
+          if (cachedContent) {
+
+            const parsedContent: FamilySiteContentResponse =
+              JSON.parse(cachedContent);
+
+            if (parsedContent.content?.legacy) {
+
+              applyLegacyContent(parsedContent);
+
+              setHasResolvedInitialContent(true);
+
+            }
+
+          }
+
+        } catch (cacheError) {
+
+          console.error(
+            "Error reading cached legacy content:",
+            cacheError
+          );
+
+        }
+
+      }
+
+
+      // WAIT FOR THE LATEST BACKGROUND RESPONSE.
+      const refresh = await safeRefreshPromise;
+
+      if (!isMounted) return;
+
+      if (!refresh.ok) {
+        throw refresh.error;
+      }
+
+      const result = refresh.result;
+
+
+      // UPDATE THE PAGE WITH THE LATEST BACKEND CONTENT.
+      applyLegacyContent(result);
+
+
+      // SAVE THE LATEST RESPONSE FOR THE NEXT VISIT.
+      if (cacheKey) {
+
+        try {
+
+          localStorage.setItem(
+            cacheKey,
+            JSON.stringify(result)
+          );
+
+        } catch (cacheError) {
+
+          console.error(
+            "Error saving legacy content to cache:",
+            cacheError
+          );
+
+        }
+
+      }
+
+    } catch (error) {
+
+      console.error("Error fetching legacy content:", error);
+
+    } finally {
+
+      if (isMounted) {
+        setHasResolvedInitialContent(true);
+      }
+
+    }
+
+  };
+
+
+  fetchLegacyContent();
+
+
+  return () => {
+    isMounted = false;
+  };
+
+}, [supabase]);
+
 
   // Rotate featured ancestor highlight
   useEffect(() => {

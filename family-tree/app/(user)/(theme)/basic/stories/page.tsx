@@ -33,66 +33,142 @@ export default function OurStoryPage() {
     useState(false);
 
   // Fetch and persist the authenticated tenant's family images.
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    async function fetchFamilyImages() {
-      try {
-        const supabase = createSupabaseBrowserClient();
+  //   async function fetchFamilyImages() {
+  //     try {
+  //       const supabase = createSupabaseBrowserClient();
 
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+  //       const {
+  //         data: { session },
+  //       } = await supabase.auth.getSession();
 
-        // Each authenticated user has a separate cache.
-        const cacheKey = session?.user?.id
-          ? `ft_our_family_images_${session.user.id}`
-          : null;
+  //       // Each authenticated user has a separate cache.
+  //       const cacheKey = session?.user?.id
+  //         ? `ft_our_family_images_${session.user.id}`
+  //         : null;
 
-        // Display previously fetched images immediately.
-        if (cacheKey) {
-          try {
-            const cachedContent = localStorage.getItem(cacheKey);
+  //       // Display previously fetched images immediately.
+  //       if (cacheKey) {
+  //         try {
+  //           const cachedContent = localStorage.getItem(cacheKey);
 
-            if (cachedContent) {
-              const parsedContent: FamilyContentResponse =
-                JSON.parse(cachedContent);
+  //           if (cachedContent) {
+  //             const parsedContent: FamilyContentResponse =
+  //               JSON.parse(cachedContent);
 
-              const cachedImages =
-                parsedContent.content?.our_family?.images || [];
+  //             const cachedImages =
+  //               parsedContent.content?.our_family?.images || [];
 
-              if (isMounted) {
-                setFamilyImages(
-                  cachedImages
-                    .filter(
-                      (image) =>
-                        image.is_published === true &&
-                        (image.image_url || image.image_path_url)
-                    )
-                    .sort(
-                      (a, b) =>
-                        (a.sort_order ?? 0) - (b.sort_order ?? 0)
-                    )
-                );
+  //             if (isMounted) {
+  //               setFamilyImages(
+  //                 cachedImages
+  //                   .filter(
+  //                     (image) =>
+  //                       image.is_published === true &&
+  //                       (image.image_url || image.image_path_url)
+  //                   )
+  //                   .sort(
+  //                     (a, b) =>
+  //                       (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  //                   )
+  //               );
 
-                setHasResolvedInitialContent(true);
-              }
-            }
-          } catch (cacheError) {
-            console.error(
-              "Error reading cached family images:",
-              cacheError
-            );
-          }
-        }
+  //               setHasResolvedInitialContent(true);
+  //             }
+  //           }
+  //         } catch (cacheError) {
+  //           console.error(
+  //             "Error reading cached family images:",
+  //             cacheError
+  //           );
+  //         }
+  //       }
 
-        // Retrieve the latest content from the authenticated tenant.
-        const response = await fetch("/api/family-site-content", {
-          method: "GET",
-          cache: "no-store",
-          credentials: "include",
-        });
+  //       // Retrieve the latest content from the authenticated tenant.
+  //       const response = await fetch("/api/family-site-content", {
+  //         method: "GET",
+  //         cache: "no-store",
+  //         credentials: "include",
+  //       });
 
+  //       if (!response.ok) {
+  //         const errorText = await response.text();
+
+  //         console.error("Family content API error:", {
+  //           status: response.status,
+  //           statusText: response.statusText,
+  //           response: errorText,
+  //         });
+
+  //         throw new Error(
+  //           `Unable to retrieve family images. Status: ${response.status}`
+  //         );
+  //       }
+
+  //       const result: FamilyContentResponse = await response.json();
+
+  //       const images = result.content?.our_family?.images || [];
+
+  //       if (!isMounted) return;
+
+  //       setFamilyImages(
+  //         images
+  //           .filter(
+  //             (image) =>
+  //               image.is_published === true &&
+  //               (image.image_url || image.image_path_url)
+  //           )
+  //           .sort(
+  //             (a, b) =>
+  //               (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  //           )
+  //       );
+
+  //       // Save the latest response for immediate display next time.
+  //       if (cacheKey) {
+  //         try {
+  //           localStorage.setItem(cacheKey, JSON.stringify(result));
+  //         } catch (cacheError) {
+  //           console.error(
+  //             "Error saving family images to cache:",
+  //             cacheError
+  //           );
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching family images:", error);
+  //     } finally {
+  //       if (isMounted) {
+  //         setHasResolvedInitialContent(true);
+  //       }
+  //     }
+  //   }
+
+  //   fetchFamilyImages();
+
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []);
+
+
+useEffect(() => {
+  let isMounted = true;
+
+  async function fetchFamilyImages() {
+    let cacheKey: string | null = null;
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+
+      // Start the API request immediately, in parallel with authentication.
+      const refreshPromise = fetch("/api/family-site-content", {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+      }).then(async (response) => {
         if (!response.ok) {
           const errorText = await response.text();
 
@@ -107,51 +183,127 @@ export default function OurStoryPage() {
           );
         }
 
-        const result: FamilyContentResponse = await response.json();
+        return (await response.json()) as FamilyContentResponse;
+      });
 
-        const images = result.content?.our_family?.images || [];
+      // Handle the background request immediately.
+      const safeRefreshPromise = refreshPromise.then(
+        (result) => ({ ok: true as const, result }),
+        (error) => ({ ok: false as const, error })
+      );
 
-        if (!isMounted) return;
+      // Identify the authenticated tenant.
+      const {
+        data: { session },
+        error: authError,
+      } = await supabase.auth.getSession();
 
-        setFamilyImages(
-          images
-            .filter(
-              (image) =>
-                image.is_published === true &&
-                (image.image_url || image.image_path_url)
-            )
-            .sort(
-              (a, b) =>
-                (a.sort_order ?? 0) - (b.sort_order ?? 0)
-            )
-        );
+      if (!isMounted) return;
 
-        // Save the latest response for immediate display next time.
-        if (cacheKey) {
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(result));
-          } catch (cacheError) {
-            console.error(
-              "Error saving family images to cache:",
-              cacheError
-            );
+      if (authError) {
+        throw authError;
+      }
+
+      // Each authenticated tenant has an independent cache.
+      cacheKey = session?.user?.id
+        ? `ft_our_family_images_${session.user.id}`
+        : null;
+
+      // Display this tenant's cached images immediately.
+      if (cacheKey) {
+        try {
+          const cachedContent = localStorage.getItem(cacheKey);
+
+          if (cachedContent) {
+            const parsedContent: FamilyContentResponse =
+              JSON.parse(cachedContent);
+
+            const cachedImages =
+              parsedContent.content?.our_family?.images || [];
+
+            if (isMounted) {
+              setFamilyImages(
+                cachedImages
+                  .filter(
+                    (image) =>
+                      image.is_published === true &&
+                      (image.image_url || image.image_path_url)
+                  )
+                  .sort(
+                    (a, b) =>
+                      (a.sort_order ?? 0) - (b.sort_order ?? 0)
+                  )
+              );
+
+              // Allow the page to display before the API finishes.
+              setHasResolvedInitialContent(true);
+            }
           }
-        }
-      } catch (error) {
-        console.error("Error fetching family images:", error);
-      } finally {
-        if (isMounted) {
-          setHasResolvedInitialContent(true);
+        } catch (cacheError) {
+          console.error(
+            "Error reading cached family images:",
+            cacheError
+          );
         }
       }
+
+      // Wait for the latest backend response in the background.
+      const refresh = await safeRefreshPromise;
+
+      if (!isMounted) return;
+
+      if (!refresh.ok) {
+        throw refresh.error;
+      }
+
+      const result = refresh.result;
+
+      const images = result.content?.our_family?.images || [];
+
+      // Replace cached images with the latest backend content.
+      setFamilyImages(
+        images
+          .filter(
+            (image) =>
+              image.is_published === true &&
+              (image.image_url || image.image_path_url)
+          )
+          .sort(
+            (a, b) =>
+              (a.sort_order ?? 0) - (b.sort_order ?? 0)
+          )
+      );
+
+      // Persist the complete API response for this tenant.
+      if (cacheKey) {
+        try {
+          localStorage.setItem(
+            cacheKey,
+            JSON.stringify(result)
+          );
+        } catch (cacheError) {
+          console.error(
+            "Error saving family images to cache:",
+            cacheError
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching family images:", error);
+    } finally {
+      if (isMounted) {
+        setHasResolvedInitialContent(true);
+      }
     }
+  }
 
-    fetchFamilyImages();
+  fetchFamilyImages();
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  return () => {
+    isMounted = false;
+  };
+}, []);
+
 
   if (!isHydrated || !hasResolvedInitialContent) return null;
 

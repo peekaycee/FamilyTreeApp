@@ -126,7 +126,7 @@ export default function Footer() {
                 <Link href="/plans">Plans</Link>
                 <Link 
                   style={{
-                    pointerEvents: 'none',
+                    // pointerEvents: 'none',
                     cursor: "pointer",
                   }}
                   href="/admin/password">Admin

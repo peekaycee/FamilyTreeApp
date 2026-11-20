@@ -96,7 +96,11 @@ export default function FamilyCanvas() {
   const [addDeathDate, setAddDeathDate] = useState<string | null>(null);
   const [highlightBloodline, setHighlightBloodline] = useState<Set<string>>(new Set());
 
-  const supabase = createSupabaseBrowserClient();
+  // const supabase = createSupabaseBrowserClient();
+      const supabase = useMemo(
+      () => createSupabaseBrowserClient(),
+      []
+    );
 
   // Toast state
   const [toastMessage, setToastMessage] = useState("");
@@ -105,38 +109,151 @@ export default function FamilyCanvas() {
   // REF to block realtime reloads while editing
   const isEditingRef = useRef(false);
 
-  const loadMembers = useCallback(async () => {
-  if (!user?.id) return; // ← CRITICAL GUARD
+  // const loadMembers = useCallback(async () => {
+  // if (!user?.id) return; // ← CRITICAL GUARD
 
-  setLoading(true);
+  // setLoading(true);
+  // try {
+  //   const { data, error } = await supabase
+  //     .from("family_members")
+  //     .select("*")
+  //     .eq("user_id", user.id)   // safe now
+  //     .order("created_at", { ascending: true });
+
+  //   if (error) {
+  //     console.error("Supabase error:", error.message);
+  //     throw error;
+  //   }
+
+  //   setMembers(data ?? []);
+  // } catch (err) {
+  //   console.error("fetchMembers", err);
+  //   setMembers([]);
+  // } finally {
+  //   setLoading(false);
+  // }
+
+  //   const { data: unions } = await supabase
+  //   .from("family_unions")
+  //   .select("*")
+  //   .eq("user_id", user.id);
+
+  // setUnionsDB(unions ?? []);
+
+// }, [supabase, user]);
+
+
+const loadMembers = useCallback(async () => {
+  if (!user?.id) return;
+
+  const membersCacheKey = `ft_family_members_${user.id}`;
+  const unionsCacheKey = `ft_family_unions_${user.id}`;
+
+  let hasCachedMembers = false;
+
+  // ============================================
+  // LOAD CACHED FAMILY MEMBERS AND UNIONS FIRST
+  // ============================================
+
   try {
-    const { data, error } = await supabase
-      .from("family_members")
-      .select("*")
-      .eq("user_id", user.id)   // safe now
-      .order("created_at", { ascending: true });
+    const cachedMembers = localStorage.getItem(membersCacheKey);
 
-    if (error) {
-      console.error("Supabase error:", error.message);
-      throw error;
+    if (cachedMembers) {
+      const parsedMembers = JSON.parse(cachedMembers);
+
+      if (Array.isArray(parsedMembers)) {
+        setMembers(parsedMembers);
+        hasCachedMembers = true;
+      }
     }
 
-    setMembers(data ?? []);
+    const cachedUnions = localStorage.getItem(unionsCacheKey);
+
+    if (cachedUnions) {
+      const parsedUnions = JSON.parse(cachedUnions);
+
+      if (Array.isArray(parsedUnions)) {
+        setUnionsDB(parsedUnions);
+      }
+    }
+
+  } catch (cacheError) {
+    console.error(
+      "Unable to load cached family tree data:",
+      cacheError
+    );
+  }
+
+  // Show cached members without waiting for Supabase.
+  setLoading(!hasCachedMembers);
+
+  // ============================================
+  // FETCH LATEST DATA FROM SUPABASE IN PARALLEL
+  // ============================================
+
+  try {
+    const [membersResult, unionsResult] = await Promise.all([
+
+      supabase
+        .from("family_members")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true }),
+
+      supabase
+        .from("family_unions")
+        .select("*")
+        .eq("user_id", user.id),
+
+    ]);
+
+    if (membersResult.error) {
+      throw membersResult.error;
+    }
+
+    if (unionsResult.error) {
+      throw unionsResult.error;
+    }
+
+    const latestMembers = membersResult.data ?? [];
+    const latestUnions = unionsResult.data ?? [];
+
+    // Update both datasets together.
+    setMembers(latestMembers);
+    setUnionsDB(latestUnions);
+
+    // ============================================
+    // SAVE LATEST DATA TO TENANT-SPECIFIC CACHE
+    // ============================================
+
+    try {
+      localStorage.setItem(
+        membersCacheKey,
+        JSON.stringify(latestMembers)
+      );
+
+      localStorage.setItem(
+        unionsCacheKey,
+        JSON.stringify(latestUnions)
+      );
+
+    } catch (cacheError) {
+      console.error(
+        "Unable to save family tree cache:",
+        cacheError
+      );
+    }
+
   } catch (err) {
-    console.error("fetchMembers", err);
-    setMembers([]);
+    console.error("Error fetching family tree data:", err);
+
+    // Preserve cached records if the network request fails.
+
   } finally {
     setLoading(false);
   }
 
-    const { data: unions } = await supabase
-    .from("family_unions")
-    .select("*")
-    .eq("user_id", user.id);
-
-  setUnionsDB(unions ?? []);
-
-}, [supabase, user]);
+}, [supabase, user?.id]);
 
 // // Session Check
 useEffect(() => {
@@ -487,26 +604,92 @@ canvas.addEventListener("dblclick", onCanvasDoubleClick);
   c.addChild(lines);
 
   // Avatar or plus
-  if (m.avatar_url) {
-    try {
-      const sprite = PIXI.Sprite.from(m.avatar_url);
-      sprite.anchor.set(0.5);
-      const size = NODE_RADIUS * 2;
-      const scale = Math.max(size / sprite.texture.width, size / sprite.texture.height);
+  // if (m.avatar_url) {
+  //   try {
+  //     const sprite = PIXI.Sprite.from(m.avatar_url);
+  //     sprite.anchor.set(0.5);
+  //     const size = NODE_RADIUS * 2;
+  //     const scale = Math.max(size / sprite.texture.width, size / sprite.texture.height);
+  //     sprite.scale.set(scale);
+  //     const mask = new PIXI.Graphics();
+  //     mask.beginFill(0x333333);
+  //     mask.drawCircle(0, 0, NODE_RADIUS - 1);
+  //     mask.endFill();
+  //     c.addChild(sprite);
+  //     c.addChild(mask);
+  //     sprite.mask = mask;
+  //   } catch {}
+  // } else {
+  //   const plus = new PIXI.Text("+", { fontSize: 20, fill: 0x333333 });
+  //   plus.anchor.set(0.5);
+  //   c.addChild(plus);
+  // }
+
+
+// Avatar or plus
+if (m.avatar_url) {
+  try {
+    const texture = PIXI.Texture.from(m.avatar_url);
+
+    const sprite = new PIXI.Sprite(texture);
+
+    sprite.anchor.set(0.5);
+
+    const size = NODE_RADIUS * 2;
+
+    // Calculate the correct avatar size only when
+    // the image texture has finished loading.
+    const applyAvatarScale = () => {
+
+      if (!texture.valid) return;
+
+      const textureWidth = texture.width;
+      const textureHeight = texture.height;
+
+      if (!textureWidth || !textureHeight) return;
+
+      const scale = Math.max(
+        size / textureWidth,
+        size / textureHeight
+      );
+
       sprite.scale.set(scale);
-      const mask = new PIXI.Graphics();
-      mask.beginFill(0x333333);
-      mask.drawCircle(0, 0, NODE_RADIUS - 1);
-      mask.endFill();
-      c.addChild(sprite);
-      c.addChild(mask);
-      sprite.mask = mask;
-    } catch {}
-  } else {
-    const plus = new PIXI.Text("+", { fontSize: 20, fill: 0x333333 });
-    plus.anchor.set(0.5);
-    c.addChild(plus);
+    };
+
+    // If already loaded, scale immediately.
+    if (texture.valid) {
+      applyAvatarScale();
+    } else {
+      // Otherwise, wait for the image to finish loading.
+      texture.baseTexture.once("loaded", applyAvatarScale);
+    }
+
+    const mask = new PIXI.Graphics();
+
+    mask.beginFill(0x333333);
+    mask.drawCircle(0, 0, NODE_RADIUS - 1);
+    mask.endFill();
+
+    c.addChild(sprite);
+    c.addChild(mask);
+
+    sprite.mask = mask;
+
+  } catch (error) {
+    console.error("Unable to load member avatar:", error);
   }
+
+} else {
+
+  const plus = new PIXI.Text("+", {
+    fontSize: 20,
+    fill: 0x333333,
+  });
+
+  plus.anchor.set(0.5);
+
+  c.addChild(plus);
+}
 
   // Name label
   const label = new PIXI.Text(m.name ?? "Unnamed", { fontSize: 16, fill: 0x333333, align: "center" });

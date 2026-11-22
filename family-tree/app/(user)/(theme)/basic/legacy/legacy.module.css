@@ -135,8 +135,9 @@
 }
 .nodeMeta { 
   color: var(--color-black);  
-  font-size: 12px; 
+  font-size: 12px;
   transition: all 0.25s ease; 
+  margin-top: 0.3em;
 }
 .treeNode:hover .nodeMeta{
   color: var(--color-white);
@@ -349,6 +350,13 @@
   color: var(--color-black);
   opacity: 0.75;
   margin: 0.75em 0;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
 }
 .mute { 
   color: var(--color-white);
@@ -486,4 +494,20 @@
   .ctaSmall{
     width: fit-content;
   }
+}
+
+.modalBodyText {
+  line-height: 1.5;
+  font-size: 1rem;
+  color: #333;
+}
+
+.modalBodyText p {
+  margin: 0 0 1.2rem;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+.modalBodyText p:last-child {
+  margin-bottom: 0;
 }

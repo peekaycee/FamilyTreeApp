@@ -96,7 +96,10 @@ export default function MemorialsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await authFetch("/api/memorials");
+        // const res = await authFetch("/api/memorials");
+        const res = await authFetch("/api/memorials", {
+  cache: "no-store",
+});
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error);
 

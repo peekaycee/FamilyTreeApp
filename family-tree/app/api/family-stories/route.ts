@@ -1,75 +1,227 @@
+// import { NextRequest, NextResponse } from "next/server";
+// import { getTenantClient } from "@/lib/supabase/getTenantClient";
+
+// export async function GET(req: NextRequest) {
+//   const supabase = getTenantClient(req);
+
+//   const { data, error } = await supabase
+//     .from("family_stories")
+//     .select("*")
+//     .order("created_at", { ascending: false });
+
+//   if (error) {
+//     return NextResponse.json({ error: error.message }, { status: 500 });
+//   }
+
+//   return NextResponse.json(data);
+// }
+
+// export async function POST(req: NextRequest) {
+//   const supabase = getTenantClient(req);
+//   const body = await req.json();
+
+//   const { title, author, excerpt, content, imageFileBase64 } = body;
+
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+
+//   if (!user) {
+//     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//   }
+
+//   let image_url: string | null = null;
+
+//   // Upload image if base64 provided
+//   if (imageFileBase64) {
+//     const ext = imageFileBase64.match(/^data:image\/(\w+);base64,/)?.[1] || "png";
+//     const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+//     const buffer = Buffer.from(
+//       imageFileBase64.replace(/^data:image\/\w+;base64,/, ""),
+//       "base64"
+//     );
+
+//     const { error: uploadError } = await supabase.storage
+//       .from("family_stories")
+//       .upload(path, buffer, { contentType: `image/${ext}` });
+
+//     if (uploadError) {
+//       return NextResponse.json({ error: uploadError.message }, { status: 500 });
+//     }
+
+//     image_url = supabase.storage.from("family_stories").getPublicUrl(path).data.publicUrl;
+//   }
+
+//   const { data, error } = await supabase
+//     .from("family_stories")
+//     .insert({
+//       title,
+//       author,
+//       excerpt,
+//       content,
+//       image_url,
+//       user_id: user.id,
+//     })
+//     .select()
+//     .single();
+
+//   if (error || !data) {
+//     return NextResponse.json({ error: error?.message }, { status: 500 });
+//   }
+
+//   return NextResponse.json(data);
+// }
+
+
+
+// app/api/family-stories/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantClient } from "@/lib/supabase/getTenantClient";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
-  const supabase = getTenantClient(req);
+  try {
+    const supabase = getTenantClient(req);
 
-  const { data, error } = await supabase
-    .from("family_stories")
-    .select("*")
-    .order("created_at", { ascending: false });
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("family_stories")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json(data ?? [], {
+      headers: {
+        "Cache-Control": "private, no-store",
+      },
+    });
+  } catch (err: any) {
+    console.error("Family stories GET error:", err);
+
+    return NextResponse.json(
+      { error: "Unable to retrieve family stories." },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(data);
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = getTenantClient(req);
-  const body = await req.json();
+  try {
+    const supabase = getTenantClient(req);
 
-  const { title, author, excerpt, content, imageFileBase64 } = body;
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  let image_url: string | null = null;
-
-  // Upload image if base64 provided
-  if (imageFileBase64) {
-    const ext = imageFileBase64.match(/^data:image\/(\w+);base64,/)?.[1] || "png";
-    const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-
-    const buffer = Buffer.from(
-      imageFileBase64.replace(/^data:image\/\w+;base64,/, ""),
-      "base64"
-    );
-
-    const { error: uploadError } = await supabase.storage
-      .from("family_stories")
-      .upload(path, buffer, { contentType: `image/${ext}` });
-
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    image_url = supabase.storage.from("family_stories").getPublicUrl(path).data.publicUrl;
-  }
+    const body = await req.json();
 
-  const { data, error } = await supabase
-    .from("family_stories")
-    .insert({
+    const {
       title,
       author,
       excerpt,
       content,
-      image_url,
-      user_id: user.id,
-    })
-    .select()
-    .single();
+      imageFileBase64,
+    } = body;
 
-  if (error || !data) {
-    return NextResponse.json({ error: error?.message }, { status: 500 });
+    if (!title || !content) {
+      return NextResponse.json(
+        { error: "Title and content are required." },
+        { status: 400 }
+      );
+    }
+
+    let image_url: string | null = null;
+
+    if (imageFileBase64) {
+      const match = imageFileBase64.match(
+        /^data:image\/(jpeg|png|webp|gif);base64,/
+      );
+
+      if (!match) {
+        return NextResponse.json(
+          { error: "Invalid image format." },
+          { status: 400 }
+        );
+      }
+
+      const ext = match[1] === "jpeg" ? "jpg" : match[1];
+
+      const base64Data = imageFileBase64.replace(
+        /^data:image\/(jpeg|png|webp|gif);base64,/,
+        ""
+      );
+
+      const buffer = Buffer.from(base64Data, "base64");
+
+      if (buffer.length > 5 * 1024 * 1024) {
+        return NextResponse.json(
+          { error: "Image must not exceed 5MB." },
+          { status: 400 }
+        );
+      }
+
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("family_stories")
+        .upload(path, buffer, {
+          contentType: `image/${match[1]}`,
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      image_url = supabase.storage
+        .from("family_stories")
+        .getPublicUrl(path).data.publicUrl;
+    }
+
+    const { data, error } = await supabase
+      .from("family_stories")
+      .insert({
+        title,
+        author,
+        excerpt,
+        content,
+        image_url,
+        user_id: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json(data, { status: 201 });
+  } catch (err: any) {
+    console.error("Family stories POST error:", err);
+
+    return NextResponse.json(
+      { error: "Unable to create family story." },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(data);
 }
-

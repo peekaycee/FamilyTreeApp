@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import styles from "./stories.module.css";
 import Image from "next/image";
@@ -33,45 +34,169 @@ export default function OurStoryPage() {
     useState(false);
 
 
+// useEffect(() => {
+//   let isMounted = true;
+
+//   async function fetchFamilyImages() {
+//     let cacheKey: string | null = null;
+
+//     try {
+//       const supabase = createSupabaseBrowserClient();
+
+//       // Start the API request immediately, in parallel with authentication.
+//       const refreshPromise = fetch("/api/family-site-content", {
+//         method: "GET",
+//         cache: "no-store",
+//         credentials: "include",
+//       }).then(async (response) => {
+//         if (!response.ok) {
+//           const errorText = await response.text();
+
+//           console.error("Family content API error:", {
+//             status: response.status,
+//             statusText: response.statusText,
+//             response: errorText,
+//           });
+
+//           throw new Error(
+//             `Unable to retrieve family images. Status: ${response.status}`
+//           );
+//         }
+
+//         return (await response.json()) as FamilyContentResponse;
+//       });
+
+//       // Handle the background request immediately.
+//       const safeRefreshPromise = refreshPromise.then(
+//         (result) => ({ ok: true as const, result }),
+//         (error) => ({ ok: false as const, error })
+//       );
+
+//       // Identify the authenticated tenant.
+//       const {
+//         data: { session },
+//         error: authError,
+//       } = await supabase.auth.getSession();
+
+//       if (!isMounted) return;
+
+//       if (authError) {
+//         throw authError;
+//       }
+
+//       // Each authenticated tenant has an independent cache.
+//       cacheKey = session?.user?.id
+//         ? `ft_our_family_images_${session.user.id}`
+//         : null;
+
+//       // Display this tenant's cached images immediately.
+//       if (cacheKey) {
+//         try {
+//           const cachedContent = localStorage.getItem(cacheKey);
+
+//           if (cachedContent) {
+//             const parsedContent: FamilyContentResponse =
+//               JSON.parse(cachedContent);
+
+//             const cachedImages =
+//               parsedContent.content?.our_family?.images || [];
+
+//             if (isMounted) {
+//               setFamilyImages(
+//                 cachedImages
+//                   .filter(
+//                     (image) =>
+//                       image.is_published === true &&
+//                       (image.image_url || image.image_path_url)
+//                   )
+//                   .sort(
+//                     (a, b) =>
+//                       (a.sort_order ?? 0) - (b.sort_order ?? 0)
+//                   )
+//               );
+
+//               // Allow the page to display before the API finishes.
+//               setHasResolvedInitialContent(true);
+//             }
+//           }
+//         } catch (cacheError) {
+//           console.error(
+//             "Error reading cached family images:",
+//             cacheError
+//           );
+//         }
+//       }
+
+//       // Wait for the latest backend response in the background.
+//       const refresh = await safeRefreshPromise;
+
+//       if (!isMounted) return;
+
+//       if (!refresh.ok) {
+//         throw refresh.error;
+//       }
+
+//       const result = refresh.result;
+
+//       const images = result.content?.our_family?.images || [];
+
+//       // Replace cached images with the latest backend content.
+//       setFamilyImages(
+//         images
+//           .filter(
+//             (image) =>
+//               image.is_published === true &&
+//               (image.image_url || image.image_path_url)
+//           )
+//           .sort(
+//             (a, b) =>
+//               (a.sort_order ?? 0) - (b.sort_order ?? 0)
+//           )
+//       );
+
+//       // Persist the complete API response for this tenant.
+//       if (cacheKey) {
+//         try {
+//           localStorage.setItem(
+//             cacheKey,
+//             JSON.stringify(result)
+//           );
+//         } catch (cacheError) {
+//           console.error(
+//             "Error saving family images to cache:",
+//             cacheError
+//           );
+//         }
+//       }
+//     } catch (error) {
+//       console.error("Error fetching family images:", error);
+//     } finally {
+//       if (isMounted) {
+//         setHasResolvedInitialContent(true);
+//       }
+//     }
+//   }
+
+//   fetchFamilyImages();
+
+//   return () => {
+//     isMounted = false;
+//   };
+// }, []);
+
+const router = useRouter();
+
 useEffect(() => {
   let isMounted = true;
 
+  const supabase = createSupabaseBrowserClient();
+
   async function fetchFamilyImages() {
-    let cacheKey: string | null = null;
-
     try {
-      const supabase = createSupabaseBrowserClient();
+      // Clear previously displayed content before checking authentication.
+      setFamilyImages([]);
 
-      // Start the API request immediately, in parallel with authentication.
-      const refreshPromise = fetch("/api/family-site-content", {
-        method: "GET",
-        cache: "no-store",
-        credentials: "include",
-      }).then(async (response) => {
-        if (!response.ok) {
-          const errorText = await response.text();
-
-          console.error("Family content API error:", {
-            status: response.status,
-            statusText: response.statusText,
-            response: errorText,
-          });
-
-          throw new Error(
-            `Unable to retrieve family images. Status: ${response.status}`
-          );
-        }
-
-        return (await response.json()) as FamilyContentResponse;
-      });
-
-      // Handle the background request immediately.
-      const safeRefreshPromise = refreshPromise.then(
-        (result) => ({ ok: true as const, result }),
-        (error) => ({ ok: false as const, error })
-      );
-
-      // Identify the authenticated tenant.
+      // 1. Verify the current authenticated session first.
       const {
         data: { session },
         error: authError,
@@ -79,67 +204,51 @@ useEffect(() => {
 
       if (!isMounted) return;
 
-      if (authError) {
-        throw authError;
+      if (authError) throw authError;
+
+      // 2. Never fetch tenant content without an authenticated session.
+      if (!session?.user?.id) {
+        router.replace("/auth/login");
+        return;
       }
 
-      // Each authenticated tenant has an independent cache.
-      cacheKey = session?.user?.id
-        ? `ft_our_family_images_${session.user.id}`
-        : null;
-
-      // Display this tenant's cached images immediately.
-      if (cacheKey) {
-        try {
-          const cachedContent = localStorage.getItem(cacheKey);
-
-          if (cachedContent) {
-            const parsedContent: FamilyContentResponse =
-              JSON.parse(cachedContent);
-
-            const cachedImages =
-              parsedContent.content?.our_family?.images || [];
-
-            if (isMounted) {
-              setFamilyImages(
-                cachedImages
-                  .filter(
-                    (image) =>
-                      image.is_published === true &&
-                      (image.image_url || image.image_path_url)
-                  )
-                  .sort(
-                    (a, b) =>
-                      (a.sort_order ?? 0) - (b.sort_order ?? 0)
-                  )
-              );
-
-              // Allow the page to display before the API finishes.
-              setHasResolvedInitialContent(true);
-            }
-          }
-        } catch (cacheError) {
-          console.error(
-            "Error reading cached family images:",
-            cacheError
-          );
-        }
-      }
-
-      // Wait for the latest backend response in the background.
-      const refresh = await safeRefreshPromise;
+      // 3. Fetch only after authentication has been confirmed.
+      const response = await fetch("/api/family-site-content", {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
 
       if (!isMounted) return;
 
-      if (!refresh.ok) {
-        throw refresh.error;
+      // 4. Handle expired or invalid sessions.
+      if (response.status === 401) {
+        setFamilyImages([]);
+        router.replace("/auth/login");
+        return;
       }
 
-      const result = refresh.result;
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Family content API error:", {
+          status: response.status,
+          response: errorText,
+        });
 
+        throw new Error("Unable to retrieve family images.");
+      }
+
+      const result =
+        (await response.json()) as FamilyContentResponse;
+
+      if (!isMounted) return;
+
+      // 5. Display only published images returned by the authenticated API.
       const images = result.content?.our_family?.images || [];
 
-      // Replace cached images with the latest backend content.
       setFamilyImages(
         images
           .filter(
@@ -152,23 +261,12 @@ useEffect(() => {
               (a.sort_order ?? 0) - (b.sort_order ?? 0)
           )
       );
-
-      // Persist the complete API response for this tenant.
-      if (cacheKey) {
-        try {
-          localStorage.setItem(
-            cacheKey,
-            JSON.stringify(result)
-          );
-        } catch (cacheError) {
-          console.error(
-            "Error saving family images to cache:",
-            cacheError
-          );
-        }
-      }
     } catch (error) {
       console.error("Error fetching family images:", error);
+
+      if (isMounted) {
+        setFamilyImages([]);
+      }
     } finally {
       if (isMounted) {
         setHasResolvedInitialContent(true);
@@ -176,12 +274,23 @@ useEffect(() => {
     }
   }
 
+  // 6. Immediately clear the page if the tenant signs out.
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_OUT") {
+      setFamilyImages([]);
+      router.replace("/auth/login");
+    }
+  });
+
   fetchFamilyImages();
 
   return () => {
     isMounted = false;
+    subscription.unsubscribe();
   };
-}, []);
+}, [router]);
 
 
   if (!isHydrated || !hasResolvedInitialContent) return null;

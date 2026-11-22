@@ -1,78 +1,159 @@
+// app/api/memorials/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantClient } from "@/lib/supabase/getTenantClient";
 
-// Helper to get authenticated user
-async function getUserId(supabase: ReturnType<typeof getTenantClient>) {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) throw new Error("Unauthorized");
-  return user.id;
+export const dynamic = "force-dynamic";
+
+async function getAuthenticatedUser(req: NextRequest) {
+  const supabase = getTenantClient(req);
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return {
+      supabase,
+      user: null,
+    };
+  }
+
+  return {
+    supabase,
+    user,
+  };
 }
 
-/* ================= GET /api/memorials ================= */
+// GET MEMORIALS
 export async function GET(req: NextRequest) {
   try {
-    const supabase = getTenantClient(req);
+    const { supabase, user } = await getAuthenticatedUser(req);
 
-    // Select memorials with candle counts
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { data, error } = await supabase
       .from("memorials")
       .select(`
         *,
         memorial_candles(count)
-      `);
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 
-    // Format response so each memorial has candle_count
-    const formatted = data.map((m: any) => ({
-      id: m.id,
-      name: m.name,
-      born: m.born,
-      died: m.died,
-      tribute: m.tribute,
-      bio: m.bio,
-      picture: m.picture,
-      candle_count: m.memorial_candles?.count ?? 0,
-    }));
+    console.log("[MEMORIALS TENANT CHECK]", {
+  authenticatedUserId: user.id,
+  memorialsReturned: (data ?? []).map((m) => ({
+    id: m.id,
+    name: m.name,
+    user_id: m.user_id,
+  })),
+});
 
-    return NextResponse.json(formatted);
+    const formatted = (data ?? []).map((memorial: any) => {
+      const candleRelation = Array.isArray(memorial.memorial_candles)
+        ? memorial.memorial_candles[0]
+        : memorial.memorial_candles;
+
+      return {
+        id: memorial.id,
+        name: memorial.name,
+        born: memorial.born,
+        died: memorial.died,
+        tribute: memorial.tribute,
+        bio: memorial.bio,
+        picture: memorial.picture,
+        candle_count: candleRelation?.count ?? 0,
+      };
+    });
+
+    return NextResponse.json(formatted, {
+      headers: {
+        "Cache-Control": "private, no-store",
+      },
+    });
   } catch (err: any) {
     console.error("Fetch memorials error:", err);
-    return NextResponse.json({ error: err.message || "Failed to fetch memorials" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch memorials." },
+      { status: 500 }
+    );
   }
 }
-/* ================= POST /api/memorials ================= */
+
+// CREATE MEMORIAL
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getTenantClient(req);
+    const { supabase, user } = await getAuthenticatedUser(req);
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const memorial = await req.json();
+    const body = await req.json();
 
-    // Attach user_id for RLS
-    memorial.user_id = user.id;
+    const {
+      name,
+      born,
+      died,
+      tribute,
+      bio,
+      picture,
+    } = body;
+
+    if (
+      !name ||
+      born === undefined ||
+      died === undefined ||
+      !tribute ||
+      !bio
+    ) {
+      return NextResponse.json(
+        { error: "Please provide all required memorial details." },
+        { status: 400 }
+      );
+    }
 
     const { data, error } = await supabase
       .from("memorials")
-      .insert(memorial)
+      .insert({
+        name,
+        born: Number(born),
+        died: Number(died),
+        tribute,
+        bio,
+        picture: picture ?? null,
+        user_id: user.id,
+      })
       .select()
       .single();
 
     if (error) throw error;
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      status: 201,
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (err: any) {
+    console.error("Create memorial error:", err);
+
     return NextResponse.json(
-      { error: err.message || "Failed to create memorial" },
-      { status: err.message === "Unauthorized" ? 401 : 500 }
+      { error: err.message || "Failed to create memorial." },
+      { status: 500 }
     );
   }
 }

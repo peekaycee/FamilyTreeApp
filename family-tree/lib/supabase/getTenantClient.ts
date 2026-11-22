@@ -1,36 +1,44 @@
+
+
 // lib/supabase/getTenantClient.ts
+
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function getTenantClient(req?: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-  // SERVER COMPONENT MODE (no req)
-  if (!req) {
-    return createClient(supabaseUrl, supabaseKey);
+  const publicKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!publicKey) {
+    throw new Error("Missing Supabase public/anon key.");
   }
 
-  // API ROUTE MODE
-  const cookieStore = req.cookies;
-  const access_token = cookieStore.get("sb-access-token")?.value;
-  const refresh_token = cookieStore.get("sb-refresh-token")?.value;
+  // This helper is for API routes only.
+  // Server components must use createSupabaseServerClient().
+  if (!req) {
+    throw new Error(
+      "getTenantClient requires a NextRequest. Use createSupabaseServerClient() in server components."
+    );
+  }
 
-  const supabase = createClient(supabaseUrl, supabaseKey, {
+  const accessToken = req.cookies.get("sb-access-token")?.value;
+
+  return createClient(supabaseUrl, publicKey, {
     global: {
-      headers: access_token
-        ? { Authorization: `Bearer ${access_token}` }
+      headers: accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
         : {},
     },
+
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
   });
-
-  if (access_token && refresh_token) {
-    supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
-  }
-
-  return supabase;
 }

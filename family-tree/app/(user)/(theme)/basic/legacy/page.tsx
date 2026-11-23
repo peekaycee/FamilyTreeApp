@@ -566,7 +566,7 @@ useEffect(() => {
             </motion.div>
           ))}
         </div>
-
+{/* ************************************************************************************ */}
         <AnimatePresence>
           {selectedTimeline && (
             <motion.div
@@ -602,7 +602,11 @@ useEffect(() => {
                       <h3>
                         {t.title} — {t.year}
                       </h3>
-                      <p>{t.description}</p>
+                      {t.description
+                      ?.split(/\n\s*\n/)
+                      .map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
                     </>
                   );
                 })()}
@@ -658,14 +662,14 @@ useEffect(() => {
                     url={`${siteUrl}/family-stories/${s.id}`}
                     title={s.title}
                     text={`Image:
-${s.image_url ?? "No image available"}
+                      ${s.image_url ?? "No image available"}
 
-Title: ${s.title}
-Author: ${s.author}
+                      Title: ${s.title}
+                      Author: ${s.author}
 
-Excerpt: ${s.excerpt}
+                      Excerpt: ${s.excerpt}
 
-`}
+                      `}
                   />
                 </div>
               </div>
@@ -704,7 +708,17 @@ Excerpt: ${s.excerpt}
                     <>
                       <h3>{s.title}</h3>
                       <p className={styles.muted}>By {s.author}</p>
-                      <p>{s.content}</p>
+                      {/* <p>{s.content}</p> */}
+
+                      <div className={styles.modalBodyText}>
+                {s.content
+                  ?.split(/\n\s*\n/)
+                  .map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+              </div>
+
+
                     </>
                   );
                 })()}

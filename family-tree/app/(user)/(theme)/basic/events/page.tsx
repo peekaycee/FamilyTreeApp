@@ -479,7 +479,13 @@ useEffect(() => {
             >
               <h3>{selected.title}</h3>
               <p>{new Date(selected.date).toLocaleString()}</p>
-              <p>{selected.description}</p>
+              <div className={styles.details}>
+                {selected.description
+                    ?.split(/\n\s*\n/)
+                    .map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+              </div>
 
               <div className={styles.imageStrip}>
                 {selected.images.map((img, i) => (

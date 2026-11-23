@@ -194,6 +194,13 @@
 }
 .timelineBody p{
   margin-top: 0.3rem;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
 }
 .timelineCard {
   width: fit-content;
@@ -316,6 +323,8 @@
 }
 .detailModal p{
   margin-top: 1em;
+  text-align: justify;
+  line-height: 1.5;
 }
 .detailModal .muted{
   margin-top: 2px;

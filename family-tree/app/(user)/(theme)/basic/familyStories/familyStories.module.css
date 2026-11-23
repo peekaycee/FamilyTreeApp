@@ -246,6 +246,8 @@
 .detailModal1 p,
 .detailModal p{
   margin-top: 1em; 
+  line-height: 1.5;
+  text-align: justify;
 }
 .detailModal1 .muted {
   margin-top: -1em;

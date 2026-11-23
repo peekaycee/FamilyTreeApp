@@ -198,7 +198,6 @@ export default function AchievementsPage() {
 };
 
 
-
   /* ================= DELETE ================= */
 //   const handleDelete = async (id: string) => {
 //   if (!id) {
@@ -341,7 +340,7 @@ const handleDelete = async (id: string) => {
                   </div>
                 )}
 
-                <p>{a.detail}</p>
+                <p className={styles.details}>{a.detail}</p>
 
                 <div className={styles.cardActions}>
                   <button

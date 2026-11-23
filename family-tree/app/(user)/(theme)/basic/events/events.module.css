@@ -197,7 +197,11 @@
   margin-bottom: 1.2rem;
   word-break: break-word;
 }
-
+.details{
+  margin: 1rem 0;
+  text-align: justify;
+  line-height: 1.5;
+}
 .cardActions {
   display: flex;
   justify-content: space-between;

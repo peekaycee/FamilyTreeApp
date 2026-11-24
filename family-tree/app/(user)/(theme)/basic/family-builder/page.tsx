@@ -1,7 +1,5 @@
 'use client'
 
-// import FamilyCanvas from '../../../../../../components/FamilyCanvas'
-
 import dynamic from 'next/dynamic'
 
 const FamilyCanvas = dynamic(

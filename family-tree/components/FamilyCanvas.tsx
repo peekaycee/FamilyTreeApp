@@ -803,7 +803,7 @@ c.on("pointerup", async () => {
   return c;
 };
 
-const SPOUSE_GAP = 90;
+const SPOUSE_GAP = 130;
 const unionMap = new Map<string, Union>();
 
 unionsDB.forEach(u => {
